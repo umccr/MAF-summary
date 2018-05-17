@@ -81,7 +81,7 @@ R --file=./icgcMutationToMAF.R --args "../data/PACA-AU.icgc.simple_somatic_mutat
 ```
 <br>
 
-This will convert the *../data/PACA-AU.icgc.simple_somatic_mutation.tsv* [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file into [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) as output it as *../data/PACA-AU.icgc.simple_somatic_mutation.maf*.
+This will convert the *../data/PACA-AU.icgc.simple_somatic_mutation.tsv* [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file into [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) as output it as *../data/PACA-AU.icgc.simple_somatic_mutation.maf*.
 
 
 ## Summarising and visualising multiple MAF files
