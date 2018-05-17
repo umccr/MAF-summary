@@ -126,8 +126,9 @@ MAF_summary_[*cohort*].pdf | MAF summary | Displays number of variants in each s
 
 #### Example plots generated for MAF file from the ICGC PACA-CA cohort
 
-* MAF summary
 <img src="Figures/MAF_summary_ICGC-PACA-CA.jpg" width="50%">
+<br />
+MAF summary
 <br />
 <br />
 
