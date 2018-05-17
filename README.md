@@ -141,7 +141,7 @@ MAF_summary_[*cohort*].pdf | MAF summary | Displays number of variants in each s
 <br />
 <br />
 
-* Transition and transversions distribution
+
 <img src="Figures/Transition_and_transversions_ICGC-PACA-CA.jpg" width="50%">
 
 >Transition and transversions distribution
@@ -152,7 +152,7 @@ MAF_summary_[*cohort*].pdf | MAF summary | Displays number of variants in each s
 
 <img src="Figures/Compare_against_TCGA_cohorts_ICGC-PACA-CA.jpg" width="50%">
 
->Compare mutation load against TCGA cohorts
+>Comparison of mutation load against TCGA cohorts
 
 <br />
 <br />
