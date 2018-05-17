@@ -134,17 +134,25 @@ MAF_summary_[*cohort*].pdf | MAF summary | Displays number of variants in each s
 <br />
 <br />
 
-* Oncoplot
 <img src="Figures/Oncoplot_ICGC-PACA-CA.jpg" width="50%">
+
+>Oncoplot
+
 <br />
 <br />
 
 * Transition and transversions distribution
 <img src="Figures/Transition_and_transversions_ICGC-PACA-CA.jpg" width="50%">
+
+>Transition and transversions distribution
+
 <br />
 <br />
 
-* Compare mutation load against TCGA cohorts
+
 <img src="Figures/Compare_against_TCGA_cohorts_ICGC-PACA-CA.jpg" width="50%">
+
+>Compare mutation load against TCGA cohorts
+
 <br />
 <br />
