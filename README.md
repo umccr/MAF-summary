@@ -37,7 +37,7 @@ Variant_Type | Sample ID, either a TCGA barcode, or for non-TCGA data, a literal
 
 The MAF files for  are conducted on [Sparetan](https://dashboard.hpc.unimelb.edu.au/) cluster and are located in the following directory:<br>
 
-    */data/cephfs/punim0010/projects/Jacek/**Pancreatic1500_Atlas**/data*
+*/data/cephfs/punim0010/projects/Jacek/**Pancreatic1500_Atlas**/data*
 
 Cohort | Samples number | NCBI Build | File name (original) | File name (modified) | Comments
 ------------ | ------------ | ------------ | ------------
