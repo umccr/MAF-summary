@@ -3,6 +3,8 @@
 Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) (MAF) files using *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* R package. The maftools manuscript is on [bioRxiv](http://dx.doi.org/10.1101/052662) and scripts are available on [GitHub](https://github.com/PoisonAlien/maftools).
 
 
+## Table of contents
+
 <!-- vim-markdown-toc GFM -->
 * [MAF field requirements](#maf-field-requirements)
 * [Data and files](#data-and-files)
@@ -17,18 +19,18 @@ Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation
 
 While MAF files contain many fields ranging from chromosome names to cosmic annotations, the mandatory fields used by maftools are the following:
 
-    Field | Description | Allowed values
-    ------------ | ------------ | ------------
-    Hugo_Symbol | [HUGO](https://www.genenames.org/) gene symbol | -
-    Chromosome | Chromosome number | 1-22, X, Y
-    Start_Position | Start position of event | numeric
-    End_Position | End position of event | numeric
-    Reference_Allele | The plus strand reference allele at this position | A, T, C, G
-    Tumor_Seq_Allele2 | Primary data genotype | A, T, C, G
-    Variant_Classification | Translational effect of variant allele | Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region, Unknown
-    Variant_Type | Variant Type | SNP, DNP, INS, DEL, TNP and ONP
-    Variant_Type | Sample ID, either a TCGA barcode, or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file | -
-    <br />
+Field | Description | Allowed values
+------------ | ------------ | ------------
+Hugo_Symbol | [HUGO](https://www.genenames.org/) gene symbol | -
+Chromosome | Chromosome number | 1-22, X, Y
+Start_Position | Start position of event | numeric
+End_Position | End position of event | numeric
+Reference_Allele | The plus strand reference allele at this position | A, T, C, G
+Tumor_Seq_Allele2 | Primary data genotype | A, T, C, G
+Variant_Classification | Translational effect of variant allele | Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region, Unknown
+Variant_Type | Variant Type | SNP, DNP, INS, DEL, TNP and ONP
+Variant_Type | Sample ID, either a TCGA barcode, or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file | -
+<br />
 
 
 ## Data and files
