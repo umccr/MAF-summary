@@ -29,7 +29,7 @@ Reference_Allele | The plus strand reference allele at this position | A, T, C, 
 Tumor_Seq_Allele2 | Primary data genotype | A, T, C, G
 Variant_Classification | Translational effect of variant allele | Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region, Unknown
 Variant_Type | Variant Type | SNP, DNP, INS, DEL, TNP and ONP
-Variant_Type | Sample ID, either a TCGA barcode, or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file | -
+Tumor_Sample_Barcode | Sample ID, either a TCGA barcode, or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file | -
 <br />
 
 
@@ -38,6 +38,7 @@ Variant_Type | Sample ID, either a TCGA barcode, or for non-TCGA data, a literal
 The MAF files for  are conducted on [Sparetan](https://dashboard.hpc.unimelb.edu.au/) cluster and are located in the following directory:<br>
 
 */data/cephfs/punim0010/projects/Jacek/**Pancreatic1500_Atlas**/data*
+<br>
 
 Cohort | Samples number | NCBI Build | File name (original) | File name (modified) | Comments
 ------------ | ------------ | ------------ | ------------ | ------------ | ------------
@@ -54,8 +55,8 @@ Combined | 1008 | 37 | To be generated | - | Exclude TCGA-PAAD sample TCGA-IB-76
 
 Script | Description | Packages
 ------------ | ------------ | ------------
-*[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)* | Converts ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file to [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*
-*[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* | Summarises and visualises multiple [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) files | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* <br> *[xlsx](https://cran.r-project.org/web/packages/xlsx/xlsx.pdf)*
+*[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)* | Converts ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file to [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*
+*[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* | Summarises and visualises multiple [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) files | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* <br> *[xlsx](https://cran.r-project.org/web/packages/xlsx/xlsx.pdf)*
 <br />
 
 
@@ -67,7 +68,7 @@ The publicly available ICGC mutation data is stored in [Simple Somatic Mutation 
 **Script**: *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)*
 
 Argument no. | Description
------------- | ------------ | ------------
+------------ | ------------
 1 | ICGC Simple Somatic Mutation Format file to be converted
 2 | Output file name
 <br />
@@ -90,7 +91,7 @@ To summarise multiple MAF files run the *[summariseMAFs.R](https://github.com/um
 **Script**: *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)*
 
 Argument no. | Description
------------- | ------------ | ------------
+------------ | ------------
 1 | Directory with MAF files
 2 | List of MAF files to be processed. Each file name is expected to be separated by comma
 3 | Desired names of each cohort. The names are expected to be in the same order as provided MAF files
@@ -108,7 +109,7 @@ R --file=./summariseMAFs.R --args "../data" "PAAD.tcga.uuid.curated.somatic.maf,
 This will generate the following output tables and plots:
 
 Output file | Component | Description
------------- | ------------
+------------ | ------------| -----------
 MAF_summary.xlsx | - | Excel spreadsheet with basic information about each MAF file (NCBI build, number fo samples and genes, number of different mutation types) presented in a separate tab
 MAF_sample_summary.xlsx | - | Excel spreadsheet with per-sample information about number of different types of mutations. The summary is provided for each cohort in a separate tab
 MAF_gene_summary.xlsx | - | Excel spreadsheet with per-gene information about number of different types of mutations as well as mutated samples. The summary is provided for each cohort in a separate tab
@@ -123,7 +124,7 @@ MAF_summary_[*cohort*].pdf | MAF summary | Displays number of variants in each s
 <br />
 
 
-# Example plots generated for MAF file from the ICGC PACA-CA cohort
+### Example plots generated for MAF file from the ICGC PACA-CA cohort
 
 * MAF summary
 <img src="Figures/MAF_summary_ICGC-PACA-CA.jpg" width="60%">
