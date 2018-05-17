@@ -97,7 +97,7 @@ Argument no. | Description
 3 | Desired names of each cohort. The names are expected to be in the same order as provided MAF files
 <br />
 
-#   NOTE: Each MAF file must contain the "Tumor_Sample_Barcode" column.
+####   NOTE: Each MAF file must contain the "Tumor_Sample_Barcode" column.
 
 Command line use example:
 
@@ -113,7 +113,7 @@ Output file | Component | Description
 MAF_summary.xlsx | - | Excel spreadsheet with basic information about each MAF file (NCBI build, number fo samples and genes, number of different mutation types) presented in a separate tab
 MAF_sample_summary.xlsx | - | Excel spreadsheet with per-sample information about number of different types of mutations. The summary is provided for each cohort in a separate tab
 MAF_gene_summary.xlsx | - | Excel spreadsheet with per-gene information about number of different types of mutations as well as mutated samples. The summary is provided for each cohort in a separate tab
-MAF_fields.xlsx | Excel spreadsheet listing all fields (columns) in each MAF file presented in a separate tabs
+MAF_fields.xlsx | - | Excel spreadsheet listing all fields (columns) in each MAF file presented in a separate tabs
 MAF_summary_titv.xlsx | [*cohort*] (fraction) | Excel tab containing information about the fraction of each of the six different conversions (transitions and transversions) in each sample. The information for each cohort is provided in separate tabs
 MAF_summary_titv.xlsx | [*cohort*] (count) | Excel tab containing information about the count of each of the six different conversions (transitions and transversions) in each sample. The information for each cohort is provided in separate tabs
 MAF_summary_titv.xlsx | [*cohort*] (TiTv) | Excel tab containing information the fraction of transitions and transversions in each sample. The information for each cohort is provided in separate tabs
@@ -124,7 +124,7 @@ MAF_summary_[*cohort*].pdf | MAF summary | Displays number of variants in each s
 <br />
 
 
-### Example plots generated for MAF file from the ICGC PACA-CA cohort
+#### Example plots generated for MAF file from the ICGC PACA-CA cohort
 
 * MAF summary
 <img src="Figures/MAF_summary_ICGC-PACA-CA.jpg" width="60%">
