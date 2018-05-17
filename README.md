@@ -40,7 +40,7 @@ The MAF files for  are conducted on [Sparetan](https://dashboard.hpc.unimelb.edu
 */data/cephfs/punim0010/projects/Jacek/**Pancreatic1500_Atlas**/data*
 
 Cohort | Samples number | NCBI Build | File name (original) | File name (modified) | Comments
------------- | ------------ | ------------ | ------------
+------------ | ------------ | ------------ | ------------ | ------------ | ------------
 TCGA-PAAD | 143 | 37 | PACA.tcga.uuid.curated.somatic.maf | PAAD.tcga.uuid.curated.somatic.maf | Removed the two header lines (starting with '#') from the original MAF file. One sample (*TCGA-IB-7651-01A-11D-2154-08*) seems to have extremely high mutation burden.
 ICGC-AU | 395 | 37 | simple_somatic_mutation.open.tsv | PACA-AU.icgc.simple_somatic_mutation.maf | Extracted rows for ICGA-AU *egrep PACA-AU simple_somatic_mutation.open.tsv > PACA-AU.icgc.simple_somatic_mutation.tsv* and added the header *head -1 simple_somatic_mutation.open.tsv > header.txt* followed by '*echo -e '0r header.txt\nw' | ed PACA-AU.icgc.simple_somatic_mutation.tsv'* and then converted to MAF file using *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)* script
 ICGC-AU (additional) | 25 | DCC17_PDAC_Not_in_DCC_maf.xlsx | DCC17_PDAC_Not_in_DCC.maf | Changed the *Matched_Tumour_Sample_Barcode* to *Tumor_Sample_Barcode* to be compatible with R *maftools*
