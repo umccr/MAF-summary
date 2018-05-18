@@ -16,11 +16,6 @@ Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation
 <!-- vim-markdown-toc -->
 <br>
 
-```diff
-+ this will be highlighted in green
-- this will be highlighted in red
-```
-
 ## MAF field requirements
 
 While MAF files contain many fields ranging from chromosome names to cosmic annotations, the mandatory fields used by maftools are the following:
@@ -88,7 +83,7 @@ R --file=./icgcMutationToMAF.R --args "../data/PACA-AU.icgc.simple_somatic_mutat
 <br>
 
 
->This command converts the *../data/PACA-AU.icgc.simple_somatic_mutation.tsv* [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file into [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) as output it as *../data/PACA-AU.icgc.simple_somatic_mutation.maf*.
+>This command converts the ```diff + *../data/PACA-AU.icgc.simple_somatic_mutation.tsv* [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) ``` file into [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) as output it as *../data/PACA-AU.icgc.simple_somatic_mutation.maf*.
 
 <br>
 
