@@ -147,7 +147,7 @@ MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each 
 
 <img src="Figures/Transition_and_transversions_ICGC-PACA-CA.jpg" width="50%">
 
-> Plots presenting the transition and transversions distribution. The box-plots (top panel) show the overall distribution of the six different conversions (left) and the transition and transversions frequency (right). The tacked bar-plot displays the fraction of the six different conversions in each sample.
+> Plots presenting the transition and transversions distribution in ICGC PACA-CA cohort. The box-plots (top panel) show the overall distribution of the six different conversions (left), and the transition and transversions frequency (right). The stacked bar-plot displays the fraction of the six different conversions in each sample.
 
 <br />
 <br />
@@ -155,7 +155,7 @@ MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each 
 
 <img src="Figures/Compare_against_TCGA_cohorts_ICGC-PACA-CA.jpg" width="50%">
 
->Comparison of mutation load against TCGA cohorts
+>Plot illustrating the mutation load in ICGC PACA-CA cohort along distribution of variants compiled from over 10,000 WXS samples across 33 TCGA landmark cohorts. Every dot represents a sample whereas the red horizontal lines are the median numbers of mutations in the respective cancer types. The vertical axis (log scaled) shows the number of mutations per megabase whereas the different cancer types are ordered on the horizontal axis based on their median numbers of somatic mutations. This plot is similar to the one described in the paper [Signatures of mutational processes in human cancer](https://www.ncbi.nlm.nih.gov/pubmed/23945592) by Alexandrov *et al*.
 
 <br />
 <br />
