@@ -30,7 +30,7 @@ Reference_Allele | Positive strand reference allele | A, T, C, G
 Tumor_Seq_Allele2 | Primary data genotype | A, T, C, G
 Variant_Classification | Translational effect of variant allele | Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region, Unknown
 Variant_Type | Variant Type | SNP, DNP, INS, DEL, TNP and ONP
-Tumor_Sample_Barcode | Sample ID | Ether a TCGA barcode, or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file
+Tumor_Sample_Barcode | Sample ID | Either a TCGA barcode, or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file
 <br />
 
 
@@ -49,7 +49,7 @@ ICGC-AU | 395 | 37 | PACA-AU.icgc.simple_somatic_mutation.maf
 ICGC-AU (additional) | 25 | 37 | DCC17_PDAC_Not_in_DCC.maf
 ICGC-CA | 336 | 37 | PACA-CA.icgc.simple_somatic_mutation.maf
 Witkiewicz *et al.* ([PMID: 25855536](https://www.ncbi.nlm.nih.gov/pubmed/25855536)) | 109 | 37 | To be generated
-Combined | 1008 | 37 | To be generated
+**Combined | 1008** | 37 | To be generated
 <br />
 
 
