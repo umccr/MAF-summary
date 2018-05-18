@@ -49,7 +49,7 @@ ICGC-AU | 395 | 37 | PACA-AU.icgc.simple_somatic_mutation.maf
 ICGC-AU (additional) | 25 | 37 | DCC17_PDAC_Not_in_DCC.maf
 ICGC-CA | 336 | 37 | PACA-CA.icgc.simple_somatic_mutation.maf
 Witkiewicz *et al.* ([PMID: 25855536](https://www.ncbi.nlm.nih.gov/pubmed/25855536)) | 109 | 37 | To be generated
-**Combined | 1008** | 37 | To be generated
+**Combined** | **1008** | 37 | To be generated
 <br />
 
 
