@@ -64,7 +64,7 @@ Script | Description | Packages
 
 ## Converting ICGC Simple Somatic Mutation Format to MAF
 
-The publicly available ICGC mutation data is stored in [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file, which is similar to MAF format in its structure, but the field names and classification of variants are different. The *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)* script implements *icgcSimpleMutationToMAF* function in *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* R package to convert ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) to MAF.
+The publicly available ICGC mutation data is stored in [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file, which is similar to MAF format in its structure, but the field names and classification of variants are different. The *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)* script implements *icgcSimpleMutationToMAF* function within *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* R package to convert ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) to MAF.
 
 
 **Script**: *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)*
@@ -82,7 +82,10 @@ R --file=./icgcMutationToMAF.R --args "../data/PACA-AU.icgc.simple_somatic_mutat
 ```
 <br>
 
-This will convert the *../data/PACA-AU.icgc.simple_somatic_mutation.tsv* [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file into [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) as output it as *../data/PACA-AU.icgc.simple_somatic_mutation.maf*.
+
+<span style=“color:green;”> text goes here</span>
+
+>This will convert the *../data/PACA-AU.icgc.simple_somatic_mutation.tsv* [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file into [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) as output it as *../data/PACA-AU.icgc.simple_somatic_mutation.maf*.
 
 
 ## Summarising and visualising multiple MAF files
