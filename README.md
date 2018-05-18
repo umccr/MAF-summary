@@ -23,7 +23,7 @@ While MAF files contain many fields ranging from chromosome names to cosmic anno
 Field | Description | Allowed values
 ------------ | ------------ | ------------
 Hugo_Symbol | [HUGO](https://www.genenames.org/) gene symbol | -
-Chromosome | Chromosome number | 1-22, X, Y
+Chromosome | Chromosome no. | 1-22, X, Y
 Start_Position | Event start position | Numeric
 End_Position | Event end position | Numeric
 Reference_Allele | Positive strand reference allele | A, T, C, G
@@ -42,7 +42,7 @@ The MAF files for are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/
 <br>
 <br>
 
-Cohort | Samples number | NCBI Build | File name
+Cohort | Samples no. | NCBI Build | File name
 ------------ | ------------ | ------------ | ------------
 TCGA-PAAD | 143 | 37 | PAAD.tcga.uuid.curated.somatic.maf
 ICGC-AU | 395 | 37 | PACA-AU.icgc.simple_somatic_mutation.maf
@@ -83,7 +83,7 @@ R --file=./icgcMutationToMAF.R --args "../data/PACA-AU.icgc.simple_somatic_mutat
 <br>
 
 
->This command converts the ***../data/PACA-AU.icgc.simple_somatic_mutation.tsv*** [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file into [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) as output it as ***../data/PACA-AU.icgc.simple_somatic_mutation.maf***.
+>This will convert the ***../data/PACA-AU.icgc.simple_somatic_mutation.tsv*** [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file into [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) as output it as ***../data/PACA-AU.icgc.simple_somatic_mutation.maf***.
 
 <br>
 
@@ -99,14 +99,13 @@ Argument no. | Description
 1 | Directory with MAF files
 2 | List of MAF files to be processed. Each file name is expected to be separated by comma
 3 | Desired names of each cohort. The names are expected to be in the same order as provided MAF files
+4 | Output directory
 <br />
-
-####   NOTE: Each MAF file must contain the "Tumor_Sample_Barcode" column.
 
 Command line use example:
 
 ```
-R --file=./summariseMAFs.R --args "../data" "PAAD.tcga.uuid.curated.somatic.maf, PACA-AU.icgc.simple_somatic_mutation.maf, DCC17_PDAC_Not_in_DCC.maf, PACA-CA.icgc.simple_somatic_mutation.maf" "TCGA-PAAD, ICGC-PACA-AU, ICGC-PACA-AU-additional, ICGC-PACA-CA"
+R --file=./summariseMAFs.R --args "../data" "PAAD.tcga.uuid.curated.somatic.maf, PACA-AU.icgc.simple_somatic_mutation.maf, DCC17_PDAC_Not_in_DCC.maf, PACA-CA.icgc.simple_somatic_mutation.maf" "TCGA-PAAD, ICGC-PACA-AU, ICGC-PACA-AU-additional, ICGC-PACA-CA" "MAF_summary"
 ```
 <br>
 
@@ -114,17 +113,17 @@ This will generate the following output tables and plots:
 
 Output file | Component | Description
 ------------ | ------------| -----------
-MAF_summary.xlsx | - | Excel spreadsheet with basic information about each MAF file (NCBI build, number fo samples and genes, number of different mutation types) presented in a separate tab
-MAF_sample_summary.xlsx | - | Excel spreadsheet with per-sample information about number of different types of mutations. The summary is provided for each cohort in a separate tab
-MAF_gene_summary.xlsx | - | Excel spreadsheet with per-gene information about number of different types of mutations as well as mutated samples. The summary is provided for each cohort in a separate tab
-MAF_fields.xlsx | - | Excel spreadsheet listing all fields (columns) in each MAF file presented in a separate tabs
-MAF_summary_titv.xlsx | [*cohort*] (fraction) | Excel tab containing information about the fraction of each of the six different conversions (transitions and transversions) in each sample. The information for each cohort is provided in separate tabs
-MAF_summary_titv.xlsx | [*cohort*] (count) | Excel tab containing information about the count of each of the six different conversions (transitions and transversions) in each sample. The information for each cohort is provided in separate tabs
-MAF_summary_titv.xlsx | [*cohort*] (TiTv) | Excel tab containing information the fraction of transitions and transversions in each sample. The information for each cohort is provided in separate tabs
-MAF_summary_[*cohort*].pdf | MAF summary | Displays number of variants in each sample as a stacked bar-plot and variant types as a box-plot summarised by *Variant_Classification* field
-... | Oncoplot | A heat-map-like plot illustrating different types of mutations observed across all samples for the 10 most frequently mutated genes. The side and top bar-plots represent the frequency of mutations in each genes and in each sample, respectively.
-... | Transition and transversions distribution | Contains a box-plot showing overall distribution of six different conversions and a stacked bar-plot showing fraction of conversions in each sample.
-... | Compare mutation load against TCGA cohorts | Displays the observed mutation load of queried cohort among distribution of variants compiled from over 10,000 WXS samples across 33 TCGA landmark cohorts.
+MAF_summary.xlsx | - | Excel spreadsheet with basic information about each MAF file (NCBI build, no. fo samples and genes, no. of different mutation types) presented in a separate tab
+MAF_sample_summary.xlsx | - | Excel spreadsheet with per-sample information about no. of different types of mutations. The summary is provided for each cohort in a separate tab
+MAF_gene_summary.xlsx | - | Excel spreadsheet with per-gene information about no. of different types of mutations, as well as mutated samples. The summary is provided for each cohort in a separate tab
+MAF_fields.xlsx | - | Excel spreadsheet listing all fields (columns) in each MAF file presented in a separate tab
+MAF_summary_titv.xlsx | [***cohort***] (fraction) | Excel tab containing information about the fraction of each of the six different conversions (transitions and transversions) in each sample. The information for each cohort is provided in a separate tab
+MAF_summary_titv.xlsx | [***cohort***] (count) | Excel tab containing information about the count of each of the six different conversions (transitions and transversions) in each sample. The information for each cohort is provided in a  separate tab
+MAF_summary_titv.xlsx | [*cohort*] (TiTv) | Excel tab containing information the fraction of transitions and transversions in each sample. The information for each cohort is provided in a separate tab
+MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each sample as a stacked bar-plot and variant types as a box-plot summarised by *Variant_Classification* field
+... | Oncoplot | A heatmap-like plot illustrating different types of mutations observed across all samples for the 10 most frequently mutated genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively
+... | Transition and transversions | Contains a box-plot showing overall distribution of six different conversions and a stacked bar-plot showing fraction of conversions in each sample
+... | Comparison with TCGA cohorts | Displays the observed mutation load of queried cohort along distribution of variants compiled from over 10,000 WXS samples across 33 TCGA landmark cohorts
 <br />
 
 
