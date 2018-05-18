@@ -15,11 +15,12 @@
 #	  Description: Script summarising and visualising multiple MAF files using maftools R package ( https://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html ).
 #   NOTE: Each MAF file needs to contain the "Tumor_Sample_Barcode" column.
 #
-#   Command line use example: R --file=./summariseMAFs.R --args "/data/cephfs/punim0010/projects/Jacek/Pancreatic1500_Atlas/data" "PAAD.tcga.uuid.curated.somatic.maf, PACA-AU.icgc.simple_somatic_mutation.maf, DCC17_PDAC_Not_in_DCC.maf, PACA-CA.icgc.simple_somatic_mutation.maf" "TCGA-PAAD, ICGC-PACA-AU, ICGC-PACA-AU-additional, ICGC-PACA-CA"
+#   Command line use example: R --file=./summariseMAFs.R --args "/data/cephfs/punim0010/projects/Jacek/Pancreatic1500_Atlas/data" "PAAD.tcga.uuid.curated.somatic.maf, PACA-AU.icgc.simple_somatic_mutation.maf, DCC17_PDAC_Not_in_DCC.maf, PACA-CA.icgc.simple_somatic_mutation.maf" "TCGA-PAAD, ICGC-PACA-AU, ICGC-PACA-AU-additional, ICGC-PACA-CA" "MAF_summary"
 #
 #   First arg:		Directory with MAF files.
 #   Second arg:   List of MAF files to be processed. Each file name is expected to be separated by comma.
 #   Third arg:    Desired names of each cohort. The names are expected to be in the same order as provided MAF files.
+#   Third arg:    Output directory.
 #
 ################################################################################
 
@@ -66,6 +67,8 @@ cohorts = args[6]
 cohorts = gsub("\\s","", cohorts)
 cohorts = unlist(strsplit(cohorts, split=',', fixed=TRUE))
 
+outDir = args[7]
+
 
 ##### Go to the MAF files directory
 setwd(mafDir)
@@ -80,6 +83,16 @@ for ( i in 1:length(mafFiles) ) {
 #===============================================================================
 #    Summarising MAF files
 #===============================================================================
+
+##### Create directory for output files
+if ( !file.exists(outDir) ){
+  dir.create(outDir)
+  cat(paste("\nOutput files will be saved in \"", outDir, "\" folder\n\n", sep=""))
+  setwd(outDir)
+} else {
+  cat(paste("\nDirectory \"", outDir, "\" already exists! The output files will be saved there.\n\n", sep=""))
+  setwd(outDir)
+}
 
 ##### Write samples summary into a file
 if ( !file.exists("MAF_sample_summary.xlsx") ){
