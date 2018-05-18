@@ -9,9 +9,9 @@ Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation
 * [MAF field requirements](#maf-field-requirements)
 * [Data and files](#data-and-files)
 * [Scripts](#scripts)
-* [Converting ICGC mutation format to MAF](#converting-icgc-simple-somatic-mutation-format-to-maf)
+* [Converting ICGC mutation format to MAF](#converting-icgc-mutation-format-to-maf)
 * [Summarising and visualising multiple MAF files](#summarising-and-visualising-multiple-maf-files)
-* [Example plots generated for MAF file](#example-plots-generated-for-maf-file-from-the-icgc-paca-ca-cohort)
+* [Example plots](#example-plots)
 
 <!-- vim-markdown-toc -->
 <br>
@@ -67,7 +67,7 @@ Script | Description | Packages
 <br />
 
 
-## Converting ICGC Simple Somatic Mutation Format to MAF
+## Converting ICGC mutation format to MAF
 
 The publicly available ICGC mutation data is stored in [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file, which is similar to MAF format in its structure, but the field names and classification of variants are different. The *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)* script implements *icgcSimpleMutationToMAF* function within *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* R package to convert ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) to MAF.
 
@@ -132,7 +132,7 @@ MAF_summary_[*cohort*].pdf | MAF summary | Displays number of variants in each s
 <br />
 
 
-#### Example plots generated for MAF file from the ICGC PACA-CA cohort
+#### Example plots
 
 <br />
 <img src="Figures/MAF_summary_ICGC-PACA-CA.jpg" width="50%">
