@@ -11,7 +11,7 @@ Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation
 * [Scripts](#scripts)
 * [Converting ICGC mutation format to MAF](#converting-icgc-mutation-format-to-maf)
 * [Summarising and visualising multiple MAF files](#summarising-and-visualising-multiple-maf-files)
-* [Example plots](#example-plots)
+  * [Example plots](#example-plots)
 
 <!-- vim-markdown-toc -->
 <br>
