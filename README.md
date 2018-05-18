@@ -16,6 +16,11 @@ Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation
 <!-- vim-markdown-toc -->
 <br>
 
+```diff
++ this will be highlighted in green
+- this will be highlighted in red
+```
+
 ## MAF field requirements
 
 While MAF files contain many fields ranging from chromosome names to cosmic annotations, the mandatory fields used by maftools are the following:
