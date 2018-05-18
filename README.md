@@ -82,13 +82,10 @@ R --file=./icgcMutationToMAF.R --args "../data/PACA-AU.icgc.simple_somatic_mutat
 ```
 <br>
 
-<font color="red">Status: **Not yet implemented**</font>
 
-<span style=“color:green;”> text goes here</span>
+>This command converts the *../data/PACA-AU.icgc.simple_somatic_mutation.tsv* [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file into [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) as output it as *../data/PACA-AU.icgc.simple_somatic_mutation.maf*.
 
->This will convert the *../data/PACA-AU.icgc.simple_somatic_mutation.tsv* [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file into [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) as output it as *../data/PACA-AU.icgc.simple_somatic_mutation.maf*.
-
-
+<br>
 ## Summarising and visualising multiple MAF files
 
 To summarise multiple MAF files run the *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* script. It will generate set of plots and excel spreadsheets summarising each MAF file.
