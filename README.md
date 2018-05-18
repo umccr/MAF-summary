@@ -24,8 +24,8 @@ Field | Description | Allowed values
 ------------ | ------------ | ------------
 Hugo_Symbol | [HUGO](https://www.genenames.org/) gene symbol | -
 Chromosome | Chromosome number | 1-22, X, Y
-Start_Position | Start position of event | numeric
-End_Position | End position of event | numeric
+Start_Position | Start position of event | Numeric
+End_Position | End position of event | Numeric
 Reference_Allele | The plus strand reference allele at this position | A, T, C, G
 Tumor_Seq_Allele2 | Primary data genotype | A, T, C, G
 Variant_Classification | Translational effect of variant allele | Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region, Unknown
@@ -36,19 +36,20 @@ Tumor_Sample_Barcode | Sample ID, either a TCGA barcode, or for non-TCGA data, a
 
 ## Data and files
 
-The MAF files for  are conducted on [Spartan](https://dashboard.hpc.unimelb.edu.au/) cluster and are located in the following directory:<br>
+The MAF files for are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/) cluster in the following directory:<br>
 
 */data/cephfs/punim0010/projects/Jacek/**Pancreatic1500_Atlas**/data*
 <br>
+<br>
 
-Cohort | Samples number | NCBI Build | File name (original) | File name (modified) | Comments
------------- | ------------ | ------------ | ------------ | ------------ | ------------
-TCGA-PAAD | 143 | 37 | PACA.tcga.uuid.curated.somatic.maf | PAAD.tcga.uuid.curated.somatic.maf | Removed the two header lines (starting with '#') from the original MAF file. One sample (*TCGA-IB-7651-01A-11D-2154-08*) seems to have extremely high mutation burden.
-ICGC-AU | 395 | 37 | simple_somatic_mutation.open.tsv | PACA-AU.icgc.simple_somatic_mutation.maf | Extracted rows for ICGA-AU *egrep PACA-AU simple_somatic_mutation.open.tsv > PACA-AU.icgc.simple_somatic_mutation.tsv* and added the header *head -1 simple_somatic_mutation.open.tsv > header.txt* followed by '*echo -e '0r header.txt\nw' | ed PACA-AU.icgc.simple_somatic_mutation.tsv'* and then converted to MAF file using *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)* script
-ICGC-AU (additional) | 25 | 37 | DCC17_PDAC_Not_in_DCC_maf.xlsx | DCC17_PDAC_Not_in_DCC.maf | Changed the *Matched_Tumour_Sample_Barcode* to *Tumor_Sample_Barcode* to be compatible with R *maftools*
-ICGC-CA | 336 | 37 | simple_somatic_mutation.open.tsv | PACA-CA.icgc.simple_somatic_mutation.maf | Extracted rows for ICGA-CA *egrep PACA-CA simple_somatic_mutation.open.tsv > PACA-CA.icgc.simple_somatic_mutation.tsv* and added the header *head -1 simple_somatic_mutation.open.tsv > header.txt* followed by *echo -e '0r header.txt\nw' | ed PACA-CA.icgc.simple_somatic_mutation.tsv* and then converted to MAF file using *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)* script
-Witkiewicz ([PMID: 25855536](https://www.ncbi.nlm.nih.gov/pubmed/25855536)) | 109 | 37 | UTSW-MAF.xlsx | To be generated | WXS data to re-analyse, as only coding mutations were reported (no silent mutation)
-Combined | 1008 | 37 | To be generated | - | Exclude TCGA-PAAD sample TCGA-IB-7651-01A-11D-2154-08 with the extremely high mutation burden?
+Cohort | Samples number | NCBI Build | File name
+------------ | ------------ | ------------ | ------------
+TCGA-PAAD | 143 | 37 | PAAD.tcga.uuid.curated.somatic.maf
+ICGC-AU | 395 | 37 | PACA-AU.icgc.simple_somatic_mutation.maf
+ICGC-AU (additional) | 25 | 37 | DCC17_PDAC_Not_in_DCC.maf
+ICGC-CA | 336 | 37 | PACA-CA.icgc.simple_somatic_mutation.maf
+Witkiewicz ([PMID: 25855536](https://www.ncbi.nlm.nih.gov/pubmed/25855536)) | 109 | 37 | To be generated
+Combined | 1008 | 37 | To be generated
 <br />
 
 
