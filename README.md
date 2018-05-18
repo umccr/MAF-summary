@@ -14,7 +14,7 @@ Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation
 * [Example plots generated for MAF file from the ICGC PACA-CA cohort](#example-plots-generated-for-maf-file-from-the-icgc-paca-ca-cohort)
 
 <!-- vim-markdown-toc -->
-
+<br>
 
 ## MAF field requirements
 
@@ -24,13 +24,13 @@ Field | Description | Allowed values
 ------------ | ------------ | ------------
 Hugo_Symbol | [HUGO](https://www.genenames.org/) gene symbol | -
 Chromosome | Chromosome number | 1-22, X, Y
-Start_Position | Start position of event | Numeric
-End_Position | End position of event | Numeric
-Reference_Allele | The plus strand reference allele at this position | A, T, C, G
+Start_Position | Event start position | Numeric
+End_Position | Event end position | Numeric
+Reference_Allele | Positive strand reference allele | A, T, C, G
 Tumor_Seq_Allele2 | Primary data genotype | A, T, C, G
 Variant_Classification | Translational effect of variant allele | Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region, Unknown
 Variant_Type | Variant Type | SNP, DNP, INS, DEL, TNP and ONP
-Tumor_Sample_Barcode | Sample ID, either a TCGA barcode, or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file | -
+Tumor_Sample_Barcode | Sample ID | Ether a TCGA barcode, or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file
 <br />
 
 
