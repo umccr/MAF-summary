@@ -132,14 +132,14 @@ MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each 
 <br />
 <img src="Figures/MAF_summary_ICGC-PACA-CA.jpg" width="50%">
 
->A summary for MAF file from the ICGC PACA-CA cohort. It displays frequency of various mutation types/class (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of the top 10 mutated genes across the cohort (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the cohort.
+>A summary for MAF file from the ICGC PACA-CA cohort. It displays frequency of various mutation types/classes (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of the top 10 mutated genes across the cohort (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the cohort.
 
 <br />
 <br />
 
 <img src="Figures/Oncoplot_ICGC-PACA-CA.jpg" width="50%">
 
->Oncoplot
+>Oncoplot illustrating illustrating different types of mutations observed across ICGC PACA-CA samples for the 10 most frequently mutated genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively.
 
 <br />
 <br />
