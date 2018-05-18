@@ -119,7 +119,7 @@ MAF_gene_summary.xlsx | - | Excel spreadsheet with per-gene information about no
 MAF_fields.xlsx | - | Excel spreadsheet listing all fields (columns) in each MAF file presented in a separate tab
 MAF_summary_titv.xlsx | [***cohort***] (fraction) | Excel tab containing information about the fraction of each of the six different conversions (transitions and transversions) in each sample. The information for each cohort is provided in a separate tab
 MAF_summary_titv.xlsx | [***cohort***] (count) | Excel tab containing information about the count of each of the six different conversions (transitions and transversions) in each sample. The information for each cohort is provided in a  separate tab
-MAF_summary_titv.xlsx | [*cohort*] (TiTv) | Excel tab containing information the fraction of transitions and transversions in each sample. The information for each cohort is provided in a separate tab
+MAF_summary_titv.xlsx | [***cohort***] (TiTv) | Excel tab containing information the fraction of transitions and transversions in each sample. The information for each cohort is provided in a separate tab
 MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each sample as a stacked bar-plot and variant types as a box-plot summarised by *Variant_Classification* field
 ... | Oncoplot | A heatmap-like plot illustrating different types of mutations observed across all samples for the 10 most frequently mutated genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively
 ... | Transition and transversions | Contains a box-plot showing overall distribution of six different conversions and a stacked bar-plot showing fraction of conversions in each sample
@@ -132,7 +132,7 @@ MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each 
 <br />
 <img src="Figures/MAF_summary_ICGC-PACA-CA.jpg" width="50%">
 
->MAF summary
+>A summary for MAF file from the ICGC PACA-CA cohort. It displays frequency of various mutation types/class (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of the top 10 mutated genes across the cohort (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the cohort.
 
 <br />
 <br />
