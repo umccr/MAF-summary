@@ -49,7 +49,7 @@ Cohort | Samples no. | NCBI Build | File name
 <img src="Figures/flag-of-Australia.png" width="10%"> &nbsp;&nbsp; ICGC-AU (additional) | 25 | 37 | DCC17_PDAC_Not_in_DCC.maf
 <img src="Figures/flag-of-Canada.png" width="10%"> &nbsp;&nbsp; ICGC-CA | 336 | 37 | PACA-CA.icgc.simple_somatic_mutation.maf
 <img src="Figures/flag-of-United-States-of-America.png" width="10%"> &nbsp;&nbsp; UTSW ([PMID: 25855536](https://www.ncbi.nlm.nih.gov/pubmed/25855536)) | 109 | 37 | To be generated
-<img src="Figures/globe.jpeg" width="11%" height="15%"> &nbsp;&nbsp; **Combined** | **1008** | 37 |  | To be generated
+<img src="Figures/globe.jpeg" width="11%" height="15%"> &nbsp;&nbsp; **Combined** | **1008** | 37 | To be generated
 <br />
 
 
