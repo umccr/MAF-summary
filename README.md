@@ -42,13 +42,13 @@ The MAF files for are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/
 <br>
 <br>
 
-Cohort | Samples no. | NCBI Build | File name
------------- | ------------ | ------------ | ------------
-TCGA-PAAD | 143 <img src="Figures/Flag_of_Australia.svg" width="50%"> | 37 | PAAD.tcga.uuid.curated.somatic.maf
-ICGC-AU | 395 | 37 | PACA-AU.icgc.simple_somatic_mutation.maf
-ICGC-AU (additional) | 25 | 37 | DCC17_PDAC_Not_in_DCC.maf
-ICGC-CA | 336 | 37 | PACA-CA.icgc.simple_somatic_mutation.maf
-Witkiewicz *et al.* ([PMID: 25855536](https://www.ncbi.nlm.nih.gov/pubmed/25855536)) | 109 | 37 | To be generated
+Cohort | Country | Samples no. | NCBI Build | File name
+------------ | ------------ | ------------ | ------------ | ------------ 
+TCGA-PAAD | <img src="Figures/flag-of-United-States-of-America.png" width="10%"> | 143 | 37 | PAAD.tcga.uuid.curated.somatic.maf
+ICGC-AU | <img src="Figures/flag-of-Australia.png" width="10%"> | 395 | 37 | PACA-AU.icgc.simple_somatic_mutation.maf
+ICGC-AU (additional) | <img src="Figures/flag-of-Australia.png" width="10%"> | 25 | 37 | DCC17_PDAC_Not_in_DCC.maf
+ICGC-CA | <img src="Figures/flag-of-Canada.png" width="10%"> | 336 | 37 | PACA-CA.icgc.simple_somatic_mutation.maf
+Witkiewicz *et al.* ([PMID: 25855536](https://www.ncbi.nlm.nih.gov/pubmed/25855536)) | <img src="Figures/flag-of-United-States-of-America.png" width="10%"> | 109 | 37 | To be generated
 **Combined** | **1008** | 37 | To be generated
 <br />
 
