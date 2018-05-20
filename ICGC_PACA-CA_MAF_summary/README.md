@@ -1,6 +1,6 @@
 # ICGC PACA-CA cohort MAF summary
 
-Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* output files for ICGC PACA-CA ()<img src="../Figures/flag-of-United-States-of-America.png" width="10%">) cohort.
+Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* output files for ICGC PACA-CA ( <img src="../Figures/flag-of-Canada.png" width="10%"> ) cohort.
 
 
 ## Table of contents
