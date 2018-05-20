@@ -1,12 +1,12 @@
-# MAF-summary
+# ICGC PACA-CA cohort MAF summary
 
-Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) (MAF) files using *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* R package. The maftools manuscript is on [bioRxiv](http://dx.doi.org/10.1101/052662) and scripts are available on [GitHub](https://github.com/PoisonAlien/maftools).
+Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* output files for ICGC PACA-CA <img src="/../Figures/flag-of-United-States-of-America.png" width="10%">) cohort.
 
 
 ## Table of contents
 
 <!-- vim-markdown-toc GFM -->
-* [MAF field requirements](#maf-field-requirements)
+* [MAF summary plot](#maf-summary-plot)
 * [Data and files](#data-and-files)
 * [Scripts](#scripts)
 * [Converting ICGC mutation format to MAF](#converting-icgc-mutation-format-to-maf)
@@ -17,12 +17,12 @@ Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation
 <br>
 
 
-#### Example plots
+#### MAF summary plot
 
 <br />
 <img src="Figures/MAF_summary_ICGC-PACA-CA.jpg" width="50%">
 
->A summary for MAF file from the ICGC PACA-CA cohort. It displays frequency of various mutation types/classes (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of different mutation types for the top 10 mutated genes (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the cohort.
+>A summary for MAF file displaying frequency of various mutation types/classes (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of different mutation types for the top 10 mutated genes (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the cohort.
 
 <br />
 <br />
