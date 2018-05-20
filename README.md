@@ -44,11 +44,11 @@ The MAF files for are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/
 
 Cohort | Samples no. | NCBI Build | File name
 ------------ | ------------ | ------------ | ------------
-<img src="Figures/flag-of-United-States-of-America.png" width="15%"> TCGA-PAAD | 143 | 37 | PAAD.tcga.uuid.curated.somatic.maf
-<img src="Figures/flag-of-Australia.png" width="15%"> ICGC-AU | 395 | 37 | PACA-AU.icgc.simple_somatic_mutation.maf
-<img src="Figures/flag-of-Australia.png" width="15%"> ICGC-AU (additional) | 25 | 37 | DCC17_PDAC_Not_in_DCC.maf
-<img src="Figures/flag-of-Canada.png" width="15%"> ICGC-CA | 336 | 37 | PACA-CA.icgc.simple_somatic_mutation.maf
-<img src="Figures/flag-of-United-States-of-America.png" width="15%"> UTSW ([PMID: 25855536](https://www.ncbi.nlm.nih.gov/pubmed/25855536)) | 109 | 37 | To be generated
+<img src="Figures/flag-of-United-States-of-America.png" width="12%">  TCGA-PAAD | 143 | 37 | PAAD.tcga.uuid.curated.somatic.maf
+<img src="Figures/flag-of-Australia.png" width="12%">  ICGC-AU | 395 | 37 | PACA-AU.icgc.simple_somatic_mutation.maf
+<img src="Figures/flag-of-Australia.png" width="12%">  ICGC-AU (additional) | 25 | 37 | DCC17_PDAC_Not_in_DCC.maf
+<img src="Figures/flag-of-Canada.png" width="12%">  ICGC-CA | 336 | 37 | PACA-CA.icgc.simple_somatic_mutation.maf
+<img src="Figures/flag-of-United-States-of-America.png" width="12%">  UTSW ([PMID: 25855536](https://www.ncbi.nlm.nih.gov/pubmed/25855536)) | 109 | 37 | To be generated
 **Combined** | **1008** | 37 |  | To be generated
 <br />
 
