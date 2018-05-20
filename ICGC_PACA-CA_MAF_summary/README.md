@@ -15,7 +15,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 <!-- vim-markdown-toc -->
 <br>
 
-
+---
 ### MAF summary plot
 
 <br />
@@ -25,6 +25,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 
 <br />
 
+---
 ### Oncoplot
 
 <br />
@@ -34,6 +35,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 
 <br />
 
+---
 ### Transition and transversions distribution plot
 
 <br />
@@ -43,6 +45,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 
 <br />
 
+---
 ### Comparison with TCGA cohorts
 
 <br />
@@ -52,8 +55,8 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 
 <br />
 
+---
 ### MAF summary table
-<br />
 
 [MAF_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary.xlsx) - tab **ICGC-PACA-CA**
 
