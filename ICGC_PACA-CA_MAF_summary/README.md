@@ -10,6 +10,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 * [Oncoplot](#oncoplot)
 * [Transition and transversions distribution plot](#transition-and-transversions-distribution-plot)
 * [Comparison with TCGA cohorts](#comparison-with-tcga-cohorts)
+* [MAF summary table](#maf-summary-table)
 
 <!-- vim-markdown-toc -->
 <br>
@@ -51,8 +52,9 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 
 <br />
 
-### Comparison with TCGA cohorts
-
+### MAF summary table
 <br />
 
-[MAF_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary.xlsx)
+[MAF_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary.xlsx) - tab **ICGC-PACA-CA**
+
+>Excel tab with basic information about  MAF file, including NCBI build, no. fo samples and genes, no. of different mutation types ( Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Nonstop_Mutation, Splice_Site, Translation_Start_Site) as well as the total number of mutations present in the MAF file.
