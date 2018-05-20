@@ -1,17 +1,15 @@
 ## ICGC PACA-CA cohort MAF summary
 
-Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* output files for ICGC PACA-CA ( <img src="../Figures/flag-of-Canada.png" width="1%"> ) cohort.
+Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* output files for ICGC PACA-CA ( <img src="../Figures/flag-of-Canada.png" width="3%"> ) cohort.
 
 
 ## Table of contents
 
 <!-- vim-markdown-toc GFM -->
 * [MAF summary plot](#maf-summary-plot)
-* [Data and files](#data-and-files)
-* [Scripts](#scripts)
-* [Converting ICGC mutation format to MAF](#converting-icgc-mutation-format-to-maf)
-* [Summarising and visualising multiple MAF files](#summarising-and-visualising-multiple-maf-files)
-  * [Example plots](#example-plots)
+* [Oncoplot](#oncoplot)
+* [Transition and transversions distribution plot](#transition-and-transversions-distribution-plot)
+* [Comparison with TCGA cohorts](#comparison-with-tcga-cohorts)
 
 <!-- vim-markdown-toc -->
 <br>
@@ -27,6 +25,8 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 <br />
 <br />
 
+### Oncoplot
+
 <img src="Figures/Oncoplot_ICGC-PACA-CA.jpg" width="50%">
 
 >Oncoplot illustrating illustrating different types of mutations observed across ICGC PACA-CA samples for the 10 most frequently mutated genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively.
@@ -34,14 +34,16 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 <br />
 <br />
 
+### Transition and transversions distribution plot
 
 <img src="Figures/Transition_and_transversions_ICGC-PACA-CA.jpg" width="50%">
 
-> Plots presenting the transition and transversions distribution in ICGC PACA-CA cohort. The box-plots (top panel) show the overall distribution of the six different conversions (left), and the transition and transversions frequency (right). The stacked bar-plot displays the fraction of the six different conversions in each sample.
+> Plots presenting the transition and transversions distribution. The box-plots (top panel) show the overall distribution of the six different conversions (left), and the transition and transversions frequency (right). The stacked bar-plot displays the fraction of the six different conversions in each sample.
 
 <br />
 <br />
 
+### Comparison with TCGA cohorts
 
 <img src="Figures/Compare_against_TCGA_cohorts_ICGC-PACA-CA.jpg" width="50%">
 
