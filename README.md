@@ -132,7 +132,7 @@ MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each 
 ### Example output
 
 * [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/ICGC_PACA-CA_MAF_summary) &nbsp;&nbsp; ( <img src="Figures/flag-of-Canada.png" width="2.5%"> )
-* [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/TCGA_PAAD_MAF_summary) &nbsp;&nbsp; ( <img src="Figures/flag-of-United-States-of-America.png" width="2.5%"> ) - One sample demonstrating extremely high mutation burden (sample to exclude from the analysis?)
+* [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/TCGA_PAAD_MAF_summary) &nbsp;&nbsp; ( <img src="Figures/flag-of-United-States-of-America.png" width="2.5%"> ) with one sample demonstrating extremely high mutation burden
 
 
 <br />
