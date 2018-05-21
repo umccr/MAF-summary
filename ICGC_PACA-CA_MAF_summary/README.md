@@ -6,24 +6,27 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 ## Table of contents
 
 <!-- vim-markdown-toc GFM -->
-* [MAF summary plot](#maf-summary-plot)
-* [Oncoplot](#oncoplot)
-* [Transition and transversions distribution plot](#transition-and-transversions-distribution-plot)
-* [Comparison with TCGA cohorts](#comparison-with-tcga-cohorts)
-* [MAF summary table](#maf-summary-table)
-* [Sample summary table](#sample-summary-table)
-* [Gene summary table](#gene-summary-table)
-* [MAF fields table](#maf-fields-table)
-* [Transitions and transversions table](#transitions_and_transversions-table)
-  * [Fraction tab](#fraction-tab)
-  * [Count tab](#count-tab)
-  * [TiTv tab](#titv-tab)
+* [Plots](#plots)
+  * [MAF summary plot](#maf-summary-plot)
+  * [Oncoplot](#oncoplot)
+  * [Transition and transversions distribution plot](#transition-and-transversions-distribution-plot)
+  * [Comparison with TCGA cohorts](#comparison-with-tcga-cohorts)
+* [Tables](#tables)
+  * [MAF summary](#maf-summary)
+  * [Sample summary](#sample-summary)
+  * [Gene summary](#gene-summary)
+  * [MAF fields](#maf-fields-table)
+  * [Transitions and transversions](#transitions_and_transversions)
+    * [Fraction tab](#fraction-tab)
+    * [Count tab](#count-tab)
+    * [TiTv tab](#titv-tab)
 
 
 <!-- vim-markdown-toc -->
 <br>
 
----
+## Plots
+
 ### MAF summary plot
 
 <br />
@@ -63,8 +66,9 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 
 <br />
 
----
-### MAF summary table
+## Plots
+
+### MAF summary
 
 [MAF_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary.xlsx) - tab ***ICGC-PACA-CA***
 
@@ -73,7 +77,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 <br />
 
 ---
-### Sample summary table
+### Sample summary
 
 [MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_sample_summary.xlsx) - tab ***ICGC-PACA-CA***
 
