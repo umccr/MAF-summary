@@ -4,14 +4,15 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 
 <br>
 
-### MAF summary for all TCGA PAAD samples
+#### MAF summary plots for all TCGA PAAD samples
 
 <br />
 
 <img src="Figures/MAF_summary_TCGA-PAAD.jpg" width="45%"> &nbsp;&nbsp;&nbsp; <img src="Figures/Oncoplot_TCGA-PAAD.jpg" width="45%">
 
 <br />
-###  ... and after removing problematic sample
+
+####  ...and after removing problematic sample
 
 <img src="Figures/MAF_summary_TCGA-PAAD_clean.jpg" width="45%"> &nbsp;&nbsp;&nbsp; <img src="Figures/Oncoplot_TCGA-PAAD_clean.jpg" width="45%">
 
