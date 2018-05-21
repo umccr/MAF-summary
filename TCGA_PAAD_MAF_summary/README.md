@@ -81,15 +81,15 @@ Translation_Start_Site | 50 | 12
   </tr>
   <tr>
     <td>Missense_Mutation</td>
-    <td>19,610</td>
-    <td>137.13</td>
+    <td><b>19,610</b></td>
+    <td><b>137.13</b></td>
     <td>6,418</td>
     <td>45.2</td>
   </tr>
   <tr>
     <td>Nonsense_Mutation</td>
-    <td>1,284</td>
-    <td>8.98</td>
+    <td><b>1,284</b></td>
+    <td><b>8.98</b></td>
     <td>434</td>
     <td>3.06</td>
   </tr>
@@ -102,8 +102,8 @@ Translation_Start_Site | 50 | 12
   </tr>
   <tr>
     <td>Splice_Site</td>
-    <td>963</td>
-    <td>6.73</td>
+    <td><b>963</b></td>
+    <td><b>6.73</b></td>
     <td>276</td>
     <td>1.94</td>
   </tr>
