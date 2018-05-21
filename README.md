@@ -131,6 +131,7 @@ MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each 
 ### Example output
 
 * [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/ICGC_PACA-CA_MAF_summary)
+* [TCGA-PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/ICGC_PACA-CA_MAF_summary)
 
 
 <br />
