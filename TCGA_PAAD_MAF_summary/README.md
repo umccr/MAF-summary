@@ -115,11 +115,11 @@ Translation_Start_Site | 50 | 12
     <td>0.09</td>
   </tr>
   <tr>
-    <td>**Total**</td>
-    <td>**22,125**</td>
-    <td>**154.72**</td>
-    <td>**7,349**</td>
-    <td>**51.75**</td>
+    <td><b>Total</b></td>
+    <td><b>22,125</b></td>
+    <td><b>154.72</b></td>
+    <td><b>7,349</b></td>
+    <td><b>51.75</b></td>
   </tr>
 </table>
 
