@@ -30,10 +30,10 @@ Frame_Shift_Del | 123 | 120
 Frame_Shift_Ins | 51 | 48
 In_Frame_Del | 34 | 34
 In_Frame_Ins | 4 | 4
-Missense_Mutation | ***19,610*** | 6,418
-Nonsense_Mutation | ***1,284*** | 434
+Missense_Mutation | **19,610** | 6,418
+Nonsense_Mutation | **1,284** | 434
 Nonstop_Mutation | 6 | 3
-Splice_Site | ***963*** | 276
+Splice_Site | **963** | 276
 Translation_Start_Site | 50 | 12
 **Total** | **22,125** | **7,349**
 <br/>
