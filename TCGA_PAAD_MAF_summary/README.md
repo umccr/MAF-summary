@@ -26,6 +26,11 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 ### Variants per sample plot and oncoplot
 
 <br />
+
+Solarized dark             |  Solarized Ocean
+:-------------------------:|:-------------------------:
+![](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/Figures/MAF_summary_TCGA-PAAD.jpg)  |  ![](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/Figures/Oncoplot_TCGA-PAAD.jpg)
+
 <img src="Figures/MAF_summary_TCGA-PAAD.jpg" width="30%"> <img src="Figures/Oncoplot_TCGA-PAAD.jpg" width="40%">
 
 >A summary for MAF file displaying frequency of various mutation/SNV types/classes (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of different mutation types for the top 10 mutated genes (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the cohort.
