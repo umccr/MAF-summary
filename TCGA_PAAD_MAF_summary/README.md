@@ -22,14 +22,22 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 <br />
 
 
----
 #### MAF summary table for all TCGA PAAD samples and after removing problematic sample
 
 [MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_sample_summary.xlsx)
 
-Variant type | TCGA PAAD all samples <br /> [MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_sample_summary.xlsx)  | ...after removing problematic sample <br /> [MAF_summary_TCGA-PAAD_clean.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx)
+Variant type | All samples <br/> [MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_sample_summary.xlsx)  | After removing problematic sample <br/> [MAF_summary_TCGA-PAAD_clean.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx)
 ------------ | ------------ | ------------
 Frame_Shift_Del | 123 | 120
+Frame_Shift_Ins | 51 | 48
+In_Frame_Del | 34 | 34
+In_Frame_Ins | 4 | 4
+Missense_Mutation | 19,610 | 6,418
+Nonsense_Mutation | 1284 | 434
+Nonstop_Mutation | 6 | 3
+Splice_Site | 963 | 276
+Translation_Start_Site | 50 | 12
+*Total* | 22,125 | 7,349
 <br />
 
 <br />
