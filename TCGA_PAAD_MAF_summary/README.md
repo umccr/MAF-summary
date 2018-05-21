@@ -26,7 +26,7 @@ QUESTION: Should we **REMOVE this sample** before combining all MAF files **?**
 <br />
 
 
-#### MAF summary table for all samples and after removing problematic sample
+#### MAF summary table for all samples and after removing the problematic sample
 
 <table>
   <tr>
