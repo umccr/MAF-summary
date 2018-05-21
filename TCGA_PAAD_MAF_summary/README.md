@@ -26,7 +26,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 ### Variants per sample plot and oncoplot
 
 <br />
-<img src="Figures/MAF_summary_TCGA-PAAD.jpg" width="50%"> <img src="Figures/Oncoplot_TCGA-PAAD.jpg" width="50%">
+<img src="Figures/MAF_summary_TCGA-PAAD.jpg" width="30%"> <img src="Figures/Oncoplot_TCGA-PAAD.jpg" width="50%">
 
 >A summary for MAF file displaying frequency of various mutation/SNV types/classes (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of different mutation types for the top 10 mutated genes (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the cohort.
 
@@ -35,14 +35,6 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 
 <br />
 
----
-### MAF summary
-
-[MAF_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary.xlsx) - tab ***ICGC-PACA-CA***
-
->Excel spreadsheet tab with basic information about  MAF file, including NCBI build, no. fo samples and genes, no. of different mutation types ( frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations) as well as the total no. of mutations present in the MAF file.
-
-<br />
 
 ---
 ### Sample summary
