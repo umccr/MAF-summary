@@ -43,6 +43,7 @@ Translation_Start_Site | 50 | 12
     <td>Variant type</td>
     <td colspan="2">All samples <br/> <a href="https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_sample_summary.xlsx">MAF_sample_summary.xlsx</a></td>
     <td colspan="2">Without problematic sample <br/> <a href="https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx">MAF_summary_TCGA-PAAD_clean.xlsx</a></td>
+    <td>Problematic sample</td>
   </tr>
   <tr>
     <td> </td>
@@ -50,6 +51,7 @@ Translation_Start_Site | 50 | 12
     <td>Mean</td>
     <td>Count</td>
     <td>Mean</td>
+    <td>Count</td>
   </tr>
   <tr>
     <td>Frame_Shift_Del</td>
@@ -57,6 +59,7 @@ Translation_Start_Site | 50 | 12
     <td>0.86</td>
     <td>120</td>
     <td>0.85</td>
+    <td>3</td>
   </tr>
   <tr>
     <td>Frame_Shift_Ins</td>
@@ -64,6 +67,7 @@ Translation_Start_Site | 50 | 12
     <td>0.36</td>
     <td>48</td>
     <td>0.34</td>
+    <td>3</td>
   </tr>
   <tr>
     <td>In_Frame_Del</td>
@@ -71,6 +75,7 @@ Translation_Start_Site | 50 | 12
     <td>0.24</td>
     <td>34</td>
     <td>0.24</td>
+    <td>0</td>
   </tr>
   <tr>
     <td>In_Frame_Ins</td>
@@ -78,20 +83,23 @@ Translation_Start_Site | 50 | 12
     <td>0.03</td>
     <td>4</td>
     <td>0.03</td>
+    <td>0</td>
   </tr>
   <tr>
     <td>Missense_Mutation</td>
-    <td><b>19,610</b></td>
-    <td><b>137.13</b></td>
+    <td>19,610</td>
+    <td>137.13</td>
     <td>6,418</td>
     <td>45.2</td>
+    <td><b>13,192</b></td>
   </tr>
   <tr>
     <td>Nonsense_Mutation</td>
-    <td><b>1,284</b></td>
-    <td><b>8.98</b></td>
+    <td>1,284</td>
+    <td>8.98</td>
     <td>434</td>
     <td>3.06</td>
+    <td><b>850</b></td>
   </tr>
   <tr>
     <td>Nonstop_Mutation</td>
@@ -99,13 +107,15 @@ Translation_Start_Site | 50 | 12
     <td>0.04</td>
     <td>3</td>
     <td>0.02</td>
+    <td>3</td>
   </tr>
   <tr>
     <td>Splice_Site</td>
-    <td><b>963</b></td>
-    <td><b>6.73</b></td>
+    <td>963</td>
+    <td>6.73</td>
     <td>276</td>
     <td>1.94</td>
+    <td><b>687</b></td>
   </tr>
   <tr>
     <td>Translation_Start_Site</td>
@@ -113,6 +123,7 @@ Translation_Start_Site | 50 | 12
     <td>0.35</td>
     <td>12</td>
     <td>0.09</td>
+    <td>38</td>
   </tr>
   <tr>
     <td><b>Total</b></td>
@@ -120,6 +131,7 @@ Translation_Start_Site | 50 | 12
     <td><b>154.72</b></td>
     <td><b>7,349</b></td>
     <td><b>51.75</b></td>
+    <td>14,776</td>
   </tr>
 </table>
 
