@@ -45,6 +45,13 @@ Translation_Start_Site | 50 | 12
     <td colspan="2">Without problematic sample <br/> <a href="https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx">MAF_summary_TCGA-PAAD_clean.xlsx</a></td>
   </tr>
   <tr>
+    <td> </td>
+    <td>Count</td>
+    <td>Mean</td>
+    <td>Count</td>
+    <td>Mean</td>
+  </tr>
+  <tr>
     <td>Frame_Shift_Del</td>
     <td>123</td>
     <td>0.86</td>
