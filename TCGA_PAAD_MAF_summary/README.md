@@ -44,7 +44,6 @@ Translation_Start_Site | 50 | 12
     <td colspan="2">All samples <br/> [MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_sample_summary.xlsx)
     </td>
     <td colspan="2">Without problematic sample <br/> [MAF_summary_TCGA-PAAD_clean.xlsx](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx)</td>
-    <td>Three</td>
   </tr>
   <tr>
     <td> </td>
