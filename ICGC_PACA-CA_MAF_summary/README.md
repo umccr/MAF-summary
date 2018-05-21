@@ -32,7 +32,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 <br />
 <img src="Figures/MAF_summary_ICGC-PACA-CA.jpg" width="50%">
 
->A summary for MAF file displaying frequency of various mutation types/classes (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of different mutation types for the top 10 mutated genes (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the cohort.
+>A summary for MAF file displaying frequency of various mutation/SNV types/classes (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of different mutation types for the top 10 mutated genes (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the cohort.
 
 <br />
 
@@ -42,7 +42,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 <br />
 <img src="Figures/Oncoplot_ICGC-PACA-CA.jpg" width="50%">
 
->Oncoplot illustrating illustrating different types of mutations observed across samples for the 10 most frequently mutated genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively.
+>Oncoplot illustrating different types of mutations observed across samples for the 10 most frequently mutated genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively.
 
 <br />
 
@@ -52,7 +52,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 <br />
 <img src="Figures/Transition_and_transversions_ICGC-PACA-CA.jpg" width="50%">
 
-> Plots presenting the transition and transversions distribution. The box-plots (top panel) show the overall distribution of the six different conversions (left), and the transition and transversions frequency (right). The stacked bar-plot displays the fraction of the six different conversions in each sample.
+> Plots presenting the transition and transversions distribution. The box-plots (top panel) show the overall distribution of the six different conversions (C>A, C>G, C>T, T>C, T>A and T>G)(left), and the transition and transversions frequency (right). The stacked bar-plot displays the fraction of the six different conversions in each sample.
 
 <br />
 
