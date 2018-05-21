@@ -13,6 +13,7 @@ Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation
 * [Summarising and visualising multiple MAF files](#summarising-and-visualising-multiple-maf-files)
   * [Example output](#example-output)
     * [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/ICGC_PACA-CA_MAF_summary)
+    * [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/TCGA_PAAD_MAF_summary)
 
 <!-- vim-markdown-toc -->
 <br>
