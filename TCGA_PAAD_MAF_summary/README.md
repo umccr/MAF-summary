@@ -44,7 +44,7 @@ QUESTION: Should we **REMOVE this sample** before combining all MAF files **?**
     <td>Count</td>
   </tr>
   <tr>
-    <td>Frame_Shift_Del</td>
+    <td>Frameshift deletions</td>
     <td>123</td>
     <td>0.86</td>
     <td>120</td>
@@ -52,7 +52,7 @@ QUESTION: Should we **REMOVE this sample** before combining all MAF files **?**
     <td>3</td>
   </tr>
   <tr>
-    <td>Frame_Shift_Ins</td>
+    <td>Frameshift insertions</td>
     <td>51</td>
     <td>0.36</td>
     <td>48</td>
@@ -60,7 +60,7 @@ QUESTION: Should we **REMOVE this sample** before combining all MAF files **?**
     <td>3</td>
   </tr>
   <tr>
-    <td>In_Frame_Del</td>
+    <td>In-frame deletions</td>
     <td>34</td>
     <td>0.24</td>
     <td>34</td>
@@ -68,7 +68,7 @@ QUESTION: Should we **REMOVE this sample** before combining all MAF files **?**
     <td>0</td>
   </tr>
   <tr>
-    <td>In_Frame_Ins</td>
+    <td>In-frame insertions</td>
     <td>4</td>
     <td>0.03</td>
     <td>4</td>
@@ -76,7 +76,7 @@ QUESTION: Should we **REMOVE this sample** before combining all MAF files **?**
     <td>0</td>
   </tr>
   <tr>
-    <td>Missense_Mutation</td>
+    <td>Missense mutations</td>
     <td>19,610</td>
     <td>137.13</td>
     <td>6,418</td>
@@ -84,7 +84,7 @@ QUESTION: Should we **REMOVE this sample** before combining all MAF files **?**
     <td><b>13,192</b></td>
   </tr>
   <tr>
-    <td>Nonsense_Mutation</td>
+    <td>Nonsense mutations</td>
     <td>1,284</td>
     <td>8.98</td>
     <td>434</td>
@@ -92,7 +92,7 @@ QUESTION: Should we **REMOVE this sample** before combining all MAF files **?**
     <td><b>850</b></td>
   </tr>
   <tr>
-    <td>Nonstop_Mutation</td>
+    <td>Nonstop mutations</td>
     <td>6</td>
     <td>0.04</td>
     <td>3</td>
@@ -100,7 +100,7 @@ QUESTION: Should we **REMOVE this sample** before combining all MAF files **?**
     <td>3</td>
   </tr>
   <tr>
-    <td>Splice_Site</td>
+    <td>Splice site mutations</td>
     <td>963</td>
     <td>6.73</td>
     <td>276</td>
@@ -108,7 +108,7 @@ QUESTION: Should we **REMOVE this sample** before combining all MAF files **?**
     <td><b>687</b></td>
   </tr>
   <tr>
-    <td>Translation_Start_Site</td>
+    <td>Translation start site mutations</td>
     <td>50</td>
     <td>0.35</td>
     <td>12</td>
