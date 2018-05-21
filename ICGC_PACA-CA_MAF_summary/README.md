@@ -106,15 +106,17 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 ---
 ### Transitions and transversions summary
 
-* [MAF_summary_titv.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary_titv.xlsx) - tab ***ICGC-PACA-CA (fraction)***
+[MAF_summary_titv.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary_titv.xlsx) - tab ***ICGC-PACA-CA (fraction)***
 
 >Excel spreadsheet tab containing information about the fraction of each of the six different conversions (columns), including C>A, C>G, C>T, T>C, T>A and T>G, in each sample (rows).
 
-* [MAF_summary_titv.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary_titv.xlsx) - tab ***ICGC-PACA-CA (count)***
+<br />
+[MAF_summary_titv.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary_titv.xlsx) - tab ***ICGC-PACA-CA (count)***
 
 >Excel spreadsheet tab containing information about the count of each of the six different conversions (columns), including C>A, C>G, C>T, T>C, T>A and T>G, in each sample (rows).
 
-* [MAF_summary_titv.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary_titv.xlsx) - tab ***ICGC-PACA-CA (TiTv fractions)***
+<br />
+[MAF_summary_titv.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary_titv.xlsx) - tab ***ICGC-PACA-CA (TiTv fractions)***
 
 >Excel spreadsheet tab containing information about the fraction of transitions and transversions (columns) in each sample (rows).
 
