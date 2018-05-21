@@ -38,7 +38,14 @@ Translation_Start_Site | 50 | 12
 **Total** | **22,125** | **7,349**
 <br/>
 
-<br />
-
+<table>
+  <tr>
+    <td>One</td>
+    <td>Two</td>
+  </tr>
+  <tr>
+    <td colspan="2">Three</td>
+  </tr>
+</table>
 
 <br />
