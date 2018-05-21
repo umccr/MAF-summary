@@ -11,6 +11,14 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 * [Transition and transversions distribution plot](#transition-and-transversions-distribution-plot)
 * [Comparison with TCGA cohorts](#comparison-with-tcga-cohorts)
 * [MAF summary table](#maf-summary-table)
+* [Sample summary table](#sample-summary-table)
+* [Gene summary table](#gene-summary-table)
+* [MAF fields table](#maf-fields-table)
+* [Transitions and transversions table](#transitions_and_transversions-table)
+  * [Fraction tab](#fraction-tab)
+  * [Count tab](#count-tab)
+  * [TiTv tab](#titv-tab)
+
 
 <!-- vim-markdown-toc -->
 <br>
@@ -58,6 +66,15 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 ---
 ### MAF summary table
 
-[MAF_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary.xlsx) - tab **ICGC-PACA-CA**
+[MAF_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary.xlsx) - tab ***ICGC-PACA-CA***
 
->Excel tab with basic information about  MAF file, including NCBI build, no. fo samples and genes, no. of different mutation types ( Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Nonstop_Mutation, Splice_Site, Translation_Start_Site) as well as the total number of mutations present in the MAF file.
+>Excel spreadsheet with basic information about  MAF file, including NCBI build, no. fo samples and genes, no. of different mutation types ( frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations) as well as the total no. of mutations present in the MAF file.
+
+<br />
+
+---
+### Sample summary table
+
+[MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_sample_summary.xlsx) - tab ***ICGC-PACA-CA***
+
+>Excel spreadsheet with per-sample information (rows) about no. of different types of mutations (columns), including frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations, as well as the total no. of mutations present in the MAF file.
