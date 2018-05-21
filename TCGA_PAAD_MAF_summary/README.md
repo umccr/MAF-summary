@@ -41,9 +41,14 @@ Translation_Start_Site | 50 | 12
 <table>
   <tr>
     <td>Variant type</td>
-    <td colspan="2">All samples <br/> [MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_sample_summary.xlsx)
+    <td colspan="2">All samples</td>
+    <td colspan="2">Without problematic sample</td>
+  </tr>
+  <tr>
+    <td>Variant type</td>
+    <td colspan="2">[MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_sample_summary.xlsx)
     </td>
-    <td colspan="2">Without problematic sample <br/> [MAF_summary_TCGA-PAAD_clean.xlsx](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx)</td>
+    <td colspan="2">[MAF_summary_TCGA-PAAD_clean.xlsx](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx)</td>
   </tr>
   <tr>
     <td> </td>
