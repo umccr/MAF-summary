@@ -27,9 +27,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 
 <br />
 
-Solarized dark             |  Solarized Ocean
-:-------------------------:|:-------------------------:
-![](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/Figures/MAF_summary_TCGA-PAAD.jpg)  |  ![](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/Figures/Oncoplot_TCGA-PAAD.jpg)
+
 
 <img src="Figures/MAF_summary_TCGA-PAAD.jpg" width="30%"> <img src="Figures/Oncoplot_TCGA-PAAD.jpg" width="40%">
 
