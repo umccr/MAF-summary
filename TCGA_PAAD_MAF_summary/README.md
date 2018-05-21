@@ -1,6 +1,6 @@
 ## TCGA PAAD cohort MAF summary
 
-Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* output files for TCGA PAAD ( <img src="../Figures/flag-of-United-States-of-America.png" width="2.5%"> ) cohort. This example show one sample (***TCGA-IB-7651-01A-11D-2154-08***) with extremely high mutation burden.
+Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* output files for TCGA PAAD ( <img src="../Figures/flag-of-United-States-of-America.png" width="2.5%"> ) cohort. This example shows one sample with extremely high mutation burden.
 
 
 ## Table of contents
