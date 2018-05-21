@@ -45,11 +45,74 @@ Translation_Start_Site | 50 | 12
     <td colspan="2">Without problematic sample <br/> <a href="https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx">MAF_summary_TCGA-PAAD_clean.xlsx</a></td>
   </tr>
   <tr>
-    <td> </td>
-    <td>Count</td>
-    <td>Mean</td>
-    <td>Count</td>
-    <td>Mean</td>
+    <td>Frame_Shift_Del</td>
+    <td>123</td>
+    <td>0.86</td>
+    <td>120</td>
+    <td>0.845</td>
+  </tr>
+  <tr>
+    <td>Frame_Shift_Ins</td>
+    <td>51</td>
+    <td>0.357</td>
+    <td>48</td>
+    <td>0.338</td>
+  </tr>
+  <tr>
+    <td>In_Frame_Del</td>
+    <td>34</td>
+    <td>0.238</td>
+    <td>34</td>
+    <td>0.239</td>
+  </tr>
+  <tr>
+    <td>In_Frame_Ins</td>
+    <td>4</td>
+    <td>0.028</td>
+    <td>4</td>
+    <td>0.028</td>
+  </tr>
+  <tr>
+    <td>Missense_Mutation</td>
+    <td>19,610</td>
+    <td>137.133</td>
+    <td>6,418</td>
+    <td>45.197</td>
+  </tr>
+  <tr>
+    <td>Nonsense_Mutation</td>
+    <td>1,284</td>
+    <td>8.979</td>
+    <td>434</td>
+    <td>3.056</td>
+  </tr>
+  <tr>
+    <td>Nonstop_Mutation</td>
+    <td>6</td>
+    <td>0.042</td>
+    <td>3</td>
+    <td>0.021</td>
+  </tr>
+  <tr>
+    <td>Splice_Site</td>
+    <td>963</td>
+    <td>6.734</td>
+    <td>276</td>
+    <td>1.944</td>
+  </tr>
+  <tr>
+    <td>Translation_Start_Site</td>
+    <td>50</td>
+    <td>0.35</td>
+    <td>12</td>
+    <td>0.085</td>
+  </tr>
+  <tr>
+    <td>=Total</td>
+    <td>22,125</td>
+    <td>154.72</td>
+    <td>7,349</td>
+    <td>51.754</td>
   </tr>
 </table>
 
