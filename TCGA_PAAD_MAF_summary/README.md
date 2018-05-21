@@ -3,7 +3,7 @@
 Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* output files for TCGA PAAD ( <img src="../Figures/flag-of-United-States-of-America.png" width="2.5%"> ) cohort. This example shows one sample with extremely high mutation burden. The *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* script was re-ran after removing the problematic sample and the outputs were compared.
 
 
-#### MAF summary plots for all TCGA PAAD samples
+#### MAF summary plots for all samples
 
 <br />
 
@@ -22,23 +22,21 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 <br />
 
 
-#### MAF summary table for all TCGA PAAD samples and after removing problematic sample
+#### MAF summary table for all samples and after removing problematic sample
 
-[MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_sample_summary.xlsx)
-
-Variant type | All samples <br/> [MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_sample_summary.xlsx)  | After removing problematic sample <br/> [MAF_summary_TCGA-PAAD_clean.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx)
+Variant type | All samples <br/> [MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_sample_summary.xlsx)  | Problematic sample excluded <br/> [MAF_summary_TCGA-PAAD_clean.xlsx](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx)
 ------------ | ------------ | ------------
 Frame_Shift_Del | 123 | 120
 Frame_Shift_Ins | 51 | 48
 In_Frame_Del | 34 | 34
 In_Frame_Ins | 4 | 4
-Missense_Mutation | 19,610 | 6,418
-Nonsense_Mutation | 1284 | 434
+Missense_Mutation | ***19,610*** | 6,418
+Nonsense_Mutation | ***1,284*** | 434
 Nonstop_Mutation | 6 | 3
-Splice_Site | 963 | 276
+Splice_Site | ***963*** | 276
 Translation_Start_Site | 50 | 12
-*Total* | 22,125 | 7,349
-<br />
+**Total** | **22,125** | **7,349**
+<br/>
 
 <br />
 
