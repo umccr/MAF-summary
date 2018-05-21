@@ -24,26 +24,12 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 
 #### MAF summary table for all samples and after removing problematic sample
 
-Variant type | All samples <br/> [MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_sample_summary.xlsx)  | Without problematic sample <br/> [MAF_summary_TCGA-PAAD_clean.xlsx](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx)
------------- | ------------ | ------------
-Frame_Shift_Del | 123 | 120
-Frame_Shift_Ins | 51 | 48
-In_Frame_Del | 34 | 34
-In_Frame_Ins | 4 | 4
-Missense_Mutation | **19,610** | 6,418
-Nonsense_Mutation | **1,284** | 434
-Nonstop_Mutation | 6 | 3
-Splice_Site | **963** | 276
-Translation_Start_Site | 50 | 12
-**Total** | **22,125** | **7,349**
-<br/>
-
 <table>
   <tr>
     <td>Variant type</td>
     <td colspan="2">All samples <br/> <a href="https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_sample_summary.xlsx">MAF_sample_summary.xlsx</a></td>
     <td colspan="2">Without problematic sample <br/> <a href="https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx">MAF_summary_TCGA-PAAD_clean.xlsx</a></td>
-    <td>Problematic sample</td>
+    <td>Problematic sample <br/> TCGA-IB-7651-01A-11D-2154-08</td>
   </tr>
   <tr>
     <td> </td>
@@ -131,7 +117,7 @@ Translation_Start_Site | 50 | 12
     <td><b>154.72</b></td>
     <td><b>7,349</b></td>
     <td><b>51.75</b></td>
-    <td>14,776</td>
+    <td><b>14,776</b></td>
   </tr>
 </table>
 
