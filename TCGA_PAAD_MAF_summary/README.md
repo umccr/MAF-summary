@@ -3,7 +3,8 @@
 Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* output files for TCGA PAAD ( <img src="../Figures/flag-of-United-States-of-America.png" width="2.5%"> ) cohort. This example shows one sample with extremely high mutation burden. The *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* script was re-ran after removing the problematic sample and the outputs were compared.
 
 ---
-**Shall we REMOVE this sample before combining all MAF files?**
+Shall we **REMOVE this sample** before combining all MAF files **?**
+
 ---
 
 #### MAF summary plots for all samples
