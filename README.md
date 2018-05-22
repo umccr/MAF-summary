@@ -46,12 +46,12 @@ The MAF files for are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/
 
 Cohort | Samples no. | NCBI Build | File name
 ------------ | ------------ | ------------ | ------------
-<img src="Figures/flag-of-United-States-of-America.png" width="10%"> &nbsp;&nbsp; TCGA PAAD | 143 | 37 | PAAD.tcga.uuid.curated.somatic.maf
-<img src="Figures/flag-of-Australia.png" width="10%"> &nbsp;&nbsp; ICGC PACA-AU | 395 | 37 | PACA-AU.icgc.simple_somatic_mutation.maf
-<img src="Figures/flag-of-Australia.png" width="10%"> &nbsp;&nbsp; ICGC PACA-AU (additional) | 25 | 37 | DCC17_PDAC_Not_in_DCC.maf
-<img src="Figures/flag-of-Canada.png" width="10%"> &nbsp;&nbsp; ICGC PACA-CA | 336 | 37 | PACA-CA.icgc.simple_somatic_mutation.maf
-<img src="Figures/flag-of-United-States-of-America.png" width="10%"> &nbsp;&nbsp; UTSW ([PMID: 25855536](https://www.ncbi.nlm.nih.gov/pubmed/25855536)) | 109 | 37 | To be generated
-<img src="Figures/globe.jpeg" width="11%" height="15%"> &nbsp;&nbsp; **Combined** | **1008** | 37 | To be generated
+<img src="img/flag-of-United-States-of-America.png" width="10%"> &nbsp;&nbsp; TCGA PAAD | 143 | 37 | PAAD.tcga.uuid.curated.somatic.maf
+<img src="img/flag-of-Australia.png" width="10%"> &nbsp;&nbsp; ICGC PACA-AU | 395 | 37 | PACA-AU.icgc.simple_somatic_mutation.maf
+<img src="img/flag-of-Australia.png" width="10%"> &nbsp;&nbsp; ICGC PACA-AU (additional) | 25 | 37 | DCC17_PDAC_Not_in_DCC.maf
+<img src="img/flag-of-Canada.png" width="10%"> &nbsp;&nbsp; ICGC PACA-CA | 336 | 37 | PACA-CA.icgc.simple_somatic_mutation.maf
+<img src="img/flag-of-United-States-of-America.png" width="10%"> &nbsp;&nbsp; UTSW ([PMID: 25855536](https://www.ncbi.nlm.nih.gov/pubmed/25855536)) | 109 | 37 | To be generated
+<img src="img/globe.jpeg" width="11%" height="15%"> &nbsp;&nbsp; **Combined** | **1008** | 37 | To be generated
 <br />
 
 
@@ -131,8 +131,8 @@ MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each 
 
 ### Example output
 
-* [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/ICGC_PACA-CA_MAF_summary) &nbsp; ( <img src="Figures/flag-of-Canada.png" width="2.5%"> )
-* [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/TCGA_PAAD_MAF_summary) &nbsp; ( <img src="Figures/flag-of-United-States-of-America.png" width="2.5%"> ) with one sample demonstrating extremely high mutation burden
+* [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/ICGC_PACA-CA_MAF_summary) &nbsp; ( <img src="img/flag-of-Canada.png" width="2.5%"> )
+* [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/TCGA_PAAD_MAF_summary) &nbsp; ( <img src="img/flag-of-United-States-of-America.png" width="2.5%"> ) with one sample demonstrating extremely high mutation burden
 
 
 <br />

@@ -1,6 +1,6 @@
 ## ICGC PACA-CA cohort MAF summary
 
-Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* output files for ICGC PACA-CA ( <img src="../Figures/flag-of-Canada.png" width="2.5%"> ) cohort.
+Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* output files for ICGC PACA-CA ( <img src="../img/flag-of-Canada.png" width="2.5%"> ) cohort.
 
 
 ## Table of contents
@@ -30,7 +30,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 ### MAF summary plot
 
 <br />
-<img src="Figures/MAF_summary_ICGC-PACA-CA.jpg" width="50%">
+<img src="img/MAF_summary_ICGC-PACA-CA.jpg" width="50%">
 
 >A summary for MAF file displaying frequency of various mutation/SNV types/classes (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of different mutation types for the top 10 mutated genes (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the cohort.
 
@@ -40,7 +40,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 ### Oncoplot
 
 <br />
-<img src="Figures/Oncoplot_ICGC-PACA-CA.jpg" width="50%">
+<img src="img/Oncoplot_ICGC-PACA-CA.jpg" width="50%">
 
 >Oncoplot illustrating different types of mutations observed across samples for the 10 most frequently mutated genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively.
 
@@ -50,7 +50,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 ### Transition and transversions distribution plot
 
 <br />
-<img src="Figures/Transition_and_transversions_ICGC-PACA-CA.jpg" width="50%">
+<img src="img/Transition_and_transversions_ICGC-PACA-CA.jpg" width="50%">
 
 > Plots presenting the transition and transversions distribution. The box-plots (top panel) show the overall distribution of the six different conversions (C>A, C>G, C>T, T>C, T>A and T>G)(left), and the transition and transversions frequency (right). The stacked bar-plot (bottom) displays the fraction of the six different conversions in each sample.
 
@@ -60,7 +60,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 ### Comparison with TCGA cohorts
 
 <br />
-<img src="Figures/Compare_against_TCGA_cohorts_ICGC-PACA-CA.jpg" width="50%">
+<img src="img/Compare_against_TCGA_cohorts_ICGC-PACA-CA.jpg" width="50%">
 
 >Plot illustrating the mutation load in ICGC PACA-CA cohort along distribution of variants compiled from over 10,000 WXS samples across 33 TCGA landmark cohorts. Every dot represents a sample whereas the red horizontal lines are the median numbers of mutations in the respective cancer types. The vertical axis (log scaled) shows the number of mutations per megabase whereas the different cancer types are ordered on the horizontal axis based on their median numbers of somatic mutations. This plot is similar to the one described in the paper [Signatures of mutational processes in human cancer](https://www.ncbi.nlm.nih.gov/pubmed/23945592) by Alexandrov *et al*.
 
