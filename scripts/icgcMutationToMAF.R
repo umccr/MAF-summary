@@ -14,10 +14,10 @@
 #
 #	  Description: Script converting ICGC Simple Somatic Mutation Format file to MAF file using maftools R package ( https://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html ).
 #
-#	  Command line use example: Rscript icgcMutationToMAF.R --icgc_file" PACA-AU.icgc.simple_somatic_mutation.tsv --output PACA-AU.icgc.simple_somatic_mutation.maf
+#	  Command line use example: Rscript icgcMutationToMAF.R --icgc_file PACA-AU.icgc.simple_somatic_mutation.tsv --output PACA-AU.icgc.simple_somatic_mutation.maf
 #
 #	  icgc_file:		ICGC Simple Somatic Mutation Format file to be converted
-#	  output:				The output file name
+#	  output:				The output file name. If no output file name is specified the file extension will be changed to ".maf"
 #
 ################################################################################
 
@@ -35,7 +35,7 @@ prepare2write <- function (x) {
 
 	x2write <- cbind(rownames(x), x)
     colnames(x2write) <- c("",colnames(x))
-		
+
 	return(x2write)
 }
 
@@ -58,8 +58,14 @@ option_list = list(
 
 opt = parse_args(OptionParser(option_list=option_list))
 
-input.icgc <- opt$icgc_file
 output.maf <- opt$output
+input.icgc <- opt$icgc_file
+
+##### Change the file extension to .maf if output file name is not specified
+if ( is.na(output.maf) ) {
+	output.maf = unlist(strsplit(input.icgc, split='.', fixed=TRUE))
+	output.maf = paste0(paste(output.maf[-length(output.maf)], collapse = '.'), ".maf")
+}
 
 
 #===============================================================================
