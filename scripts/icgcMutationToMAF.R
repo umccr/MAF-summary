@@ -14,10 +14,10 @@
 #
 #	  Description: Script converting ICGC Simple Somatic Mutation Format file to MAF file using maftools R package ( https://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html ).
 #
-#	  Command line use example: R --file=./icgcMutationToMAF.R --args "PACA-AU.icgc.simple_somatic_mutation.tsv" "PACA-AU.icgc.simple_somatic_mutation.maf"
+#	  Command line use example: Rscript icgcMutationToMAF.R --icgc_file" PACA-AU.icgc.simple_somatic_mutation.tsv --output PACA-AU.icgc.simple_somatic_mutation.maf
 #
-#	  First arg:     ICGC Simple Somatic Mutation Format file to be converted.
-#	  Second arg:    The output file name.
+#	  icgc_file:		ICGC Simple Somatic Mutation Format file to be converted
+#	  output:				The output file name
 #
 ################################################################################
 
@@ -35,6 +35,7 @@ prepare2write <- function (x) {
 
 	x2write <- cbind(rownames(x), x)
     colnames(x2write) <- c("",colnames(x))
+		
 	return(x2write)
 }
 
@@ -42,16 +43,28 @@ prepare2write <- function (x) {
 #    Load libraries
 #===============================================================================
 
-library(maftools)
+suppressMessages(library(maftools))
+suppressMessages(library(optparse))
+
+#===============================================================================
+#    Catching the arguments
+#===============================================================================
+option_list = list(
+  make_option(c("-i", "--icgc_file"), action="store", default=NA, type='character',
+              help="ICGC Simple Somatic Mutation Format file to be converted"),
+  make_option(c("-o", "--output"), action="store", default=NA, type='character',
+              help="Output file name")
+)
+
+opt = parse_args(OptionParser(option_list=option_list))
+
+input.icgc <- opt$icgc_file
+output.maf <- opt$output
+
 
 #===============================================================================
 #    Main
 #===============================================================================
-
-args <- commandArgs()
-
-input.icgc = args[4]
-output.maf = args[5]
 
 ##### Read ICGC Simple Somatic Mutation Format file and convert Ensemble Gene IDs into HGNC gene symbols
 ##### This step removes repeated variants as duplicated entries (removeDuplicatedVariants = TRUE)
