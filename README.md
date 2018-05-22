@@ -12,8 +12,8 @@ Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation
 * [Converting ICGC mutation format to MAF](#converting-icgc-mutation-format-to-maf)
 * [Summarising and visualising multiple MAF files](#summarising-and-visualising-multiple-maf-files)
   * [Example output](#example-output)
-    * [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/ICGC_PACA-CA_MAF_summary)
-    * [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/TCGA_PAAD_MAF_summary)
+    * [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/examples/ICGC_PACA-CA_MAF_summary)
+    * [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/examples/TCGA_PAAD_MAF_summary)
 
 <!-- vim-markdown-toc -->
 <br>
@@ -40,8 +40,9 @@ Tumor_Sample_Barcode | Sample ID | Either a TCGA barcode, or for non-TCGA data, 
 
 The MAF files for are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/) cluster in the following directory:<br>
 
-*/data/cephfs/punim0010/projects/Jacek/**Pancreatic1500_Atlas**/data*
-<br>
+```
+/data/cephfs/punim0010/projects/Jacek/Pancreatic1500_Atlas/data
+```
 <br>
 
 Cohort | Samples no. | NCBI Build | File name
@@ -59,17 +60,17 @@ Cohort | Samples no. | NCBI Build | File name
 
 Script | Description | Packages
 ------------ | ------------ | ------------
-*[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)* | Converts ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file to [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*
-*[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* | Summarises and visualises multiple [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) files | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* <br> *[xlsx](https://cran.r-project.org/web/packages/xlsx/xlsx.pdf)*
+*[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/scripts/icgcMutationToMAF.R)* | Converts ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file to [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*
+*[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)* | Summarises and visualises multiple [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) files | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* <br> *[xlsx](https://cran.r-project.org/web/packages/xlsx/xlsx.pdf)*
 <br />
 
 
 ## Converting ICGC mutation format to MAF
 
-The publicly available ICGC mutation data is stored in [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file, which is similar to MAF format in its structure, but the field names and classification of variants are different. The *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)* script implements *icgcSimpleMutationToMAF* function within *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* R package to convert ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) to MAF.
+The publicly available ICGC mutation data is stored in [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file, which is similar to MAF format in its structure, but the field names and classification of variants are different. The *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/scripts/icgcMutationToMAF.R)* script implements *icgcSimpleMutationToMAF* function within *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* R package to convert ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) to MAF.
 
 
-**Script**: *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)*
+**Script**: *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/scripts/icgcMutationToMAF.R)*
 
 Argument no. | Description
 ------------ | ------------
@@ -80,7 +81,7 @@ Argument no. | Description
 Command line use example:
 
 ```
-R --file=./icgcMutationToMAF.R --args "../data/PACA-AU.icgc.simple_somatic_mutation.tsv" "../data/PACA-AU.icgc.simple_somatic_mutation.maf"
+Rscript icgcMutationToMAF.R --icgc_file PACA-AU.icgc.simple_somatic_mutation.tsv --output PACA-AU.icgc.simple_somatic_mutation.maf
 ```
 <br>
 
@@ -91,10 +92,10 @@ R --file=./icgcMutationToMAF.R --args "../data/PACA-AU.icgc.simple_somatic_mutat
 
 ## Summarising and visualising multiple MAF files
 
-To summarise multiple MAF files run the *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* script. It will generate set of plots and excel spreadsheets summarising each MAF file.
+To summarise multiple MAF files run the *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)* script. It will generate set of plots and excel spreadsheets summarising each MAF file.
 
 
-**Script**: *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)*
+**Script**: *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)*
 
 Argument no. | Description
 ------------ | ------------
@@ -107,7 +108,7 @@ Argument no. | Description
 Command line use example:
 
 ```
-R --file=./summariseMAFs.R --args "../data" "PAAD.tcga.uuid.curated.somatic.maf, PACA-AU.icgc.simple_somatic_mutation.maf, DCC17_PDAC_Not_in_DCC.maf, PACA-CA.icgc.simple_somatic_mutation.maf" "TCGA-PAAD, ICGC-PACA-AU, ICGC-PACA-AU-additional, ICGC-PACA-CA" "MAF_summary"
+Rscript summariseMAFs.R --maf_dir /data --maf_files PACA-AU.icgc.simple_somatic_mutation.maf,PACA-CA.icgc.simple_somatic_mutation.maf --cohorts ICGC-PACA-AU,ICGC-PACA-CA --out_dir MAF_summary
 ```
 <br>
 
@@ -131,8 +132,8 @@ MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each 
 
 ### Example output
 
-* [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/ICGC_PACA-CA_MAF_summary) &nbsp; ( <img src="img/flag-of-Canada.png" width="2.5%"> )
-* [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/TCGA_PAAD_MAF_summary) &nbsp; ( <img src="img/flag-of-United-States-of-America.png" width="2.5%"> ) with one sample demonstrating extremely high mutation burden
+* [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/examples/ICGC_PACA-CA_MAF_summary) &nbsp; ( <img src="img/flag-of-Canada.png" width="2.5%"> )
+* [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/examples/TCGA_PAAD_MAF_summary) &nbsp; ( <img src="img/flag-of-United-States-of-America.png" width="2.5%"> ) with one sample demonstrating extremely high mutation burden
 
 
 <br />

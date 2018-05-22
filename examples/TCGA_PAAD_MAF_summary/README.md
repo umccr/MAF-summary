@@ -1,6 +1,6 @@
 ## TCGA PAAD cohort MAF summary
 
-Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* output files for TCGA PAAD ( <img src="../img/flag-of-United-States-of-America.png" width="2.5%"> ) cohort. This example shows one sample with extremely high mutation burden. The *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* script was re-ran after removing the problematic sample and the outputs were compared.
+Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)* output files for TCGA PAAD ( <img src="../../img/flag-of-United-States-of-America.png" width="2.5%"> ) cohort. This example shows one sample with extremely high mutation burden. The *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)* script was re-ran after removing the problematic sample and the outputs were compared.
 
 
 #### MAF summary plots for all samples
@@ -15,8 +15,8 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 
 <img src="img/MAF_summary_TCGA-PAAD_clean.jpg" width="45%"> &nbsp;&nbsp;&nbsp; <img src="img/Oncoplot_TCGA-PAAD_clean.jpg" width="45%">
 
->The variants per sample plot and oncoplot within the *[MAF_summary_TCGA-PAAD.pdf](https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_summary_TCGA-PAAD.pdf)* file indicates that one sample has extremely high mutation burden compared to other samples within this cohort (the stacked bar-plots in the top panel). The *TCGA-PAAD* tab in the [MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/blob/master/TCGA_PAAD_MAF_summary/MAF_sample_summary.xlsx) spreadsheet shows that sample ***TCGA-IB-7651-01A-11D-2154-08*** has 14,776 variants, which is ~100 times more than the second most mutated patient in that cohort. After removing this sample from the MAF file the variants distribution is more uniform across remaining samples (bottom panel).
-<br />\* For plots description see [MAF summary plot](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary#maf-summary-plot) and [Oncoplot](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary#oncoplot) sections.
+>The variants per sample plot and oncoplot within the *[MAF_summary_TCGA-PAAD.pdf](https://github.com/umccr/MAF-summary/tree/master/examples/TCGA_PAAD_MAF_summary/MAF_summary_TCGA-PAAD.pdf)* file indicates that one sample has extremely high mutation burden compared to other samples within this cohort (the stacked bar-plots in the top panel). The *TCGA-PAAD* tab in the [MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/blob/master/examples/TCGA_PAAD_MAF_summary/MAF_sample_summary.xlsx) spreadsheet shows that sample ***TCGA-IB-7651-01A-11D-2154-08*** has 14,776 variants, which is ~100 times more than the second most mutated patient in that cohort. After removing this sample from the MAF file the variants distribution is more uniform across remaining samples (bottom panel).
+<br />\* For plots description see [MAF summary plot](https://github.com/umccr/MAF-summary/tree/master/examples/ICGC_PACA-CA_MAF_summary#maf-summary-plot) and [Oncoplot](https://github.com/umccr/MAF-summary/tree/master/examples/ICGC_PACA-CA_MAF_summary#oncoplot) sections.
 
 
 <br />
@@ -27,8 +27,8 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 <table>
   <tr>
     <td>Variant type</td>
-    <td colspan="2">All samples <br/> <a href="https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_sample_summary.xlsx">MAF_sample_summary.xlsx</a></td>
-    <td colspan="2">Without problematic sample <br/> <a href="https://github.com/umccr/MAF-summary/tree/master/TCGA_PAAD_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx">MAF_summary_TCGA-PAAD_clean.xlsx</a></td>
+    <td colspan="2">All samples <br/> <a href="https://github.com/umccr/MAF-summary/tree/master/examples/TCGA_PAAD_MAF_summary/MAF_sample_summary.xlsx">MAF_sample_summary.xlsx</a></td>
+    <td colspan="2">Without problematic sample <br/> <a href="https://github.com/umccr/MAF-summary/tree/master/examples/TCGA_PAAD_MAF_summary/MAF_summary_TCGA-PAAD_clean.xlsx">MAF_summary_TCGA-PAAD_clean.xlsx</a></td>
     <td>Problematic sample</td>
   </tr>
   <tr>

@@ -1,6 +1,6 @@
 ## ICGC PACA-CA cohort MAF summary
 
-Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/summariseMAFs.R)* output files for ICGC PACA-CA ( <img src="../img/flag-of-Canada.png" width="2.5%"> ) cohort.
+Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)* output files for ICGC PACA-CA ( <img src="../../img/flag-of-Canada.png" width="2.5%"> ) cohort.
 
 
 ## Table of contents
@@ -70,7 +70,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 
 ### MAF summary
 
-[MAF_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary.xlsx) - tab ***ICGC-PACA-CA***
+[MAF_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/examples/ICGC_PACA-CA_MAF_summary/MAF_summary.xlsx) - tab ***ICGC-PACA-CA***
 
 >Excel spreadsheet tab with basic information about  MAF file, including NCBI build, no. fo samples and genes, no. of different mutation types ( frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations) as well as the total no. of mutations present in the MAF file.
 
@@ -79,7 +79,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 ---
 ### Sample summary
 
-[MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_sample_summary.xlsx) - tab ***ICGC-PACA-CA***
+[MAF_sample_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/examples/ICGC_PACA-CA_MAF_summary/MAF_sample_summary.xlsx) - tab ***ICGC-PACA-CA***
 
 >Excel spreadsheet tab with per-sample information (rows) about no. of different types of mutations (columns), including frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations, as well as the total no. of mutations present in the MAF file.
 
@@ -88,7 +88,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 ---
 ### Gene summary
 
-[MAF_gene_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_gene_summary.xlsx) - tab ***ICGC-PACA-CA***
+[MAF_gene_summary.xlsx](https://github.com/umccr/MAF-summary/tree/master/examples/ICGC_PACA-CA_MAF_summary/MAF_gene_summary.xlsx) - tab ***ICGC-PACA-CA***
 
 >Excel spreadsheet tab with per-gene information (rows) about no. of different types of mutations (columns), including frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations, as well as the total no. of mutations present in the MAF file. The last two columns contain the no. of samples with mutations/alterations in the corresponding gene.
 
@@ -97,7 +97,7 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 ---
 ### MAF fields
 
-[MAF_fields.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_fields.xlsx) - tab ***ICGC-PACA-CA***
+[MAF_fields.xlsx](https://github.com/umccr/MAF-summary/tree/master/examples/ICGC_PACA-CA_MAF_summary/MAF_fields.xlsx) - tab ***ICGC-PACA-CA***
 
 >Excel spreadsheet tab listing all fields (columns) in the MAF file.
 
@@ -106,19 +106,19 @@ Example of *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/s
 ---
 ### Transitions and transversions summary
 
-[MAF_summary_titv.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary_titv.xlsx) - tab ***ICGC-PACA-CA (fraction)***
+[MAF_summary_titv.xlsx](https://github.com/umccr/MAF-summary/tree/master/examples/ICGC_PACA-CA_MAF_summary/MAF_summary_titv.xlsx) - tab ***ICGC-PACA-CA (fraction)***
 
 >Excel spreadsheet tab containing information about the fraction of each of the six different conversions (columns), including C>A, C>G, C>T, T>C, T>A and T>G, in each sample (rows).
 
 <br />
 
-[MAF_summary_titv.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary_titv.xlsx) - tab ***ICGC-PACA-CA (count)***
+[MAF_summary_titv.xlsx](https://github.com/umccr/MAF-summary/tree/master/examples/ICGC_PACA-CA_MAF_summary/MAF_summary_titv.xlsx) - tab ***ICGC-PACA-CA (count)***
 
 >Excel spreadsheet tab containing information about the count of each of the six different conversions (columns), including C>A, C>G, C>T, T>C, T>A and T>G, in each sample (rows).
 
 <br />
 
-[MAF_summary_titv.xlsx](https://github.com/umccr/MAF-summary/tree/master/ICGC_PACA-CA_MAF_summary/MAF_summary_titv.xlsx) - tab ***ICGC-PACA-CA (TiTv fractions)***
+[MAF_summary_titv.xlsx](https://github.com/umccr/MAF-summary/tree/master/examples/ICGC_PACA-CA_MAF_summary/MAF_summary_titv.xlsx) - tab ***ICGC-PACA-CA (TiTv fractions)***
 
 >Excel spreadsheet tab containing information about the fraction of transitions and transversions (columns) in each sample (rows).
 
