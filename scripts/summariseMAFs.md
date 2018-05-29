@@ -14,7 +14,7 @@ options( java.parameters = "-Xmx2000m" )
 
 <br>
 
-#### Load libraries
+### Load libraries
 
 
 ```r
@@ -26,7 +26,7 @@ suppressMessages(library(optparse))
 
 <br>
 
-#### Read *MAF* files
+### Read *MAF* files
 
 Go to the *MAF* files directory, read the files and create directory for output files, if does not exist already
 
@@ -77,7 +77,7 @@ if ( !file.exists(params$outDir) ){
 <br>
 
 
-#### Summarise *MAF* files
+### Summarise *MAF* files
 
 Generate an excel spreadsheet with basic information about each *MAF* file, including NCBI build, no. fo samples and genes, no. of different mutation types ( frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations), as well as the total no. of mutations present in the *MAF* file. Individual tabs present summary for corresponding datasets.
 
@@ -98,7 +98,7 @@ if ( !file.exists(paste(outDir, "MAF_summary.xlsx", sep = "/")) ){
 
 <br>
 
-##### Samples summary
+#### Samples summary
 
 Create a separate excel file with samples summary. Each tab contains per-sample information (rows) about no. of different types of mutations (columns), including frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations, as well as the total no. of mutations present in the MAF file.
 
@@ -118,7 +118,7 @@ if ( !file.exists(paste(outDir, "MAF_sample_summary.xlsx", sep = "/")) ) {
 <br>
 
 
-##### Genes summary
+#### Genes summary
 
 Now write gene summary into a file. This part creates an excel spreadsheet coontaining tabs for individual cohorts with per-gene information (rows) about no. of different types of mutations (columns), including frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations, as well as the total no. of mutations present in the MAF file. The last two columns contain the no. of samples with mutations/alterations in the corresponding gene.
 
@@ -136,7 +136,7 @@ if ( !file.exists(paste(outDir, "MAF_gene_summary.xlsx", sep = "/")) ){
 
 <br>
 
-##### *MAF* fields
+#### *MAF* fields
 
 Finally, create an excel spreadsheet listing all fields (columns) in the individaul *MAF* files.
 
@@ -155,24 +155,24 @@ if ( !file.exists(paste(outDir, "MAF_fields.xlsx", sep = "/")) ){
 <br>
 
 
-#### Visualisation
+### Visualisation
 
 This part creates a set of plots summarising individual *MAF* files.
 
-###### MAF summary plot
+#### MAF summary plot
 
 A summary for MAF file displaying frequency of various mutation/SNV types/classes (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of different mutation types for the top 10 mutated genes (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the cohort.
 
-###### Oncoplot
+#### Oncoplot
 
 Oncoplot illustrating different types of mutations observed across samples for the 10 most frequently mutated genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively.
 
 
-###### Transition and transversions distribution plot
+#### Transition and transversions distribution plot
 
 Plots presenting the transition and transversions distribution. The box-plots (top panel) show the overall distribution of the six different conversions (C>A, C>G, C>T, T>C, T>A and T>G)(left), and the transition and transversions frequency (right). The stacked bar-plot (bottom) displays the fraction of the six different conversions in each sample.
 
-###### Comparison with TCGA cohorts
+#### Comparison with TCGA cohorts
 
 Plot illustrating the mutation load in ICGC PACA-CA cohort along distribution of variants compiled from over 10,000 WXS samples across 33 TCGA landmark cohorts. Every dot represents a sample whereas the red horizontal lines are the median numbers of mutations in the respective cancer types. The vertical axis (log scaled) shows the number of mutations per megabase whereas the different cancer types are ordered on the horizontal axis based on their median numbers of somatic mutations. This plot is similar to the one described in the paper [Signatures of mutational processes in human cancer](https://www.ncbi.nlm.nih.gov/pubmed/23945592) by Alexandrov *et al*.
 
