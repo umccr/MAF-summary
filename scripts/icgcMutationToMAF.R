@@ -79,6 +79,8 @@ icgc.maf <- icgcSimpleMutationToMAF(icgc = input.icgc, addHugoSymbol = TRUE, rem
 ##### Write converted MAF file into a file
 write.table(prepare2write(icgc.maf), file = output.maf, sep = "\t", row.names = FALSE)
 
+##### Print session info
+devtools::session_info()
 
 ##### Clear workspace
 rm(list=ls())
