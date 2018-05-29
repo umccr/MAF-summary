@@ -72,13 +72,13 @@ The publicly available ICGC mutation data is stored in [Simple Somatic Mutation 
 
 **Script**: *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/scripts/icgcMutationToMAF.R)*
 
-Argument no. | Description
+Argument | Description
 ------------ | ------------
-1 | ICGC Simple Somatic Mutation Format file to be converted
-2 | Output file name
+--icgc_file | ICGC Simple Somatic Mutation Format file to be converted
+--output | Output file name
 <br />
 
-Command line use example:
+**Command line use example**:
 
 ```
 Rscript icgcMutationToMAF.R --icgc_file PACA-AU.icgc.simple_somatic_mutation.tsv --output PACA-AU.icgc.simple_somatic_mutation.maf
@@ -92,27 +92,26 @@ Rscript icgcMutationToMAF.R --icgc_file PACA-AU.icgc.simple_somatic_mutation.tsv
 
 ## Summarising and visualising multiple MAF files
 
-To summarise multiple MAF files run the *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)* script. It will generate set of plots and excel spreadsheets summarising each MAF file.
-
+To summarise multiple MAF files run the *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)* script. This script catches the arguments from the command line and passes them to the *[summariseMAFs.Rmd](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.Rmd)* script to produce the html report, generate set of plots and excel spreadsheets summarising each MAF file.
 
 **Script**: *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)*
 
-Argument no. | Description
+Argument | Description
 ------------ | ------------
-1 | Directory with MAF files
-2 | List of MAF files to be processed. Each file name is expected to be separated by comma
-3 | Desired names of each cohort. The names are expected to be in the same order as provided MAF files
-4 | Output directory
+--maf_dir | Directory with *MAF* files
+--maf_files | List of *MAF* files to be processed. Each file name is expected to be separated by comma
+--cohorts | Desired names of each cohort. The names are expected to be in the same order as provided *MAF* files
+--out_dir | Output directory
 <br />
 
-Command line use example:
+**Command line use example**:
 
 ```
 Rscript summariseMAFs.R --maf_dir /data --maf_files PACA-AU.icgc.simple_somatic_mutation.maf,PACA-CA.icgc.simple_somatic_mutation.maf --cohorts ICGC-PACA-AU,ICGC-PACA-CA --out_dir MAF_summary
 ```
 <br>
 
-This will generate the following output tables and plots:
+This will generate ***summariseMAFs.html*** report, *[summariseMAFs.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md)* markdown report. It will also create a folder with user-defined name with the following output tables and plots:
 
 Output file | Component | Description
 ------------ | ------------| -----------
