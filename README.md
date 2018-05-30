@@ -14,6 +14,7 @@ Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation
   * [Example output](#example-output)
     * [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/examples/ICGC_PACA-CA_MAF_summary)
     * [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/examples/TCGA_PAAD_MAF_summary)
+    * [R markdown report ](https://github.com/umccr/MAF-summary/blob/master/scripts/summariseMAFs.md)
 
 <!-- vim-markdown-toc -->
 <br>
@@ -111,7 +112,7 @@ Rscript summariseMAFs.R --maf_dir /data --maf_files PACA-AU.icgc.simple_somatic_
 ```
 <br>
 
-This will generate ***summariseMAFs.html*** report, *[summariseMAFs.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md)* markdown report. It will also create a folder with user-defined name with the following output tables and plots:
+This will generate ***summariseMAFs.html*** and *[summariseMAFs.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md)* markdown reports. It will also create a folder with user-defined name with the following output tables and plots:
 
 Output file | Component | Description
 ------------ | ------------| -----------
@@ -133,7 +134,7 @@ MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each 
 
 * [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/examples/ICGC_PACA-CA_MAF_summary) &nbsp; ( <img src="img/flag-of-Canada.png" width="2.5%"> ) - includes descrition for output tables and plots
 * [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/examples/TCGA_PAAD_MAF_summary) &nbsp; ( <img src="img/flag-of-United-States-of-America.png" width="2.5%"> ) - highlihts sample demonstrating extremely high mutation burden
-* [R markdown report](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md) &nbsp; ( <img src="img/flag-of-United-States-of-America.png" width="2.5%"> ) - R markdown report for all cohorts
+* [R markdown report](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md) - R markdown report for all cohorts
 
 
 <br />
