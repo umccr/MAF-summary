@@ -34,6 +34,18 @@ knitr::opts_knit$set(root.dir = params$mafDir)
 ```
 
 ```r
+##### Read MAF files and put associated info into a list
+mafFiles <- gsub("\\s","", params$mafFiles)
+mafFiles <-  unlist(strsplit(mafFiles, split=',', fixed=TRUE))
+mafFiles <- paste(params$mafDir, mafFiles, sep="/")
+
+mafInfo <- vector("list", length(mafFiles))
+
+for ( i in 1:length(mafFiles) ) {
+  mafInfo[[i]] = read.maf(maf = mafFiles[i], verbose = FALSE)
+```
+
+```r
 ##### Create directory for output files
 outDir <- paste(params$mafDir, params$outDir, sep = "/")
   
@@ -257,6 +269,96 @@ for ( i in 1:length(mafFiles) ) {
 #### Comparison with TCGA cohorts
 
 Plot illustrating the mutation load in ICGC PACA-CA cohort along distribution of variants compiled from over 10,000 WXS samples across 33 TCGA landmark cohorts. Every dot represents a sample whereas the red horizontal lines are the median numbers of mutations in the respective cancer types. The vertical axis (log scaled) shows the number of mutations per megabase whereas the different cancer types are ordered on the horizontal axis based on their median numbers of somatic mutations. This plot is similar to the one described in the paper "Signatures of mutational processes in human cancer" by Alexandrov et al. (PMID: 23945592)
+
+```r
+###### Generate separate plot for each cohort
+for ( i in 1:length(mafFiles) ) {
+
+  ##### Compare mutation load against TCGA cohorts
+  maftools::tcgaCompare(maf = mafInfo[[i]], cohortName = cohorts.list[i], primarySite=TRUE)
+}
+```
+
+```
+##                      Cohort Cohort_Size Median_Mutations
+##  1:                    Skin         468            315.0
+##  2:           Lung Squamous         494            187.5
+##  3:              Lung Adeno         567            158.0
+## ...
+## 12:                   Liver         374             67.0
+## 13:                  Cervix         305             66.0
+## 14:       Colorectal Rectum         158             63.0
+## 15:         Kidney Papilary         288             53.0
+## 16:               TCGA-PAAD         143             47.0
+## 17:       Kidney Clear Cell         339             44.0
+## 18:                  Uterus          57             35.0
+## ...
+## 34:           Adrenal Gland         177              7.0
+##                      Cohort Cohort_Size Median_Mutations
+```
+
+![](summariseMAFs_files/figure-html/maf_tcga_cohorts-1.png)<!-- -->
+
+```
+##                      Cohort Cohort_Size Median_Mutations
+##  1:                    Skin         468            315.0
+##  2:           Lung Squamous         494            187.5
+## ...
+## 22:                  Pleura          83             25.0
+## 23:                Pancreas         178             22.5
+## 24: Adrenal Gland Carcinoma          92             21.5
+## 25:            Brain Glioma         511             19.0
+## 26:                Prostate         496             19.0
+## 27:            ICGC-PACA-AU         395             18.0
+## 28:      Kidney Chromophobe          66             13.0
+## 29:                  Testis         149             11.0
+## ...
+## 34:           Adrenal Gland         177              7.0
+##                      Cohort Cohort_Size Median_Mutations
+```
+
+![](summariseMAFs_files/figure-html/maf_tcga_cohorts-2.png)<!-- -->
+
+```
+##                      Cohort Cohort_Size Median_Mutations
+##  1:                    Skin         468            315.0
+##  2:           Lung Squamous         494            187.5
+## ...
+## 14:       Colorectal Rectum         158             63.0
+## 15:         Kidney Papilary         288             53.0
+## 16:       Kidney Clear Cell         339             44.0
+## 17: ICGC-PACA-AU-additional          25             40.0
+## 18:                  Uterus          57             35.0
+## 19:                  Breast        1044             34.0
+## 20:      Brain Glioblastoma         395             32.0
+## ...
+## 33:                 Thyroid         491              9.0
+## 34:           Adrenal Gland         177              7.0
+##                      Cohort Cohort_Size Median_Mutations
+```
+
+![](summariseMAFs_files/figure-html/maf_tcga_cohorts-3.png)<!-- -->
+
+```
+##                      Cohort Cohort_Size Median_Mutations
+##  1:                    Skin         468            315.0
+##  2:           Lung Squamous         494            187.5
+## ...
+## 16:       Kidney Clear Cell         339             44.0
+## 17:                  Uterus          57             35.0
+## 18:                  Breast        1044             34.0
+## 19:      Brain Glioblastoma         395             32.0
+## 20:             Soft Tissue         255             31.0
+## 21:               Bile Duct          51             30.0
+## 22:                  Pleura          83             25.0
+## 23:            ICGC-PACA-CA         336             25.0
+## 24:                Pancreas         178             22.5
+## ...
+## 34:           Adrenal Gland         177              7.0
+##                      Cohort Cohort_Size Median_Mutations
+```
+
+![](summariseMAFs_files/figure-html/maf_tcga_cohorts-4.png)<!-- -->
 
 <br>
 

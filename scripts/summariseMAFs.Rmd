@@ -39,7 +39,7 @@ Go to the MAF files directory, read the files and create directory for output fi
 knitr::opts_knit$set(root.dir = params$mafDir)
 ```
 
-```{r load_data, message=F, warning=F, include = FALSE}
+```{r load_data, message=FALSE, warning=FALSE}
 ##### Read MAF files and put associated info into a list
 mafFiles <- gsub("\\s","", params$mafFiles)
 mafFiles <-  unlist(strsplit(mafFiles, split=',', fixed=TRUE))
@@ -188,7 +188,7 @@ for ( i in 1:length(mafFiles) ) {
 
 Plot illustrating the mutation load in ICGC PACA-CA cohort along distribution of variants compiled from over 10,000 WXS samples across 33 TCGA landmark cohorts. Every dot represents a sample whereas the red horizontal lines are the median numbers of mutations in the respective cancer types. The vertical axis (log scaled) shows the number of mutations per megabase whereas the different cancer types are ordered on the horizontal axis based on their median numbers of somatic mutations. This plot is similar to the one described in the paper "Signatures of mutational processes in human cancer" by Alexandrov et al. (PMID: 23945592)
 
-```{r maf_tcga_cohorts, message=F, warning=F, include = FALSE}
+```{r maf_tcga_cohorts, message=FALSE, warning=FALSE}
 ###### Generate separate plot for each cohort
 for ( i in 1:length(mafFiles) ) {
 
@@ -198,7 +198,7 @@ for ( i in 1:length(mafFiles) ) {
 ```
 
 
-```{r maf_visualisation_pdf, message=F, warning=F, include = FALSE}
+```{r maf_visualisation_pdf, message=FALSE, warning=FALSE}
 ###### Generate separate file with plots for each cohort
 for ( i in 1:length(mafFiles) ) {
 
