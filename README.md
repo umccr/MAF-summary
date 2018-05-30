@@ -121,7 +121,7 @@ MAF_sample_summary.xlsx | - | Excel spreadsheet with per-sample information abou
 MAF_gene_summary.xlsx | - | Excel spreadsheet with per-gene information about no. of different types of mutations, as well as mutated samples. The summary is provided for each cohort in a separate tab
 MAF_fields.xlsx | - | Excel spreadsheet listing all fields (columns) in each MAF file presented in a separate tab
 MAF_sample_summary_heatmap_ [***cohort***] .html | - | Samples summary in a form of interactive heatmap facilitating outliers detection
-MAF_agene_summary_heatmap_ [***cohort***] .html | - | Genes summary in a form of interactive heatmap
+MAF_agene_summary_heatmap_ [***cohort***] .html | - | Genes summary in a form of interactive heatmap (displays the top 50 mutated genes)
 MAF_summary_titv.xlsx | [***cohort***] (fraction) | Excel tab containing information about the fraction of each of the six different conversions (C>A, C>G, C>T, T>C, T>A and T>G) in each sample. The information for each cohort is provided in a separate tab
 MAF_summary_titv.xlsx | [***cohort***] (count) | Excel tab containing information about the count of each of the six different conversions (C>A, C>G, C>T, T>C, T>A and T>G) in each sample. The information for each cohort is provided in a  separate tab
 MAF_summary_titv.xlsx | [***cohort***] (TiTv) | Excel tab containing information the fraction of transitions and transversions in each sample. The information for each cohort is provided in a separate tab
