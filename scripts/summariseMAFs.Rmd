@@ -3,10 +3,10 @@ title: "Multiple MAF files summarisation and visualisation"
 author: "Jacek Marzec"
 date: "28/05/2018"
 params:
-  mafDir: 
-  mafFiles: 
-  cohorts: 
-  outDir: 
+  mafDir:
+  mafFiles:
+  cohorts:
+  outDir:
 output:
   html_document:
     keep_md: yes
@@ -50,7 +50,7 @@ for ( i in 1:length(mafFiles) ) {
 ```{r set_out_dir}
 ##### Create directory for output files
 outDir <- paste(params$mafDir, params$outDir, sep = "/")
-  
+
 if ( !file.exists(params$outDir) ){
   dir.create(outDir)
   cat(paste("\nOutput files will be saved in \"", outDir, "\" folder\n\n", sep=""))
@@ -84,7 +84,7 @@ Create a separate excel file with samples summary. Each tab contains per-sample 
 ```{r sample_summary}
 ##### Write samples summary into a file
 if ( !file.exists(paste(outDir, "MAF_sample_summary.xlsx", sep = "/")) ) {
-  
+
   for ( i in 1:length(mafFiles) ) {
     write.xlsx(maftools::getSampleSummary(mafInfo[[i]]), file=paste(outDir, "MAF_sample_summary.xlsx", sep="/"), sheetName=cohorts.list[i], row.names=FALSE,  append=TRUE)
   }
@@ -104,30 +104,30 @@ plt <- htmltools::tagList()
 
 ##### Display samples summary in a form of interactive heatmap
 for ( i in 1:length(mafFiles) ) {
-  
+
   sampleSummary <- data.frame(maftools::getSampleSummary(mafInfo[[i]]))
   rownames(sampleSummary) <-sampleSummary[,"Tumor_Sample_Barcode"]
   sampleSummary <- subset(sampleSummary, select=-c(Tumor_Sample_Barcode, total))
-  
+
   ##### Generate interactive heatmap
   p <- heatmaply(sampleSummary, main = paste0("Samples summary: ", cohorts.list[i]), Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Sample","Mutation_type","Count")) %>%
   layout(width  = 900, height = 600, margin = list(l=150, r=10, b=150, t=50, pad=4), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
-  
+
   ##### Add plot to the list for htmlwidgets
   plt[[i]] <- as_widget(ggplotly(p))
-  
+
    ##### Save the heatmap as html (PLOTLY)
   htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_sample_summary_heatmap_", cohorts.list[i], ".html"), selfcontained = TRUE)
-   
+
   ##### Plotly option
   #p <- plot_ly(x = colnames(sampleSummary), y = rownames(sampleSummary), z = as.matrix(sampleSummary), height = 600, type = "heatmap") %>%
   #layout(title = paste0("Samples summary: ", cohorts.list[i]), autosize = TRUE, margin = list(l=150, r=10, b=100, t=100, pad=4), showlegend = TRUE)
-  
+
   #plt[[i]] <- ggplotly(p)
 }
 
 ##### Detach plotly package. Otherwise it clashes with other graphics devices
-#detach("package:heatmaply", unload=FALSE)
+detach("package:heatmaply", unload=FALSE)
 detach("package:plotly", unload=FALSE)
 ```
 
@@ -162,14 +162,14 @@ plt <- htmltools::tagList()
 
 ##### Display genes summary in a form of interactive heatmap
 for ( i in 1:length(mafFiles) ) {
-  
+
   geneSummary <- data.frame(maftools::getGeneSummary(mafInfo[[i]])[1:50,])
   rownames(geneSummary) <-geneSummary[,"Hugo_Symbol"]
   geneSummary <- subset(geneSummary, select=-c(Hugo_Symbol))
-  
+
   ##### Cluster table by genes
   #hr <- hclust(as.dist(dist(geneSummary, method="euclidean")), method="ward.D")
-  
+
   ##### Generate interactive heatmap
   #p <- heatmaply(geneSummary, main = paste0("Genes  summary: ", cohorts.list[i]), Rowv=as.dendrogram(hr), Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = TRUE, fontsize_row = 8, fontsize_col = 8)  %>%
   #layout(autosize = TRUE, width = 800, height = 800, margin = list(l=250, r=10, b=150, t=50, pad=4), showlegend = TRUE)
@@ -177,22 +177,22 @@ for ( i in 1:length(mafFiles) ) {
   ##### Generate interactive heatmap
   p <- heatmaply(geneSummary, main = paste0("Genes summary: ", cohorts.list[i]), Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Mutation_type","Count")) %>%
   layout(width  = 900, height = 600, margin = list(l=150, r=10, b=150, t=50, pad=4), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
-  
+
   ##### Add plot to the list for htmlwidgets
   plt[[i]] <- as_widget(ggplotly(p))
-  
+
      ##### Save the heatmap as html (PLOTLY)
   htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_gene_summary_heatmap_", cohorts.list[i], ".html"), selfcontained = TRUE)
-  
+
   ##### Plotly option
   #p <- plot_ly(x = colnames(geneSummary), y = rownames(geneSummary), z = as.matrix(geneSummary), height = 600, type = "heatmap") %>%
   #layout(title = paste0("Genes summary: ", cohorts.list[i]), autosize = TRUE, margin = list(l=150, r=10, b=100, t=100, pad=4), showlegend = TRUE)
-  
+
   #plt[[i]] <- ggplotly(p)
 }
 
 ##### Detach plotly package. Otherwise it clashes with other graphics devices
-#detach("package:heatmaply", unload=FALSE)
+detach("package:heatmaply", unload=FALSE)
 detach("package:plotly", unload=FALSE)
 ```
 
@@ -306,7 +306,7 @@ for ( i in 1:length(mafFiles) ) {
 
   plotTiTv(res = titv.info)
   mtext("Transition and transversions distribution", outer=TRUE,  cex=1, line=-1.5)
-  
+
   ##### Write per-sample transitions and transversions distribution into a file
   if ( !file.exists(paste(outDir, "MAF_summary_titv.xlsx", sep = "/")) ) {
     write.xlsx(titv.info$fraction.contribution, file=paste(outDir, "MAF_summary_titv.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (fraction)"), row.names=FALSE,  append=TRUE)
@@ -315,7 +315,7 @@ for ( i in 1:length(mafFiles) ) {
   } else {
     cat(paste("\nFile \"MAF_summary_titv.xlsx\" already exists in", outDir, "!\n\n", sep=" "))
   }
-  
+
   ##### Compare mutation load against TCGA cohorts
   tcgaCompare(maf = mafInfo[[i]], cohortName = cohorts.list[i], primarySite=TRUE)
   mtext("Mutation load in TCGA cohorts", outer=TRUE,  cex=1, line=-0.5)
@@ -329,4 +329,3 @@ Print session info
 ```{r session_info}
 sessionInfo()
 ```
-
