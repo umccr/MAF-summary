@@ -128,6 +128,11 @@ detach("package:heatmaply", unload=FALSE)
 detach("package:plotly", unload=FALSE)
 ```
 
+```{r print_sample_heatmaps, echo = FALSE}
+##### Print a list of htmlwidgets in a single code chunk
+plt
+```
+
 *Note, since html files are not supported by GitHub the follwoing plots are screenshots only*
 
 ![](summariseMAFs_files/figure-html/MAF_sample_summary_heatmap_TCGA-PAAD.png)<!-- -->
@@ -198,6 +203,11 @@ for ( i in 1:length(mafFiles) ) {
 ##### Detach plotly package. Otherwise it clashes with other graphics devices
 detach("package:heatmaply", unload=FALSE)
 detach("package:plotly", unload=FALSE)
+```
+
+```{r print_sample_heatmaps, echo = FALSE}
+##### Print a list of htmlwidgets in a single code chunk
+plt
 ```
 
 <br>
