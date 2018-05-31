@@ -29,11 +29,6 @@ suppressMessages(library(optparse))
 Go to the MAF files directory, read the files and create directory for output files, if does not exist already
 
 ```r
-##### Configure knitr and set up working directory to directory with MAF files
-knitr::opts_knit$set(root.dir = params$mafDir)
-```
-
-```r
 ##### Read MAF files and put associated info into a list
 mafFiles <- gsub("\\s","", params$mafFiles)
 mafFiles <-  unlist(strsplit(mafFiles, split=',', fixed=TRUE))
@@ -95,6 +90,54 @@ if ( !file.exists(paste(outDir, "MAF_sample_summary.xlsx", sep = "/")) ) {
 }
 ```
 
+Generate an interactive heatmap to facilitate outlier samples detection. Rows and columns represent samples and mutation types, respectively. The colour scale from blue to yellow indicates low and high number of various mutations types, respectively, reported for corresponding samples. Samples are ordered by the number of mutations to facilitate identification of individuals with extreme mutation burden.
+
+```r
+suppressMessages(library(plotly))
+suppressMessages(library(heatmaply))
+
+##### Create a list for htmlwidgets
+plt <- htmltools::tagList()
+
+##### Display samples summary in a form of interactive heatmap
+for ( i in 1:length(mafFiles) ) {
+  
+  sampleSummary <- data.frame(maftools::getSampleSummary(mafInfo[[i]]))
+  rownames(sampleSummary) <-sampleSummary[,"Tumor_Sample_Barcode"]
+  sampleSummary <- subset(sampleSummary, select=-c(Tumor_Sample_Barcode, total))
+  
+  ##### Generate interactive heatmap
+  p <- heatmaply(sampleSummary, main = paste0("Samples summary: ", cohorts.list[i]), Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Sample","Mutation_type","Count")) %>%
+  layout(width  = 900, height = 600, margin = list(l=150, r=10, b=150, t=50, pad=4), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+  
+  ##### Add plot to the list for htmlwidgets
+  plt[[i+1]] <- as_widget(ggplotly(p))
+  
+   ##### Save the heatmap as html (PLOTLY)
+  htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_sample_summary_heatmap_", cohorts.list[i], ".html"), selfcontained = TRUE)
+   
+  ##### Plotly option
+  #p <- plot_ly(x = colnames(sampleSummary), y = rownames(sampleSummary), z = as.matrix(sampleSummary), height = 600, type = "heatmap") %>%
+  #layout(title = paste0("Samples summary: ", cohorts.list[i]), autosize = TRUE, margin = list(l=150, r=10, b=100, t=100, pad=4), showlegend = TRUE)
+  
+  #plt[[i]] <- ggplotly(p)
+}
+
+##### Detach plotly package. Otherwise it clashes with other graphics devices
+detach("package:heatmaply", unload=FALSE)
+detach("package:plotly", unload=FALSE)
+```
+
+*Note, since html files are not supported by GitHub the follwoing plots are screenshots only*
+
+![](summariseMAFs_files/figure-html/MAF_sample_summary_heatmap_TCGA-PAAD.png)<!-- -->
+
+![](summariseMAFs_files/figure-html/MAF_sample_summary_heatmap_ICGC-PACA-AU.png)<!-- -->
+
+![](summariseMAFs_files/figure-html/MAF_sample_summary_heatmap_ICGC-PACA-AU-additional.png)<!-- -->
+
+![](summariseMAFs_files/figure-html/MAF_sample_summary_heatmap_ICGC-PACA-CA.png)<!-- -->
+
 <br>
 
 #### Genes summary
@@ -112,7 +155,63 @@ if ( !file.exists(paste(outDir, "MAF_gene_summary.xlsx", sep = "/")) ){
 }
 ```
 
+This time generate an interactive heatmap to summmarise genes information. Rows and columns represent genes and mutation types, respectively. The colour scale from blue to yellow indicates low and high number of various mutations types, respectively, observed in corresponding genes. Genes are ordered by the number of reported mutations. The total number of mutations in individual genes, as well as the number of samples with mutations are also presented in the last three columns. Note, for transparency we show only the top 50 mutated genes.
+
+```r
+suppressMessages(library(plotly))
+suppressMessages(library(heatmaply))
+
+##### Create a list for htmlwidgets
+plt <- htmltools::tagList()
+
+##### Display genes summary in a form of interactive heatmap
+for ( i in 1:length(mafFiles) ) {
+  
+  geneSummary <- data.frame(maftools::getGeneSummary(mafInfo[[i]])[1:50,])
+  rownames(geneSummary) <-geneSummary[,"Hugo_Symbol"]
+  geneSummary <- subset(geneSummary, select=-c(Hugo_Symbol))
+  
+  ##### Cluster table by genes
+  #hr <- hclust(as.dist(dist(geneSummary, method="euclidean")), method="ward.D")
+  
+  ##### Generate interactive heatmap
+  #p <- heatmaply(geneSummary, main = paste0("Genes  summary: ", cohorts.list[i]), Rowv=as.dendrogram(hr), Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = TRUE, fontsize_row = 8, fontsize_col = 8)  %>%
+  #layout(autosize = TRUE, width = 800, height = 800, margin = list(l=250, r=10, b=150, t=50, pad=4), showlegend = TRUE)
+
+  ##### Generate interactive heatmap
+  p <- heatmaply(geneSummary, main = paste0("Genes summary: ", cohorts.list[i]), Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Mutation_type","Count")) %>%
+  layout(width  = 900, height = 600, margin = list(l=150, r=10, b=150, t=50, pad=4), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+  
+  ##### Add plot to the list for htmlwidgets
+  plt[[i]] <- as_widget(ggplotly(p))
+  
+     ##### Save the heatmap as html (PLOTLY)
+  htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_gene_summary_heatmap_", cohorts.list[i], ".html"), selfcontained = TRUE)
+  
+  ##### Plotly option
+  #p <- plot_ly(x = colnames(geneSummary), y = rownames(geneSummary), z = as.matrix(geneSummary), height = 600, type = "heatmap") %>%
+  #layout(title = paste0("Genes summary: ", cohorts.list[i]), autosize = TRUE, margin = list(l=150, r=10, b=100, t=100, pad=4), showlegend = TRUE)
+  
+  #plt[[i]] <- ggplotly(p)
+}
+
+##### Detach plotly package. Otherwise it clashes with other graphics devices
+detach("package:heatmaply", unload=FALSE)
+detach("package:plotly", unload=FALSE)
+```
+
 <br>
+
+*Note, since html files are not supported by GitHub the follwoing plots are screenshots only*
+
+![](summariseMAFs_files/figure-html/MAF_gene_summary_heatmap_TCGA-PAAD.png)<!-- -->
+
+![](summariseMAFs_files/figure-html/MAF_gene_summary_heatmap_ICGC-PACA-AU.png)<!-- -->
+
+![](summariseMAFs_files/figure-html/MAF_gene_summary_heatmap_ICGC-PACA-AU-additional.png)<!-- -->
+
+![](summariseMAFs_files/figure-html/MAF_gene_summary_heatmap_ICGC-PACA-CA.png)<!-- -->
+
 
 #### MAF fields
 
