@@ -112,7 +112,7 @@ Rscript summariseMAFs.R --maf_dir /data --maf_files PACA-AU.icgc.simple_somatic_
 ```
 <br>
 
-This will generate ***summariseMAFs.html*** and *[summariseMAFs.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md)* markdown reports. It will also create a folder with user-defined name with the following output tables and plots:
+This will generate *[summariseMAFs.html](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.html)* and *[summariseMAFs.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md)* reports with interactive summary tables and heatmaps. It will also create a folder with user-defined name with the following output tables and plots:
 
 Output file | Component | Description
 ------------ | ------------| -----------
