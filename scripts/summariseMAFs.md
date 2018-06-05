@@ -20,11 +20,10 @@ suppressMessages(library(knitr))
 suppressMessages(library(maftools))
 suppressMessages(library(xlsx))
 suppressMessages(library(optparse))
+suppressMessages(library(DT))
 ```
 
-<br>
-
-### Read MAF files
+## Read MAF files
 
 Go to the MAF files directory, read the files and create directory for output files, if does not exist already
 
@@ -38,25 +37,25 @@ mafInfo <- vector("list", length(mafFiles))
 
 for ( i in 1:length(mafFiles) ) {
   mafInfo[[i]] = read.maf(maf = mafFiles[i], verbose = FALSE)
+}
 ```
 
 ```r
 ##### Create directory for output files
 outDir <- paste(params$mafDir, params$outDir, sep = "/")
-  
+
 if ( !file.exists(params$outDir) ){
   dir.create(outDir)
-  cat(paste("\nOutput files will be saved in \"", outDir, "\" folder\n\n", sep=""))
-} else {
-  cat(paste("\nDirectory \"", outDir, "\" already exists! The output files will be saved there.\n\n", sep=""))
 }
 ```
 
-<br>
+### Summarise MAF files - tables
 
-### Summarise MAF files
+This part will create set of tabs with interactive tables including *overall summary*, *samples summary* and *genes summary* (check the *[summariseMAFs.html](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.html)* example report).
+ 
+### Overall summary
 
-Generate an excel spreadsheet  with basic information about each MAF file, including NCBI build, no. fo samples and genes, no. of different mutation types ( frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations), as well as the total no. of mutations present in the MAF file. Individual tabs present summary for corresponding datasets.
+Generate tables  with basic information about each MAF file, including NCBI build, no. fo samples and genes, no. of different mutation types ( frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations), as well as the total no. of mutations present in the MAF file. Individual tables present summary for corresponding datasets.
 
 ```r
 cohorts.list <- gsub("\\s","", params$cohorts)
@@ -67,28 +66,88 @@ if ( !file.exists(paste(outDir, "MAF_summary.xlsx", sep = "/")) ){
   for ( i in 1:length(mafFiles) ) {
     write.xlsx(mafInfo[[i]]@summary, file=paste(outDir, "MAF_summary.xlsx", sep="/"), sheetName=cohorts.list[i], row.names=FALSE,  append=TRUE)
   }
-} else {
-  cat(paste("\nFile \"MAF_summary.xlsx\" already exists in", outDir, "!\n\n", sep=" "))
+}
+
+##### Present a MAF file summary table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- DT::datatable(data = mafInfo[[i]]@summary, caption = paste0("MAF summary: ", cohorts.list[i]))
+}
+
+##### Print a list of htmlwidgets
+widges.list
+```
+
+Additionally ceate an excel spreadsheet listing all fields (columns) in the individaul MAF files.
+
+```r
+##### Get all fields in MAF files
+if ( !file.exists(paste(outDir, "MAF_fields.xlsx", sep = "/")) ){
+  for ( i in 1:length(mafFiles) ) {
+    write.xlsx(maftools::getFields(mafInfo[[i]]), file=paste(outDir, "MAF_fields.xlsx", sep="/"), sheetName=cohorts.list[i], row.names=FALSE,  append=TRUE, col.names=FALSE)
+  }
 }
 ```
 
-<br>
+### Samples summary
 
-#### Samples summary
+Create tables with samples summary. Each table contains per-sample information (rows) about no. of different types of mutations (columns), including frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations, as well as the total no. of mutations present in the MAF file.
 
-Create a separate excel file with samples summary. Each tab contains per-sample information (rows) about no. of different types of mutations (columns), including frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations, as well as the total no. of mutations present in the MAF file.
 
 ```r
 ##### Write samples summary into a file
 if ( !file.exists(paste(outDir, "MAF_sample_summary.xlsx", sep = "/")) ) {
-  
+
   for ( i in 1:length(mafFiles) ) {
     write.xlsx(maftools::getSampleSummary(mafInfo[[i]]), file=paste(outDir, "MAF_sample_summary.xlsx", sep="/"), sheetName=cohorts.list[i], row.names=FALSE,  append=TRUE)
   }
-} else {
-  cat(paste("\nFile \"MAF_sample_summary.xlsx\" already exists in", outDir, "!\n\n", sep=" "))
 }
+
+##### Present a sample table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- DT::datatable(data = maftools::getSampleSummary(mafInfo[[i]]), caption = paste0("Samples summary: ", cohorts.list[i]), filter = "top")
+}
+
+##### Print a list of htmlwidgets
+widges.list
 ```
+
+### Genes summary
+
+Now present gene summary info. This part creates tables for individual cohorts with per-gene information (rows) about no. of different types of mutations (columns), including frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations, as well as the total no. of mutations present in the MAF file. The last two columns contain the no. of samples with mutations/alterations in the corresponding gene.
+
+
+```r
+##### Write gene summary into a file
+if ( !file.exists(paste(outDir, "MAF_gene_summary.xlsx", sep = "/")) ){
+  for ( i in 1:length(mafFiles) ) {
+    write.xlsx(maftools::getGeneSummary(mafInfo[[i]]), file=paste(outDir, "MAF_gene_summary.xlsx", sep="/"), sheetName=cohorts.list[i], row.names=FALSE,  append=TRUE)
+  }
+}
+
+##### Present a gene table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- DT::datatable(data = maftools::getGeneSummary(mafInfo[[i]]), caption = paste0("Genes summary: ", cohorts.list[i]), filter = "top")
+}
+
+##### Print a list of htmlwidgets
+widges.list
+```
+
+
+### Summarise MAF files - heatmaps
+
+This part will create set of tabs with interactive heatmaps summarising samples (*samples summary* tab) and genes info (*genes summary* tab). Check the *[summariseMAFs.html](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.html)* report to see an example.
+
+#### Samples summary
 
 Generate an interactive heatmap to facilitate outlier samples detection. Rows and columns represent samples and mutation types, respectively. The colour scale from blue to yellow indicates low and high number of various mutations types, respectively, reported for corresponding samples. Samples are ordered by the number of mutations to facilitate identification of individuals with extreme mutation burden.
 
@@ -97,42 +156,41 @@ suppressMessages(library(plotly))
 suppressMessages(library(heatmaply))
 
 ##### Create a list for htmlwidgets
-plt <- htmltools::tagList()
+widges.list <- htmltools::tagList()
 
 ##### Display samples summary in a form of interactive heatmap
 for ( i in 1:length(mafFiles) ) {
-  
+
   sampleSummary <- data.frame(maftools::getSampleSummary(mafInfo[[i]]))
   rownames(sampleSummary) <-sampleSummary[,"Tumor_Sample_Barcode"]
   sampleSummary <- subset(sampleSummary, select=-c(Tumor_Sample_Barcode, total))
-  
+
   ##### Generate interactive heatmap
   p <- heatmaply(sampleSummary, main = paste0("Samples summary: ", cohorts.list[i]), Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Sample","Mutation_type","Count")) %>%
   layout(width  = 900, height = 600, margin = list(l=150, r=10, b=150, t=50, pad=4), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
-  
+
   ##### Add plot to the list for htmlwidgets
-  plt[[i+1]] <- as_widget(ggplotly(p))
-  
+  widges.list[[i]] <- as_widget(ggplotly(p))
+
    ##### Save the heatmap as html (PLOTLY)
   htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_sample_summary_heatmap_", cohorts.list[i], ".html"), selfcontained = TRUE)
-   
+
   ##### Plotly option
   #p <- plot_ly(x = colnames(sampleSummary), y = rownames(sampleSummary), z = as.matrix(sampleSummary), height = 600, type = "heatmap") %>%
   #layout(title = paste0("Samples summary: ", cohorts.list[i]), autosize = TRUE, margin = list(l=150, r=10, b=100, t=100, pad=4), showlegend = TRUE)
-  
-  #plt[[i]] <- ggplotly(p)
-}
 
+  #widges.list[[i]] <- ggplotly(p)
+}
+```
+
+```r
 ##### Detach plotly package. Otherwise it clashes with other graphics devices
 detach("package:heatmaply", unload=FALSE)
 detach("package:plotly", unload=FALSE)
-```
 
-```{r print_sample_heatmaps, echo = FALSE}
-##### Print a list of htmlwidgets in a single code chunk
-plt
+##### Print a list of htmlwidgets
+widges.list
 ```
-
 *Note, since html files are not supported by GitHub the follwoing plots are screenshots only*
 
 ![](summariseMAFs_files/figure-html/MAF_sample_summary_heatmap_TCGA-PAAD.png)<!-- -->
@@ -145,20 +203,7 @@ plt
 
 <br>
 
-#### Genes summary
-
-Now write gene summary into a file. This part creates an excel spreadsheet coontaining tabs for individual cohorts with per-gene information (rows) about no. of different types of mutations (columns), including frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations, as well as the total no. of mutations present in the MAF file. The last two columns contain the no. of samples with mutations/alterations in the corresponding gene.
-
-```r
-##### Write gene summary into a file
-if ( !file.exists(paste(outDir, "MAF_gene_summary.xlsx", sep = "/")) ){
-  for ( i in 1:length(mafFiles) ) {
-    write.xlsx(maftools::getGeneSummary(mafInfo[[i]]), file=paste(outDir, "MAF_gene_summary.xlsx", sep="/"), sheetName=cohorts.list[i], row.names=FALSE,  append=TRUE)
-  }
-} else {
-  cat(paste("\nFile \"MAF_gene_summary.xlsx\" already exists in", outDir, "!\n\n", sep=" "))
-}
-```
+### Genes summary
 
 This time generate an interactive heatmap to summmarise genes information. Rows and columns represent genes and mutation types, respectively. The colour scale from blue to yellow indicates low and high number of various mutations types, respectively, observed in corresponding genes. Genes are ordered by the number of reported mutations. The total number of mutations in individual genes, as well as the number of samples with mutations are also presented in the last three columns. Note, for transparency we show only the top 50 mutated genes.
 
@@ -167,18 +212,18 @@ suppressMessages(library(plotly))
 suppressMessages(library(heatmaply))
 
 ##### Create a list for htmlwidgets
-plt <- htmltools::tagList()
+widges.list <- htmltools::tagList()
 
 ##### Display genes summary in a form of interactive heatmap
 for ( i in 1:length(mafFiles) ) {
-  
+
   geneSummary <- data.frame(maftools::getGeneSummary(mafInfo[[i]])[1:50,])
   rownames(geneSummary) <-geneSummary[,"Hugo_Symbol"]
   geneSummary <- subset(geneSummary, select=-c(Hugo_Symbol))
-  
+
   ##### Cluster table by genes
   #hr <- hclust(as.dist(dist(geneSummary, method="euclidean")), method="ward.D")
-  
+
   ##### Generate interactive heatmap
   #p <- heatmaply(geneSummary, main = paste0("Genes  summary: ", cohorts.list[i]), Rowv=as.dendrogram(hr), Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = TRUE, fontsize_row = 8, fontsize_col = 8)  %>%
   #layout(autosize = TRUE, width = 800, height = 800, margin = list(l=250, r=10, b=150, t=50, pad=4), showlegend = TRUE)
@@ -186,28 +231,28 @@ for ( i in 1:length(mafFiles) ) {
   ##### Generate interactive heatmap
   p <- heatmaply(geneSummary, main = paste0("Genes summary: ", cohorts.list[i]), Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Mutation_type","Count")) %>%
   layout(width  = 900, height = 600, margin = list(l=150, r=10, b=150, t=50, pad=4), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
-  
+
   ##### Add plot to the list for htmlwidgets
-  plt[[i]] <- as_widget(ggplotly(p))
-  
+  widges.list[[i]] <- as_widget(ggplotly(p))
+
      ##### Save the heatmap as html (PLOTLY)
   htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_gene_summary_heatmap_", cohorts.list[i], ".html"), selfcontained = TRUE)
-  
+
   ##### Plotly option
   #p <- plot_ly(x = colnames(geneSummary), y = rownames(geneSummary), z = as.matrix(geneSummary), height = 600, type = "heatmap") %>%
   #layout(title = paste0("Genes summary: ", cohorts.list[i]), autosize = TRUE, margin = list(l=150, r=10, b=100, t=100, pad=4), showlegend = TRUE)
-  
-  #plt[[i]] <- ggplotly(p)
-}
 
+  #widges.list[[i]] <- ggplotly(p)
+}
+```
+
+```r
 ##### Detach plotly package. Otherwise it clashes with other graphics devices
 detach("package:heatmaply", unload=FALSE)
 detach("package:plotly", unload=FALSE)
-```
 
-```{r print_sample_heatmaps, echo = FALSE}
-##### Print a list of htmlwidgets in a single code chunk
-plt
+##### Print a list of htmlwidgets
+widges.list
 ```
 
 <br>
@@ -222,24 +267,6 @@ plt
 
 ![](summariseMAFs_files/figure-html/MAF_gene_summary_heatmap_ICGC-PACA-CA.png)<!-- -->
 
-
-#### MAF fields
-
-Finally, create an excel spreadsheet listing all fields (columns) in the individaul MAF files.
-
-```r
-##### Get all fields in MAF files
-if ( !file.exists(paste(outDir, "MAF_fields.xlsx", sep = "/")) ){
-  for ( i in 1:length(mafFiles) ) {
-    write.xlsx(maftools::getFields(mafInfo[[i]]), file=paste(outDir, "MAF_fields.xlsx", sep="/"), sheetName=cohorts.list[i], row.names=FALSE,  append=TRUE, col.names=FALSE)
-  }
-} else {
-  cat(paste("\nFile \"MAF_fields.xlsx\" already exists in", outDir, "!\n\n", sep=" "))
-}
-```
-
-<br>
-
 ### Visualisation
 
 This part creates a set of plots summarising individual MAF files.
@@ -248,12 +275,12 @@ This part creates a set of plots summarising individual MAF files.
 
 A summary for MAF file displaying frequency of various mutation/SNV types/classes (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of different mutation types for the top 10 mutated genes (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the cohort.
 
+
 ```r
 ###### Generate separate plot for each cohort
 for ( i in 1:length(mafFiles) ) {
 
-  cat(paste("\nGenerating MAF summary plot for", cohorts.list[i], "cohort...\n\n", sep=" "))
-
+  cat(paste(cohorts.list[i], "cohort\n\n", sep=" "))
   ##### Plotting MAF summary
   par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
   maftools::plotmafSummary(maf = mafInfo[[i]], rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
@@ -262,40 +289,39 @@ for ( i in 1:length(mafFiles) ) {
 ```
 
 ```
-## Generating MAF summary plot for TCGA-PAAD cohort...
+## TCGA-PAAD cohort
 ```
 
 ![](summariseMAFs_files/figure-html/maf_summary_plot-1.png)<!-- -->
 
 ```
-## Generating MAF summary plot for ICGC-PACA-AU cohort...
+## ICGC-PACA-AU cohort
 ```
 
 ![](summariseMAFs_files/figure-html/maf_summary_plot-2.png)<!-- -->
 
 ```
-## Generating MAF summary plot for ICGC-PACA-AU-additional cohort...
+## ICGC-PACA-AU-additional cohort
 ```
 
 ![](summariseMAFs_files/figure-html/maf_summary_plot-3.png)<!-- -->
 
 ```
-## Generating MAF summary plot for ICGC-PACA-CA cohort...
+## ICGC-PACA-CA cohort
 ```
 
 ![](summariseMAFs_files/figure-html/maf_summary_plot-4.png)<!-- -->
-
-<br>
 
 #### Oncoplot
 
 Oncoplot illustrating different types of mutations observed across samples for the 10 most frequently mutated genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively.
 
+
 ```r
 ###### Generate separate plot for each cohort
 for ( i in 1:length(mafFiles) ) {
 
-  cat(paste("\nGenerating oncoplot for", cohorts.list[i], "cohort...\n\n", sep=" "))
+  cat(paste(cohorts.list[i], "cohort\n\n", sep=" "))
 
   ##### Drawing oncoplots for the top 10 genes in each cohort
   plot.new()
@@ -305,40 +331,39 @@ for ( i in 1:length(mafFiles) ) {
 ```
 
 ```
-## Generating oncoplot for TCGA-PAAD cohort...
+## TCGA-PAAD cohort
 ```
 
 ![](summariseMAFs_files/figure-html/maf_oncoplot-1.png)<!-- -->
 
 ```
-## Generating oncoplot for ICGC-PACA-AU cohort...
+## ICGC-PACA-AU cohort
 ```
 
 ![](summariseMAFs_files/figure-html/maf_oncoplot-2.png)<!-- -->
 
 ```
-## Generating oncoplot for ICGC-PACA-AU-additional cohort...
+## ICGC-PACA-AU-additional cohort
 ```
 
 ![](summariseMAFs_files/figure-html/maf_oncoplot-3.png)<!-- -->
 
 ```
-## Generating oncoplot for ICGC-PACA-CA cohort...
+## ICGC-PACA-CA cohort
 ```
 
 ![](summariseMAFs_files/figure-html/maf_oncoplot-4.png)<!-- -->
-
-<br>
 
 #### Transition and transversions distribution plot
 
 Plots presenting the transition and transversions distribution. The box-plots (top panel) show the overall distribution of the six different conversions (C>A, C>G, C>T, T>C, T>A and T>G)(left), and the transition and transversions frequency (right). The stacked bar-plot (bottom) displays the fraction of the six different conversions in each sample.
 
+
 ```r
 ###### Generate separate plot for each cohort
 for ( i in 1:length(mafFiles) ) {
 
-  cat(paste("\nGenerating TiTv plot for", cohorts.list[i], "cohort...\n\n", sep=" "))
+  cat(paste(cohorts.list[i], "cohort\n\n", sep=" "))
 
   ##### Drawing distribution plots of the transitions and transversions
   titv.info <- maftools::titv(maf = mafInfo[[i]], plot = FALSE, useSyn = TRUE)
@@ -349,31 +374,28 @@ for ( i in 1:length(mafFiles) ) {
 ```
 
 ```
-## Generating TiTv plot for TCGA-PAAD cohort...
+## TCGA-PAAD cohort
 ```
 
 ![](summariseMAFs_files/figure-html/maf_TiTv_plot-1.png)<!-- -->
 
 ```
-## Generating TiTv plot for ICGC-PACA-AU cohort...
+## ICGC-PACA-AU cohort
 ```
 
 ![](summariseMAFs_files/figure-html/maf_TiTv_plot-2.png)<!-- -->
 
 ```
-## Generating TiTv plot for ICGC-PACA-AU-additional cohort...
+## ICGC-PACA-AU-additional cohort
 ```
 
 ![](summariseMAFs_files/figure-html/maf_TiTv_plot-3.png)<!-- -->
 
 ```
-## Generating TiTv plot for ICGC-PACA-CA cohort...
+## ICGC-PACA-CA cohort
 ```
 
 ![](summariseMAFs_files/figure-html/maf_TiTv_plot-4.png)<!-- -->
-
-<br>
-
 
 #### Comparison with TCGA cohorts
 
