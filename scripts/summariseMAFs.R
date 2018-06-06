@@ -53,7 +53,7 @@ opt <- parse_args(OptionParser(option_list=option_list))
 if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$cohorts) ) {
 
   cat("\nPlease type in required arguments!\n\n")
-  cat("\ncommand example:\n\nRscript summariseMAFs.R --maf_dir \"/data\" \"PACA-AU.icgc.maf,PACA-CA.icgc.maf\" \"ICGC-PACA-AU,ICGC-PACA-CA\" \"MAF_summary\"\n\n")
+  cat("\ncommand example:\n\nRscript summariseMAFs.R --maf_dir /data --maf_files PACA-AU.icgc.maf,PACA-CA.icgc.maf --cohorts ICGC-PACA-AU,ICGC-PACA-CA --out_dir MAF_summary\n\n")
 
   q()
 }
