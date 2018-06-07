@@ -29,9 +29,8 @@ Go to the MAF files directory, read the files and create directory for output fi
 
 ```r
 ##### Read MAF files and put associated info into a list
-mafFiles <- gsub("\\s","", params$mafFiles)
-mafFiles <-  unlist(strsplit(mafFiles, split=',', fixed=TRUE))
-mafFiles <- paste(params$mafDir, mafFiles, sep="/")
+mafFiles <- params$mafFiles
+mafInfo <- vector("list", length(mafFiles))
 
 mafInfo <- vector("list", length(mafFiles))
 
@@ -58,8 +57,7 @@ This part will create set of tabs with interactive tables including *overall sum
 Generate tables  with basic information about each MAF file, including NCBI build, no. fo samples and genes, no. of different mutation types ( frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations), as well as the total no. of mutations present in the MAF file. Individual tables present summary for corresponding datasets.
 
 ```r
-cohorts.list <- gsub("\\s","", params$cohorts)
-cohorts.list <- unlist(strsplit(cohorts.list, split=',', fixed=TRUE))
+cohorts.list <- params$cohorts
 
 ##### Write overall summary into a file
 if ( !file.exists(paste(outDir, "MAF_summary.xlsx", sep = "/")) ){
