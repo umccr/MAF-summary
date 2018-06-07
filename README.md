@@ -57,6 +57,8 @@ Cohort | Samples no. | NCBI Build | File name
 <br />
 
 
+Check the [MAFs files preparation](https://github.com/umccr/MAF-summary/tree/master/MAFs_prep.md) documentation for more info how these MAF files were prepared to be compatible with *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*.
+
 ## Scripts
 
 Script | Description | Packages
