@@ -49,11 +49,24 @@ option_list <- list(
 
 opt <- parse_args(OptionParser(option_list=option_list))
 
+##### Split the string of MAF files and cohorts names put into a vector
+opt$maf_files <- gsub("\\s","", opt$maf_files)
+opt$maf_files <-  unlist(strsplit(opt$maf_files, split=',', fixed=TRUE))
+opt$maf_files <- paste(opt$maf_dir, opt$maf_files, sep="/")
+
+opt$cohorts <- gsub("\\s","", opt$cohorts)
+opt$cohorts <- unlist(strsplit(opt$cohorts, split=',', fixed=TRUE))
+
 ##### Read in argument from command line and check if all were provide by the user
 if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$cohorts) ) {
 
   cat("\nPlease type in required arguments!\n\n")
   cat("\ncommand example:\n\nRscript summariseMAFs.R --maf_dir /data --maf_files PACA-AU.icgc.maf,PACA-CA.icgc.maf --cohorts ICGC-PACA-AU,ICGC-PACA-CA --out_dir MAF_summary\n\n")
+
+  q()
+} else if ( length(opt$maf_files) != length(opt$cohorts) ) {
+
+  cat("\nMake sure that the number of cohorts names match the number of queried MAF files\n\n")
 
   q()
 }
