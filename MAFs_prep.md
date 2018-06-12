@@ -65,7 +65,7 @@ head -1 simple_somatic_mutation.open.tsv > header.txt
 echo -e '0r header.txt\nw' | ed PACA-AU.icgc.simple_somatic_mutation.tsv
 ```
 
-...and then converted to MAF file using *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)* script
+...and then converted to MAF file using *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/blob/master/scripts/icgcMutationToMAF.R)* script
 
 ```
 Rscript icgcMutationToMAF.R --icgc_file PACA-AU.icgc.simple_somatic_mutation.tsv --output PACA-AU.icgc.simple_somatic_mutation.maf
@@ -108,7 +108,7 @@ head -1 simple_somatic_mutation.open.tsv > header.txt
 echo -e '0r header.txt\nw' | ed PACA-CA.icgc.simple_somatic_mutation.tsv
 ```
 
-...and then converted to MAF file using *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/icgcMutationToMAF.R)* script
+...and then converted to MAF file using *[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/blob/master/scripts/icgcMutationToMAF.R)* script
 
 ```
 Rscript icgcMutationToMAF.R --icgc_file PACA-CA.icgc.simple_somatic_mutation.tsv --output PACA-CA.icgc.simple_somatic_mutation.maf
