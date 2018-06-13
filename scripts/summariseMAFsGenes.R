@@ -79,7 +79,7 @@ opt$genes <- unlist(strsplit(opt$genes, split=',', fixed=TRUE))
 if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$cohorts) || is.na(opt$genes) ) {
 
   cat("\nPlease type in required arguments!\n\n")
-  cat("\ncommand example:\n\nRscript summariseMAFs.R --maf_dir /data --maf_files PACA-AU.icgc.maf,PACA-CA.icgc.maf --cohorts ICGC-PACA-AU,ICGC-PACA-CA --genes KRAS,SMAD4,TP53,CDKN2A,ARID1A,BRCA1,BRCA2 --out_dir MAF_summary_genes\n\n")
+  cat("\ncommand example:\n\nRscript summariseMAFsGenes.R --maf_dir /data --maf_files PACA-AU.icgc.maf,PACA-CA.icgc.maf --cohorts ICGC-PACA-AU,ICGC-PACA-CA --genes KRAS,SMAD4,TP53,CDKN2A,ARID1A,BRCA1,BRCA2 --out_dir MAF_summary_genes\n\n")
 
   q()
 } else if ( length(opt$maf_files) != length(opt$cohorts) ) {
