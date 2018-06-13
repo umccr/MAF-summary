@@ -102,8 +102,8 @@ MAF_summary.xlsx | - | Excel spreadsheet with basic information about each MAF f
 MAF_sample_summary.xlsx | - | Excel spreadsheet with per-sample information about no. of different types of mutations. The summary is provided for each cohort in a separate tab
 MAF_gene_summary.xlsx | - | Excel spreadsheet with per-gene information about no. of different types of mutations, as well as mutated samples. The summary is provided for each cohort in a separate tab
 MAF_fields.xlsx | - | Excel spreadsheet listing all fields (columns) in each MAF file presented in a separate tab
-MAF_sample_summary_heatmap_ [***cohort***] .html | - | Samples summary in a form of interactive heatmap facilitating outliers detection
-MAF_agene_summary_heatmap_ [***cohort***] .html | - | Genes summary in a form of interactive heatmap (displays the top 50 mutated genes)
+MAF_sample_summary_heatmap_[***cohort***].html | - | Samples summary in a form of interactive heatmap facilitating outliers detection
+MAF_agene_summary_heatmap_[***cohort***].html | - | Genes summary in a form of interactive heatmap (displays the top 50 mutated genes)
 MAF_summary_titv.xlsx | [***cohort***] (fraction) | Excel tab containing information about the fraction of each of the six different conversions (C>A, C>G, C>T, T>C, T>A and T>G) in each sample. The information for each cohort is provided in a separate tab
 MAF_summary_titv.xlsx | [***cohort***] (count) | Excel tab containing information about the count of each of the six different conversions (C>A, C>G, C>T, T>C, T>A and T>G) in each sample. The information for each cohort is provided in a  separate tab
 MAF_summary_titv.xlsx | [***cohort***] (TiTv) | Excel tab containing information the fraction of transitions and transversions in each sample. The information for each cohort is provided in a separate tab
@@ -126,7 +126,7 @@ Some example MAF files are located on [Spartan](https://dashboard.hpc.unimelb.ed
 
 ## Summarising and visualising multiple MAF files for selected genes
 
-To summarise multiple MAF files for specific set of genes run the *[summariseMAFsGenes.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.R)* script. This script catches the arguments from the command line and passes them to the *[summariseMAFsGenes.Rmd](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.Rmd)* script to produce the html report, generate set of plots and excel spreadsheets summarising user-defined genes in for individual MAF files.
+To summarise multiple MAF files for specific set of genes run the *[summariseMAFsGenes.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.R)* script. This script catches the arguments from the command line and passes them to the *[summariseMAFsGenes.Rmd](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.Rmd)* script to produce the html report, generate set of plots and excel spreadsheets summarising user-defined genes for individual MAF files.
 
 **Script**: *[summariseMAFsGenes.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.R)*
 
@@ -135,7 +135,7 @@ Argument | Description
 --maf_dir | Directory with *MAF* files
 --maf_files | List of *MAF* files to be processed. Each file name is expected to be separated by comma
 --cohorts | Desired names of each cohort. The names are expected to be in the same order as provided *MAF* files
---genes | Genes to query in each MAF file
+--genes | Genes to query in each *MAF* file
 --out_dir | Output directory
 <br />
 
@@ -151,8 +151,11 @@ This will generate *[summariseMAFsGenes.html](https://rawgit.com/umccr/MAF-summa
 Output file | Component | Description
 ------------ | ------------| -----------
 MAF_gene_summary.xlsx | - | Excel spreadsheet with per-gene information about no. of different types of mutations, as well as mutated samples. The summary is provided for each cohort in a separate tab
-MAF_gene_summary_heatmap_ [***cohort***] .html | - | Genes summary in a form of interactive heatmap (displays the user-defined genes)
-MAF_summary_genes_[***cohort***].pdf | Oncoplot | A heatmap-like plot illustrating different types of mutations observed across all samples for the selected genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively
+MAF_somatic_interactions.xlsx | [***cohort***] (gene pairs) | Excel spreadsheet with results from pair-wise *Fisher’s Exact* test for detection mutually exclusive or co-occurring genes. The summary is provided for each cohort in a separate tab
+MAF_somatic_interactions.xlsx | [***cohort***] (gene sets) | Excel spreadsheet with results from *cometExactTest* for identification of potentially altered gene sets involving > 2 two genes (more details [here](https://www.ncbi.nlm.nih.gov/pubmed/26253137)). The summary is provided for each cohort in a separate tab
+MAF_gene_summary_heatmap_[***cohort***].html | - | Genes summary in a form of interactive heatmap (displays the user-defined genes)
+MAF_summary_genes_[***cohort***].pdf | Oncoplots | A heatmap-like plots illustrating different types of mutations observed across all samples for the selected genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively
+MAF_summary_genes_[***cohort***].pdf | Somatic interactions plots | Pair-wise heatmaps with colurs indicating the pair-wise *Fisher’s Exact* test p-values to faclilitate detection of mutually exclusive or co-occurring genes.
 <br />
 
 ### Example output
