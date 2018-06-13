@@ -13,7 +13,7 @@ Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation
   * [Example output](#example-output)
     * [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/examples/ICGC_PACA-CA_MAF_summary)
     * [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/examples/TCGA_PAAD_MAF_summary)
-    * [R markdown report ](https://github.com/umccr/MAF-summary/blob/master/scripts/summariseMAFs.md)
+    * [HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)
 
 <!-- vim-markdown-toc -->
 <br>
@@ -116,7 +116,7 @@ Some example MAF files are located on [Spartan](https://dashboard.hpc.unimelb.ed
 
 * [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/examples/ICGC_PACA-CA_MAF_summary) &nbsp; ( <img src="img/flag-of-Canada.png" width="2.5%"> ) - includes descrition for output tables and plots
 * [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/examples/TCGA_PAAD_MAF_summary) &nbsp; ( <img src="img/flag-of-United-States-of-America.png" width="2.5%"> ) - highlihts sample demonstrating extremely high mutation burden
-* [R markdown report](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md) - R markdown report for all cohorts
+* [HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html) - R html report for all cohorts
 
 
 <br />
