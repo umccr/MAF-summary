@@ -7,7 +7,6 @@ Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation
 
 <!-- vim-markdown-toc GFM -->
 * [MAF field requirements](#maf-field-requirements)
-* [Data and files](#data-and-files)
 * [Scripts](#scripts)
 * [Converting ICGC mutation format to MAF](#converting-icgc-mutation-format-to-maf)
 * [Summarising and visualising multiple MAF files](#summarising-and-visualising-multiple-maf-files)
@@ -35,29 +34,6 @@ Variant_Classification | Translational effect of variant allele | Frame_Shift_De
 Variant_Type | Variant Type | SNP, DNP, INS, DEL, TNP and ONP
 Tumor_Sample_Barcode | Sample ID | Either a TCGA barcode, or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file
 <br />
-
-
-## Data and files
-
-The MAF files for are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/) cluster in the following directory:<br>
-
-```
-/data/cephfs/punim0010/projects/Jacek/Pancreatic1500_Atlas/data
-```
-<br>
-
-Cohort | Samples no. | NCBI Build | File name
------------- | ------------ | ------------ | ------------
-<img src="img/flag-of-United-States-of-America.png" width="10%"> &nbsp;&nbsp; TCGA PAAD | 143 | 37 | PAAD.tcga.uuid.curated.somatic.maf
-<img src="img/flag-of-Australia.png" width="10%"> &nbsp;&nbsp; ICGC PACA-AU | 395 | 37 | PACA-AU.icgc.simple_somatic_mutation.maf
-<img src="img/flag-of-Australia.png" width="10%"> &nbsp;&nbsp; ICGC PACA-AU (additional) | 25 | 37 | DCC17_PDAC_Not_in_DCC.maf
-<img src="img/flag-of-Canada.png" width="10%"> &nbsp;&nbsp; ICGC PACA-CA | 336 | 37 | PACA-CA.icgc.simple_somatic_mutation.maf
-<img src="img/flag-of-United-States-of-America.png" width="10%"> &nbsp;&nbsp; UTSW ([PMID: 25855536](https://www.ncbi.nlm.nih.gov/pubmed/25855536)) | 109 | 37 | To be generated
-<img src="img/globe.jpeg" width="11%" height="15%"> &nbsp;&nbsp; **Combined** | **1008** | 37 | To be generated
-<br />
-
-
-Check the [MAFs files preparation](https://github.com/umccr/MAF-summary/tree/master/MAFs_prep.md) documentation for more info how these MAF files were prepared to be compatible with *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*.
 
 ## Scripts
 
@@ -135,6 +111,8 @@ MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each 
 
 
 ### Example output
+
+Some example MAF files are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/) cluster and are described in [Pancreatic-data-harmonization](https://github.com/umccr/Pancreatic-data-harmonization) repository.<br>
 
 * [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/examples/ICGC_PACA-CA_MAF_summary) &nbsp; ( <img src="img/flag-of-Canada.png" width="2.5%"> ) - includes descrition for output tables and plots
 * [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/examples/TCGA_PAAD_MAF_summary) &nbsp; ( <img src="img/flag-of-United-States-of-America.png" width="2.5%"> ) - highlihts sample demonstrating extremely high mutation burden
