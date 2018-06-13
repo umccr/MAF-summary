@@ -347,7 +347,16 @@ for ( i in 1:length(mafFiles) ) {
 }
 ```
 
-## Print session info
+## Parameters
+
+```{r params_info}
+for ( i in 1:length(params) ) {
+
+  cat(paste("Parameter: ", names(params)[i], "\nValue: ", paste(unlist(params[i]), collapse = ","), "\n\n", sep=""))
+}
+```
+
+## Session info
 
 ```{r session_info}
 sessionInfo()
