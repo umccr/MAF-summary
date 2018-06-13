@@ -175,7 +175,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ### Somatic Interactions - tables
 
-Somatic interactions tables facilitate detection of mutually exclusive or co-occurring set of genes. The first set of tables, called gene-pairs, present results from pair-wise *Fisher’s Exact test* aiming to detect significant pair of mutually exclusive or co-occurring genes. The second set of tables, called gene sets, resent results from *cometExactTest* facilitating identification of potentially altered gene sets involving > 2 two genes (see [ CoMEt: a statistical approach to identify combinations of mutually exclusive alterations in cancer](https://www.ncbi.nlm.nih.gov/pubmed/26253137) for more details).
+Somatic interactions tables facilitate detection of mutually exclusive or co-occurring set of genes. The first set of tables, called gene-pairs, present results from pair-wise *Fisher’s Exact test* aiming to detect significant pair of mutually exclusive or co-occurring genes. The second set of tables, called gene sets, present results from *cometExactTest* facilitating identification of potentially altered gene sets involving > 2 two genes (see [ CoMEt: a statistical approach to identify combinations of mutually exclusive alterations in cancer](https://www.ncbi.nlm.nih.gov/pubmed/26253137) for more details).
 
 ```{r maf_interactions_tables, warning=FALSE}
 ###### Generate separate table for each cohort
