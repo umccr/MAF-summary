@@ -71,15 +71,10 @@ if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$cohorts) ) {
   q()
 }
 
-maf.dir <- opt$maf_dir
-maf.files <- opt$maf_files
-cohorts.list <- opt$cohorts
-out.dir <- opt$out_dir
-
 ##### Write the results into folder "MAF_summary" if no output directory is specified
-if ( is.na(out.dir) ) {
-	out.dir <- "MAF_summary"
+if ( is.na(opt$out_dir) ) {
+	opt$out_dir<- "MAF_summary"
 }
 
 ##### Pass the user-defined argumentas to the SVbezierPlot R markdown script and run the analysis
-rmarkdown::render(input = "summariseMAFs.Rmd", params = list(mafDir = maf.dir, mafFiles = maf.files,  cohorts = cohorts.list, outDir = out.dir))
+rmarkdown::render(input = "summariseMAFs.Rmd", params = list(mafDir = opt$maf_dir, mafFiles = opt$maf_files,  cohorts = opt$cohorts, outDir = opt$out_dir))
