@@ -1,13 +1,13 @@
 ---
 title: "Multiple MAF files summarisation and visualisation for selected genes"
-author: 
-date: 
+author:
+date:
 params:
-  mafDir: 
-  mafFiles: 
-  cohorts: 
-  genes: 
-  outDir: 
+  mafDir:
+  mafFiles:
+  cohorts:
+  genes:
+  outDir:
 output:
   html_document:
     keep_md: yes
@@ -46,7 +46,7 @@ mafInfo <- vector("list", length(mafFiles))
 
 for ( i in 1:length(mafFiles) ) {
   mafInfo[[i]] = read.maf(maf = mafFiles[i], verbose = FALSE)
-  
+
   ##### Subsets MAF based on queried genes
   mafInfo[[i]]  <- subsetMaf(maf=mafInfo[[i]], genes=params$genes, mafObj=TRUE)
 }
@@ -156,7 +156,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ### Somatic Interactions - plots
 
-Somatic interactions plots facilitate detection of mutually exclusive or co-occurring set of genes. The somaticInteractions function performs pair-wise *Fisher’s Exact test* to detect significant pair of genes and uses *cometExactTest* to identify potentially altered gene sets involving > 2 two genes (see [ CoMEt: a statistical approach to identify combinations of mutually exclusive alterations in cancer](https://www.ncbi.nlm.nih.gov/pubmed/26253137)) for more details). The colour key, indicating the Fisher’s Exact test p-value, is presented on the right-hand side. This part of the script also generates a table with Fisher’s Exact test and cometExactTest results.
+Somatic interactions plots facilitate detection of mutually exclusive or co-occurring set of genes. The somatic interactions function performs pair-wise *Fisher’s Exact test* to detect significant pair of genes and uses *cometExactTest* to identify potentially altered gene sets involving > 2 two genes (see [ CoMEt: a statistical approach to identify combinations of mutually exclusive alterations in cancer](https://www.ncbi.nlm.nih.gov/pubmed/26253137) for more details). The colour key, indicating the Fisher’s Exact test p-value, is presented on the right-hand side. This part of the script also generates a table with Fisher’s Exact test and cometExactTest results.
 
 ```{r maf_interactions_plots, warning=FALSE}
 ###### Generate separate plot for each cohort
@@ -175,7 +175,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ### Somatic Interactions - tables
 
-Somatic interactions plots facilitate detection of mutually exclusive or co-occurring set of genes. The somaticInteractions function performs pair-wise *Fisher’s Exact test* to detect significant pair of genes and uses *cometExactTest* to identify potentially altered gene sets involving > 2 two genes (see [ CoMEt: a statistical approach to identify combinations of mutually exclusive alterations in cancer](https://www.ncbi.nlm.nih.gov/pubmed/26253137)) for more details). The colour key, indicating the Fisher’s Exact test p-value, is presented on the right-hand side. This part of the script also generates a table with Fisher’s Exact test and cometExactTest results.
+Somatic interactions tables facilitate detection of mutually exclusive or co-occurring set of genes. The first set of tables, called gene-pairs, present results from pair-wise *Fisher’s Exact test* aiming to detect significant pair of mutually exclusive or co-occurring genes. The second set of tables, called gene sets, resent results from *cometExactTest* facilitating identification of potentially altered gene sets involving > 2 two genes (see [ CoMEt: a statistical approach to identify combinations of mutually exclusive alterations in cancer](https://www.ncbi.nlm.nih.gov/pubmed/26253137) for more details).
 
 ```{r maf_interactions_tables, warning=FALSE}
 ###### Generate separate table for each cohort
@@ -183,11 +183,11 @@ Somatic interactions plots facilitate detection of mutually exclusive or co-occu
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  
+
   if ( nrow(somInteractions[[i]]$pairs) != 0 ) {
     ##### Presenting a somatic interactions table (gene pairs) in the html report
     widges.list[[i]] <- DT::datatable(data = as.data.frame(somInteractions[[i]]$pairs), caption = paste0("Gene pairs: ", cohorts.list[i]), filter = "top")
-    
+
   } else {
     ##### Warn if no interactions between selected genes were detected
     cat(paste("No gene pairs were detected in ", cohorts.list[i], "cohort\n\n", sep=" "))
@@ -202,10 +202,10 @@ widges.list <- htmltools::tagList()
 for ( i in 1:length(mafFiles) ) {
 
   if ( length(somInteractions[[i]]$gene_sets) != 0 ) {
-    
+
     ##### Presenting a somatic interactions table (gene sets) in the html report
     widges.list[[i]] <- DT::datatable(data = as.data.frame(somInteractions[[i]]$gene_sets), caption = paste0("Gene sets: ", cohorts.list[i]), filter = "top")
-  
+
   } else {
     ##### Warn if no interactions between selected genes were detected
     cat(paste("No gene sets were detected in ", cohorts.list[i], "cohort\n\n", sep=" "))
@@ -218,16 +218,16 @@ widges.list
 ##### Write somatic interactions table into a file
 if ( !file.exists(paste(outDir, "MAF_somatic_interactions.xlsx", sep = "/")) ){
   for ( i in 1:length(mafFiles) ) {
-    
+
     ##### Ignore if no interactions between selected genes were detected
     if ( nrow(somInteractions[[i]]$pairs) != 0 ) {
-      
+
       ##### Gene pairs info
       write.xlsx(as.data.frame(somInteractions[[i]]$pairs), file=paste(outDir, "MAF_somatic_interactions.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (gene pairs)"), row.names=FALSE,  append=TRUE)
     }
-    
+
     if ( length(somInteractions[[i]]$gene_sets) != 0 ) {
-      
+
       ##### Gene sets info
       write.xlsx(as.data.frame(somInteractions[[i]]$gene_sets), file=paste(outDir, "MAF_somatic_interactions.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (gene sets)"), row.names=FALSE,  append=TRUE)
     }
@@ -247,7 +247,7 @@ for ( i in 1:length(mafFiles) ) {
   plot.new()
   par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
   oncoplot(maf = mafInfo[[i]], fontSize = 12, keepGeneOrder = TRUE, GeneOrderSort = TRUE)
-  
+
   ##### Drawing somatic interactions for selected genes in each cohort
   maftools::somaticInteractions(maf = mafInfo[[i]], pvalue = c(0.05, 0.01), returnAll = TRUE, verbose = FALSE)
 }
