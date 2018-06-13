@@ -15,7 +15,7 @@ output:
 #    toc_float: true
 ---
 
-Script to summarise and visualise multiple Mutation Annotation Format (MAF) files using maftools R package.
+Script to summarise and visualise multiple [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) (MAF) files using *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* R package.
 
 Make sure to set the java max heap size to 2Gb to accomodate big gene tables written into excel spreadsheet using the xlsx R package
 
