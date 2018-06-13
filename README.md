@@ -7,13 +7,16 @@ Set of scripts to summarise, analyse and visualise multiple [Mutation Annotation
 
 <!-- vim-markdown-toc GFM -->
 * [MAF field requirements](#maf-field-requirements)
-* [Scripts](#scripts)
+* [Scripts summary](#scripts-summary)
 * [Converting ICGC mutation format to MAF](#converting-icgc-mutation-format-to-maf)
 * [Summarising and visualising multiple MAF files](#summarising-and-visualising-multiple-maf-files)
   * [Example output](#example-output)
     * [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/examples/ICGC_PACA-CA_MAF_summary)
     * [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/examples/TCGA_PAAD_MAF_summary)
     * [HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)
+* [Summarising and visualising multiple MAF files for selected genes](#summarising-and-visualising-multiple-maf-files-for-selected-genes)
+  * [Example output](#example-output)
+    * [HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html)
 
 <!-- vim-markdown-toc -->
 <br>
@@ -35,12 +38,13 @@ Variant_Type | Variant Type | SNP, DNP, INS, DEL, TNP and ONP
 Tumor_Sample_Barcode | Sample ID | Either a TCGA barcode, or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file
 <br />
 
-## Scripts
+## Scripts summary
 
 Script | Description | Packages
 ------------ | ------------ | ------------
-*[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/scripts/icgcMutationToMAF.R)* | Converts ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file to [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*
-*[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)* | Summarises and visualises multiple [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) files | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* <br> *[xlsx](https://cran.r-project.org/web/packages/xlsx/xlsx.pdf)*
+*[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/scripts/icgcMutationToMAF.R)* | Converts ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file to [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* <br> *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)* 
+*[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)* | Summarises and visualises multiple [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) files |  *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* <br> *[xlsx](https://cran.r-project.org/web/packages/xlsx/xlsx.pdf)* <br> *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)* <br> *[knitr](https://cran.r-project.org/web/packages/knitr/knitr.pdf)* <br> *[DT](https://rstudio.github.io/DT/)* <br> *[plotly](https://plot.ly/r/)* <br> *[heatmaply](https://cran.r-project.org/web/packages/heatmaply/vignettes/heatmaply.html)*
+*[summariseMAFsGenes.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.R)* | Summarises and visualises multiple [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) files for selected genes | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* <br> *[xlsx](https://cran.r-project.org/web/packages/xlsx/xlsx.pdf)* <br> *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)* <br> *[knitr](https://cran.r-project.org/web/packages/knitr/knitr.pdf)* <br> *[DT](https://rstudio.github.io/DT/)* <br> *[plotly](https://plot.ly/r/)* <br> *[heatmaply](https://cran.r-project.org/web/packages/heatmaply/vignettes/heatmaply.html)*
 <br />
 
 
@@ -90,7 +94,7 @@ Rscript summariseMAFs.R --maf_dir /data --maf_files PACA-AU.icgc.simple_somatic_
 ```
 <br>
 
-This will generate *[summariseMAFs.html](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.html)* and *[summariseMAFs.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md)* reports with interactive summary tables and heatmaps. It will also create a folder with user-defined name with the following output tables and plots:
+This will generate *[summariseMAFs.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)* and *[summariseMAFs.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md)* reports with interactive summary tables and heatmaps. It will also create a folder with user-defined name with the following output tables and plots:
 
 Output file | Component | Description
 ------------ | ------------| -----------
@@ -118,6 +122,42 @@ Some example MAF files are located on [Spartan](https://dashboard.hpc.unimelb.ed
 * [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/examples/TCGA_PAAD_MAF_summary) &nbsp; ( <img src="img/flag-of-United-States-of-America.png" width="2.5%"> ) - highlihts sample demonstrating extremely high mutation burden
 * [HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html) - R html report for all cohorts
 
+<br />
 
+## Summarising and visualising multiple MAF files for selected genes
+
+To summarise multiple MAF files for specific set of genes run the *[summariseMAFsGenes.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.R)* script. This script catches the arguments from the command line and passes them to the *[summariseMAFsGenes.Rmd](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.Rmd)* script to produce the html report, generate set of plots and excel spreadsheets summarising user-defined genes in for individual MAF files.
+
+**Script**: *[summariseMAFsGenes.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.R)*
+
+Argument | Description
+------------ | ------------
+--maf_dir | Directory with *MAF* files
+--maf_files | List of *MAF* files to be processed. Each file name is expected to be separated by comma
+--cohorts | Desired names of each cohort. The names are expected to be in the same order as provided *MAF* files
+--genes | Genes to query in each MAF file
+--out_dir | Output directory
 <br />
+
+**Command line use example**:
+
+```
+Rscript summariseMAFsGenes.R --maf_dir /data --maf_files PACA-AU.icgc.simple_somatic_mutation.maf,PACA-CA.icgc.simple_somatic_mutation.maf --cohorts ICGC-PACA-AU,ICGC-PACA-CA --genes KRAS,SMAD4,TP53,CDKN2A,ARID1A,BRCA1,BRCA2 --out_dir MAF_summary
+```
+<br>
+
+This will generate *[summariseMAFsGenes.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html)* and *[summariseMAFsGenes.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.md)* reports with interactive summary tables and heatmaps. It will also create a folder with user-defined name with the following output tables and plots:
+
+Output file | Component | Description
+------------ | ------------| -----------
+MAF_gene_summary.xlsx | - | Excel spreadsheet with per-gene information about no. of different types of mutations, as well as mutated samples. The summary is provided for each cohort in a separate tab
+MAF_gene_summary_heatmap_ [***cohort***] .html | - | Genes summary in a form of interactive heatmap (displays the user-defined genes)
+MAF_summary_genes_[***cohort***].pdf | Oncoplot | A heatmap-like plot illustrating different types of mutations observed across all samples for the selected genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively
 <br />
+
+### Example output
+
+Some example MAF files are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/) cluster and are described in [Pancreatic-data-harmonization](https://github.com/umccr/Pancreatic-data-harmonization) repository.<br>
+
+* [HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html) - R html report for all cohorts
+
