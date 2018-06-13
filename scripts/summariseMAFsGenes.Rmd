@@ -1,0 +1,270 @@
+---
+title: "Multiple MAF files summarisation and visualisation for selected genes"
+author: 
+date: 
+params:
+  mafDir: 
+  mafFiles: 
+  cohorts: 
+  genes: 
+  outDir: 
+output:
+  html_document:
+    keep_md: yes
+    code_folding: hide
+#    toc: true
+#    toc_float: true
+---
+
+Script to summarise and visualise information for user-defined genes from multiple [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) (MAF) files using *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* R package.
+
+Make sure to set the java max heap size to 2Gb to accomodate big gene tables written into excel spreadsheet using the xlsx R package
+
+```{r set_java}
+##### Set the jave max heap size to 2Gb to accomodate big gene tables
+options( java.parameters = "-Xmx2000m" )
+```
+
+### Load libraries
+
+```{r load_libraries}
+suppressMessages(library(knitr))
+suppressMessages(library(maftools))
+suppressMessages(library(xlsx))
+suppressMessages(library(optparse))
+suppressMessages(library(DT))
+```
+
+## Read MAF files
+
+Go to the MAF files directory, read the files and create directory for output files, if does not exist already
+
+```{r load_data, message=FALSE, warning=FALSE}
+##### Read MAF files and put associated info into a list
+mafFiles <- params$mafFiles
+mafInfo <- vector("list", length(mafFiles))
+
+for ( i in 1:length(mafFiles) ) {
+  mafInfo[[i]] = read.maf(maf = mafFiles[i], verbose = FALSE)
+  
+  ##### Subsets MAF based on queried genes
+  mafInfo[[i]]  <- subsetMaf(maf=mafInfo[[i]], genes=params$genes, mafObj=TRUE)
+}
+
+##### Create directory for output files
+outDir <- paste(params$mafDir, params$outDir, sep = "/")
+
+if ( !file.exists(params$outDir) ){
+  dir.create(outDir)
+}
+```
+
+## Genes summary {.tabset}
+
+### Tables
+
+Create tables for individual cohorts with information for queried genes (rows), including information about no. of different types of mutations (columns), including frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations, as well as the total no. of mutations present in the MAF file. The last two columns contain the no. of samples with mutations/alterations in the corresponding gene.
+
+```{r gene_summary, warning=FALSE}
+##### Write gene summary into a file
+cohorts.list <- params$cohorts
+
+if ( !file.exists(paste(outDir, "MAF_gene_summary.xlsx", sep = "/")) ){
+  for ( i in 1:length(mafFiles) ) {
+    write.xlsx(maftools::getGeneSummary(mafInfo[[i]]), file=paste(outDir, "MAF_gene_summary.xlsx", sep="/"), sheetName=cohorts.list[i], row.names=FALSE,  append=TRUE)
+  }
+}
+
+##### Present a gene table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- DT::datatable(data = maftools::getGeneSummary(mafInfo[[i]]), caption = paste0("Genes summary: ", cohorts.list[i]), filter = "top")
+}
+
+##### Print a list of htmlwidgets
+widges.list
+```
+
+### Heatmaps
+
+This time generate an interactive heatmaps to summmarise queried genes information. Rows and columns represent genes and mutation types, respectively. The colour scale from blue to yellow indicates low and high number of various mutations types, respectively, observed in corresponding genes. Genes are ordered by the number of reported mutations. The total number of mutations in individual genes, as well as the number of samples with mutations are also presented in the last three columns.
+
+```{r gene_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 9}
+suppressMessages(library(plotly))
+suppressMessages(library(heatmaply))
+
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+##### Display genes summary in a form of interactive heatmap
+for ( i in 1:length(mafFiles) ) {
+
+  geneSummary <- data.frame(maftools::getGeneSummary(mafInfo[[i]]))
+  rownames(geneSummary) <-geneSummary[,"Hugo_Symbol"]
+  geneSummary <- subset(geneSummary, select=-c(Hugo_Symbol))
+
+  ##### Cluster table by genes
+  #hr <- hclust(as.dist(dist(geneSummary, method="euclidean")), method="ward.D")
+
+  ##### Generate interactive heatmap
+  #p <- heatmaply(geneSummary, main = paste0("Genes  summary: ", cohorts.list[i]), Rowv=as.dendrogram(hr), Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = TRUE, fontsize_row = 8, fontsize_col = 8)  %>%
+  #layout(autosize = TRUE, width = 800, height = 800, margin = list(l=250, r=10, b=150, t=50, pad=4), showlegend = TRUE)
+
+  ##### Generate interactive heatmap
+  p <- heatmaply(geneSummary, main = paste0("Genes summary: ", cohorts.list[i]), Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Mutation_type","Count")) %>%
+  layout(width  = 900, height = 600, margin = list(l=150, r=10, b=150, t=50, pad=4), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+
+  ##### Add plot to the list for htmlwidgets
+  widges.list[[i]] <- as_widget(ggplotly(p))
+
+     ##### Save the heatmap as html (PLOTLY)
+  htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_gene_summary_heatmap_", cohorts.list[i], ".html"), selfcontained = TRUE)
+
+  ##### Plotly option
+  #p <- plot_ly(x = colnames(geneSummary), y = rownames(geneSummary), z = as.matrix(geneSummary), height = 600, type = "heatmap") %>%
+  #layout(title = paste0("Genes summary: ", cohorts.list[i]), autosize = TRUE, margin = list(l=150, r=10, b=100, t=100, pad=4), showlegend = TRUE)
+
+  #widges.list[[i]] <- ggplotly(p)
+}
+
+##### Detach plotly package. Otherwise it clashes with other graphics devices
+detach("package:heatmaply", unload=FALSE)
+detach("package:plotly", unload=FALSE)
+
+##### Print a list of htmlwidgets
+widges.list
+```
+
+### Oncoplots
+
+Oncoplot illustrating different types of mutations observed across samples for the selected genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively.
+
+```{r maf_oncoplot, message=FALSE, warning=FALSE}
+###### Generate separate plot for each cohort
+for ( i in 1:length(mafFiles) ) {
+
+  cat(paste(cohorts.list[i], "cohort\n\n", sep=" "))
+
+  ##### Drawing oncoplots for selected genes in each cohort
+  plot.new()
+  par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
+  maftools::oncoplot(maf = mafInfo[[i]],  fontSize = 12, keepGeneOrder = TRUE, GeneOrderSort = TRUE)
+}
+```
+
+### Somatic Interactions - plots
+
+Somatic interactions plots facilitate detection of mutually exclusive or co-occurring set of genes. The somaticInteractions function performs pair-wise *Fisher’s Exact test* to detect significant pair of genes and uses *cometExactTest* to identify potentially altered gene sets involving > 2 two genes (see [ CoMEt: a statistical approach to identify combinations of mutually exclusive alterations in cancer](https://www.ncbi.nlm.nih.gov/pubmed/26253137)) for more details). The colour key, indicating the Fisher’s Exact test p-value, is presented on the right-hand side. This part of the script also generates a table with Fisher’s Exact test and cometExactTest results.
+
+```{r maf_interactions_plots, warning=FALSE}
+###### Generate separate plot for each cohort
+
+##### Create a list for somatic interactions info for each cohort
+somInteractions <- vector("list", length(mafFiles))
+
+for ( i in 1:length(mafFiles) ) {
+
+  cat(paste(cohorts.list[i], "cohort\n\n", sep=" "))
+
+  ##### Drawing somatic interactions for selected genes in each cohort
+  somInteractions[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], pvalue = c(0.05, 0.01), returnAll = TRUE, verbose = FALSE)
+}
+```
+
+### Somatic Interactions - tables
+
+Somatic interactions plots facilitate detection of mutually exclusive or co-occurring set of genes. The somaticInteractions function performs pair-wise *Fisher’s Exact test* to detect significant pair of genes and uses *cometExactTest* to identify potentially altered gene sets involving > 2 two genes (see [ CoMEt: a statistical approach to identify combinations of mutually exclusive alterations in cancer](https://www.ncbi.nlm.nih.gov/pubmed/26253137)) for more details). The colour key, indicating the Fisher’s Exact test p-value, is presented on the right-hand side. This part of the script also generates a table with Fisher’s Exact test and cometExactTest results.
+
+```{r maf_interactions_tables, warning=FALSE}
+###### Generate separate table for each cohort
+##### Create a list for htmlwidgets for the somatic interactions table
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  
+  if ( nrow(somInteractions[[i]]$pairs) != 0 ) {
+    ##### Presenting a somatic interactions table (gene pairs) in the html report
+    widges.list[[i]] <- DT::datatable(data = as.data.frame(somInteractions[[i]]$pairs), caption = paste0("Gene pairs: ", cohorts.list[i]), filter = "top")
+    
+  } else {
+    ##### Warn if no interactions between selected genes were detected
+    cat(paste("No gene pairs were detected in ", cohorts.list[i], "cohort\n\n", sep=" "))
+  }
+}
+
+##### Print a list of htmlwidgets (gene pairs tables)
+widges.list
+
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+
+  if ( length(somInteractions[[i]]$gene_sets) != 0 ) {
+    
+    ##### Presenting a somatic interactions table (gene sets) in the html report
+    widges.list[[i]] <- DT::datatable(data = as.data.frame(somInteractions[[i]]$gene_sets), caption = paste0("Gene sets: ", cohorts.list[i]), filter = "top")
+  
+  } else {
+    ##### Warn if no interactions between selected genes were detected
+    cat(paste("No gene sets were detected in ", cohorts.list[i], "cohort\n\n", sep=" "))
+  }
+}
+
+##### Print a list of htmlwidgets (gene sets tables)
+widges.list
+
+##### Write somatic interactions table into a file
+if ( !file.exists(paste(outDir, "MAF_somatic_interactions.xlsx", sep = "/")) ){
+  for ( i in 1:length(mafFiles) ) {
+    
+    ##### Ignore if no interactions between selected genes were detected
+    if ( nrow(somInteractions[[i]]$pairs) != 0 ) {
+      
+      ##### Gene pairs info
+      write.xlsx(as.data.frame(somInteractions[[i]]$pairs), file=paste(outDir, "MAF_somatic_interactions.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (gene pairs)"), row.names=FALSE,  append=TRUE)
+    }
+    
+    if ( length(somInteractions[[i]]$gene_sets) != 0 ) {
+      
+      ##### Gene sets info
+      write.xlsx(as.data.frame(somInteractions[[i]]$gene_sets), file=paste(outDir, "MAF_somatic_interactions.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (gene sets)"), row.names=FALSE,  append=TRUE)
+    }
+  }
+}
+```
+
+## Save plots into PDF files
+
+```{r maf_visualisation_pdf, message=FALSE, warning=FALSE}
+###### Generate separate file with plots for each cohort
+for ( i in 1:length(mafFiles) ) {
+
+  pdf( file = paste(outDir, "/MAF_summary_genes_", cohorts.list[i], ".pdf", sep = "") )
+
+  ##### Drawing oncoplots for the top 10 genes in each cohort
+  plot.new()
+  par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
+  oncoplot(maf = mafInfo[[i]], fontSize = 12, keepGeneOrder = TRUE, GeneOrderSort = TRUE)
+  
+  ##### Drawing somatic interactions for selected genes in each cohort
+  maftools::somaticInteractions(maf = mafInfo[[i]], pvalue = c(0.05, 0.01), returnAll = TRUE, verbose = FALSE)
+}
+dev.off()
+```
+
+## Parameters
+
+```{r params_info}
+for ( i in 1:length(params) ) {
+
+  cat(paste("Parameter: ", names(params)[i], "\nValue: ", paste(unlist(params[i]), collapse = ","), "\n\n", sep=""))
+}
+```
+
+## Session info
+
+```{r session_info}
+sessionInfo()
+```
