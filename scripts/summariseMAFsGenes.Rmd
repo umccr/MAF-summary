@@ -44,6 +44,9 @@ Go to the MAF files directory, read the files and create directory for output fi
 mafFiles <- params$mafFiles
 mafInfo <- vector("list", length(mafFiles))
 
+cohorts.list <- params$cohorts
+names(mafInfo) <- cohorts.list
+
 for ( i in 1:length(mafFiles) ) {
   mafInfo[[i]] = read.maf(maf = mafFiles[i], verbose = FALSE)
 
@@ -67,8 +70,6 @@ Create tables for individual cohorts with information for queried genes (rows), 
 
 ```{r gene_summary, warning=FALSE}
 ##### Write gene summary into a file
-cohorts.list <- params$cohorts
-
 if ( !file.exists(paste(outDir, "MAF_gene_summary.xlsx", sep = "/")) ){
   for ( i in 1:length(mafFiles) ) {
     write.xlsx(maftools::getGeneSummary(mafInfo[[i]]), file=paste(outDir, "MAF_gene_summary.xlsx", sep="/"), sheetName=cohorts.list[i], row.names=FALSE,  append=TRUE)
