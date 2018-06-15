@@ -21,7 +21,7 @@
 #   maf_files:    List of MAF files to be processed. Each file name is expected to be separated by comma
 #   cohorts:      Desired names of each cohort. The names are expected to be in the same order as provided MAF files and should be separated by comma
 #   genes:        Genes to query
-#   out_dir:      Output directory. If no output directory is specified the results will be saved in folder "MAF_summary"
+#   out_dir:      Name for the output directory that will be created within the directory with MAF files. If no output directory is specified the results will be saved in folder "MAF_summary"
 #
 ################################################################################
 
@@ -100,4 +100,4 @@ if ( is.na(opt$out_dir) ) {
 }
 
 ##### Pass the user-defined argumentas to the SVbezierPlot R markdown script and run the analysis
-rmarkdown::render(input = "summariseMAFsGenes.Rmd", params = list(mafDir = opt$maf_dir, mafFiles = opt$maf_files,  cohorts = opt$cohorts, genes = opt$genes, outDir = opt$out_dir))
+rmarkdown::render(input = "summariseMAFsGenes.Rmd", output_dir = paste(opt$maf_dir, opt$out_dir, "Report", sep = "/"), params = list(mafDir = opt$maf_dir, mafFiles = opt$maf_files, cohorts = opt$cohorts, genes = opt$genes, outDir = opt$out_dir))
