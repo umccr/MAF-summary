@@ -154,6 +154,7 @@ MAF_gene_summary.xlsx | - | Excel spreadsheet with per-gene information about no
 MAF_somatic_interactions.xlsx | [***cohort***] (gene pairs) | Excel spreadsheet with results from pair-wise *Fisher’s Exact* test for detection mutually exclusive or co-occurring genes. The summary is provided for each cohort in a separate tab
 MAF_somatic_interactions.xlsx | [***cohort***] (gene sets) | Excel spreadsheet with results from *cometExactTest* for identification of potentially altered gene sets involving > 2 two genes (more details [here](https://www.ncbi.nlm.nih.gov/pubmed/26253137)). The summary is provided for each cohort in a separate tab
 MAF_gene_summary_heatmap_[***cohort***].html | - | Genes summary in a form of interactive heatmap (displays the user-defined genes)
+MAF_pair-wise_comparisons_heatmap.html | - | Interactive heatmap with colours indicating the adjusted *Fisher Exact* test p-values for all genes in pair-wise comprisons between queried *MAFs* to aid identification of global differences in mutation patterns between corresponding cohorts
 MAF_summary_genes_[***cohort***].pdf | Oncoplots | A heatmap-like plots illustrating different types of mutations observed across all samples for the selected genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively
 MAF_summary_genes_[***cohort***].pdf | Somatic interactions plots | Pair-wise heatmaps with colurs indicating the pair-wise *Fisher’s Exact* test p-values to faclilitate detection of mutually exclusive or co-occurring genes.
 <br />
