@@ -287,6 +287,20 @@ for ( i in 1:length(mafFiles) ) {
 }
 ```
 
+```{r maf_TiTv_table}
+##### Write per-sample transitions and transversions distribution into a file
+if ( !file.exists(paste(outDir, "MAF_summary_titv.xlsx", sep = "/")) ) {
+  
+  for ( i in 1:length(mafFiles) ) {
+    write.xlsx(titv.info$fraction.contribution, file=paste(outDir, "MAF_summary_titv.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (fraction)"), row.names=FALSE,  append=TRUE)
+    write.xlsx(titv.info$raw.counts, file=paste(outDir,"MAF_summary_titv.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (count)"), row.names=FALSE,  append=TRUE)
+    write.xlsx(titv.info$TiTv.fractions, file=paste(outDir,"MAF_summary_titv.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (TiTv fractions)"), row.names=FALSE,  append=TRUE)
+  }
+} else {
+    cat(paste("\nFile \"MAF_summary_titv.xlsx\" already exists in", outDir, "!\n\n", sep=" "))
+}
+```
+
 ### Pair-wise comparisons
 
 Perform *Fisher Exact* test on all genes for all possible pair-wise comprisons to find differentially mutated genes between queried cohorts and to aid identification of global differences in mutation patterns in corresponding *MAFs*. The results are presented in form of a heatmap with rows and columns representing genes and cohorts, respectively, and heatmap colours indicating the adjusted *Fisher Exact* test p-values. The colour key is on the left-hand side. Low p-values (yellow) indicate differentially mutated genes between the corresponding cohorts. Genes are clustered to facilite the indetification possible differences between individaul cohorts.
@@ -390,15 +404,6 @@ for ( i in 1:length(mafFiles) ) {
 
   plotTiTv(res = titv.info)
   mtext("Transition and transversions distribution", outer=TRUE,  cex=1, line=-1.5)
-
-  ##### Write per-sample transitions and transversions distribution into a file
-  if ( !file.exists(paste(outDir, "MAF_summary_titv.xlsx", sep = "/")) ) {
-    write.xlsx(titv.info$fraction.contribution, file=paste(outDir, "MAF_summary_titv.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (fraction)"), row.names=FALSE,  append=TRUE)
-    write.xlsx(titv.info$raw.counts, file=paste(outDir,"MAF_summary_titv.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (count)"), row.names=FALSE,  append=TRUE)
-    write.xlsx(titv.info$TiTv.fractions, file=paste(outDir,"MAF_summary_titv.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (TiTv fractions)"), row.names=FALSE,  append=TRUE)
-  } else {
-    cat(paste("\nFile \"MAF_summary_titv.xlsx\" already exists in", outDir, "!\n\n", sep=" "))
-  }
 
   ##### Compare mutation load against TCGA cohorts
   tcgaCompare(maf = mafInfo[[i]], cohortName = cohorts.list[i], primarySite=TRUE)
