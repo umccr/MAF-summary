@@ -54,7 +54,7 @@ for ( i in 1:length(mafFiles) ) {
 outDir <- paste(params$mafDir, params$outDir, sep = "/")
 
 if ( !file.exists(params$outDir) ){
-  dir.create(outDir)
+  dir.create(outDir, recursive=TRUE)
 }
 ```
 
@@ -290,7 +290,7 @@ for ( i in 1:length(mafFiles) ) {
 ```{r maf_TiTv_table}
 ##### Write per-sample transitions and transversions distribution into a file
 if ( !file.exists(paste(outDir, "MAF_summary_titv.xlsx", sep = "/")) ) {
-  
+
   for ( i in 1:length(mafFiles) ) {
     write.xlsx(titv.info$fraction.contribution, file=paste(outDir, "MAF_summary_titv.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (fraction)"), row.names=FALSE,  append=TRUE)
     write.xlsx(titv.info$raw.counts, file=paste(outDir,"MAF_summary_titv.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (count)"), row.names=FALSE,  append=TRUE)
@@ -328,14 +328,14 @@ mafCompare.res <- vector("list", combNo)
 
 ##### Perform pair-wise cohorts MAFs comparisons
 for (i in 1:combNo) {
-  
+
   combNames[i] <- paste(comb[1,i], comb[2,i], sep=" vs ")
-  
+
   mafCompare.res[[i]] <- maftools::mafCompare(m1 = mafInfo[[comb[1,i]]], m2 = mafInfo[[comb[2,i]]], m1Name = comb[1,i], m2Name = comb[2,i], minMut = 0)$results
-  
+
   ##### Sort the data-frame by gene symbol
-  mafCompare.res[[i]] <- mafCompare.res[[i]][order(mafCompare.res[[i]]$Hugo_Symbol)] 
-  
+  mafCompare.res[[i]] <- mafCompare.res[[i]][order(mafCompare.res[[i]]$Hugo_Symbol)]
+
   rownames(mafCompare.res[[i]]) <- mafCompare.res[[i]]$Hugo_Symbol
 }
 
@@ -362,7 +362,7 @@ as_widget(ggplotly(p))
 
 ##### Save the heatmap as html (PLOTLY)
 htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_pair-wise_comparisons_heatmap.html"), selfcontained = TRUE)
-  
+
 ##### Detach plotly package. Otherwise it clashes with other graphics devices
 detach("package:heatmaply", unload=FALSE)
 detach("package:plotly", unload=FALSE)

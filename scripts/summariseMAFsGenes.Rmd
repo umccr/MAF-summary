@@ -58,7 +58,7 @@ for ( i in 1:length(mafFiles) ) {
 outDir <- paste(params$mafDir, params$outDir, sep = "/")
 
 if ( !file.exists(params$outDir) ){
-  dir.create(outDir)
+  dir.create(outDir, recursive=TRUE)
 }
 ```
 
