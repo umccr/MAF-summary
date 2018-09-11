@@ -1,5 +1,17 @@
 ################################################################################
 #
+#   File name: summariseMAFs.R
+#
+#   Authors: Jacek Marzec ( jacek.marzec@unimelb.edu.au )
+#
+#   University of Melbourne Centre for Cancer Research,
+#   Victorian Comprehensive Cancer Centre
+#   305 Grattan St, Melbourne, VIC 3000
+#
+################################################################################
+
+################################################################################
+#
 #   Description: Script summarising and visualising multiple MAF files using maftools R package ( https://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html ). This script catches the arguments from the command line and passes them to the summariseMAFs.Rmd script to produce the report, generate set of plots and excel spreadsheets summarising each MAF file.
 #   NOTE: Each MAF file needs to contain the "Tumor_Sample_Barcode" column.
 #
@@ -17,19 +29,11 @@ rm(list=ls())
 ##### Close any open graphics devices
 graphics.off()
 
-#===============================================================================
-#    Functions
-#===============================================================================
 
 #===============================================================================
 #    Load libraries
 #===============================================================================
 
-##### Set the jave max heap size to 2Gb to accomodate big gene tables
-options( java.parameters = "-Xmx2000m" )
-
-suppressMessages(library(maftools))
-suppressMessages(library(xlsx))
 suppressMessages(library(optparse))
 
 
