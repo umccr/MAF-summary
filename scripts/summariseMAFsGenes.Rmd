@@ -1,7 +1,7 @@
 ---
 title: "Multiple MAF files summarisation and visualisation for selected genes"
-author:
-date:
+author: "UMCCR"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 params:
   mafDir:
   mafFiles:
@@ -31,7 +31,6 @@ options( java.parameters = "-Xmx2000m" )
 suppressMessages(library(knitr))
 suppressMessages(library(maftools))
 suppressMessages(library(xlsx))
-suppressMessages(library(optparse))
 suppressMessages(library(DT))
 ```
 
@@ -39,7 +38,7 @@ suppressMessages(library(DT))
 
 Go to the MAF files directory, read the files and create directory for output files, if does not exist already
 
-```{r load_data, message=FALSE, warning=FALSE}
+```{r load_data, comment = NA, message=FALSE, warning=FALSE}
 ##### Read MAF files and put associated info into a list
 mafFiles <- params$mafFiles
 mafInfo <- vector("list", length(mafFiles))
@@ -142,7 +141,7 @@ widges.list
 
 Oncoplot illustrating different types of mutations observed across samples for the selected genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively.
 
-```{r maf_oncoplot, message=FALSE, warning=FALSE}
+```{r maf_oncoplot, comment = NA, message=FALSE, warning=FALSE}
 ###### Generate separate plot for each cohort
 for ( i in 1:length(mafFiles) ) {
 
@@ -159,7 +158,7 @@ for ( i in 1:length(mafFiles) ) {
 
 Somatic interactions plots facilitate detection of mutually exclusive or co-occurring set of genes. The somatic interactions function performs pair-wise *Fisher’s Exact test* to detect significant pair of genes and uses *cometExactTest* to identify potentially altered gene sets involving > 2 two genes (see [ CoMEt: a statistical approach to identify combinations of mutually exclusive alterations in cancer](https://www.ncbi.nlm.nih.gov/pubmed/26253137) for more details). The colour key, indicating the Fisher’s Exact test p-value, is presented on the right-hand side. This part of the script also generates a table with Fisher’s Exact test and cometExactTest results.
 
-```{r maf_interactions_plots, warning=FALSE}
+```{r maf_interactions_plots, comment = NA, warning=FALSE}
 ###### Generate separate plot for each cohort
 
 ##### Create a list for somatic interactions info for each cohort
@@ -238,7 +237,7 @@ if ( !file.exists(paste(outDir, "MAF_somatic_interactions.xlsx", sep = "/")) ){
 
 ## Save plots into PDF files
 
-```{r maf_visualisation_pdf, message=FALSE, warning=FALSE}
+```{r maf_visualisation_pdf, comment = NA, message=FALSE, warning=FALSE}
 ###### Generate separate file with plots for each cohort
 for ( i in 1:length(mafFiles) ) {
 
@@ -257,7 +256,7 @@ dev.off()
 
 ## Parameters
 
-```{r params_info}
+```{r params_info, comment = NA}
 for ( i in 1:length(params) ) {
 
   cat(paste("Parameter: ", names(params)[i], "\nValue: ", paste(unlist(params[i]), collapse = ","), "\n\n", sep=""))
@@ -266,6 +265,6 @@ for ( i in 1:length(params) ) {
 
 ## Session info
 
-```{r session_info}
+```{r session_info, comment = NA}
 sessionInfo()
 ```
