@@ -3,10 +3,10 @@ title: "Multiple MAF files summarisation and visualisation"
 author: "UMCCR"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 params:
-  mafDir:
-  mafFiles:
-  cohorts:
-  outDir:
+  mafDir: 
+  mafFiles: 
+  cohorts: 
+  outDir: 
 output:
   html_document:
     keep_md: yes
@@ -17,19 +17,29 @@ output:
 
 Script to summarise and visualise multiple [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) (MAF) files using *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* R package.
 
-Make sure to set the java max heap size to 2Gb to accomodate big gene tables written into excel spreadsheet using the xlsx R package
+```{r define_functions}
+##### Define functions
 
-```{r set_java}
-##### Set the jave max heap size to 2Gb to accomodate big gene tables
-options( java.parameters = "-Xmx2000m" )
+##### Assign colours to different datasets. These colours will be used to distinguish tabs in generated excel summary spreadsheets
+getDatasetsColours <- function(datasets) {
+  
+  ##### Predefined selection of colours for datasets
+  datasets.colours <- c("dodgerblue","firebrick","lightslategrey","darkseagreen","orange","darkcyan","bisque", "coral2", "cadetblue3","red","blue","green")
+  
+  f.datasets <- factor(datasets)
+  vec.datasets <- datasets.colours[1:length(levels(f.datasets))]
+  datasets.colour <- rep(0,length(f.datasets))
+  for(i in 1:length(f.datasets))
+    datasets.colour[i] <- vec.datasets[ f.datasets[i]==levels(f.datasets)]
+  
+  return( list(vec.datasets, datasets.colour) )
+}
 ```
-
-### Load libraries
 
 ```{r load_libraries}
 suppressMessages(library(knitr))
 suppressMessages(library(maftools))
-suppressMessages(library(xlsx))
+suppressMessages(library(openxlsx))
 suppressMessages(library(DT))
 ```
 
@@ -65,11 +75,20 @@ Generate tables  with basic information about each MAF file, including NCBI buil
 
 ```{r overll_summary, warning=FALSE}
 ##### Write overall summary into a file
-if ( !file.exists(paste(outDir, "MAF_summary.xlsx", sep = "/")) ){
-  for ( i in 1:length(mafFiles) ) {
-    write.xlsx(mafInfo[[i]]@summary, file=paste(outDir, "MAF_summary.xlsx", sep="/"), sheetName=cohorts.list[i], row.names=FALSE,  append=TRUE)
-  }
+##### Assign different colour to individual cohort
+cohorts.colour <- getDatasetsColours(cohorts.list)
+
+##### Create a new workbook
+wb <- createWorkbook("MAF_summary.xlsx")
+
+##### Add worksheets, one for each cohort
+for ( i in 1:length(mafFiles) ) {
+  
+    addWorksheet(wb, cohorts.list[i], tabColour = cohorts.colour[[1]][i])
+    writeData(wb, sheet = i, mafInfo[[i]]@summary)
 }
+
+saveWorkbook(wb, paste(outDir, "MAF_summary.xlsx", sep="/"), overwrite = TRUE)
 
 ##### Present a MAF file summary table in the html report
 ##### Create a list for htmlwidgets
@@ -83,15 +102,19 @@ for ( i in 1:length(mafFiles) ) {
 widges.list
 ```
 
-Additionally ceate an excel spreadsheet listing all fields (columns) in the individaul MAF files.
-
 ```{r maf_fields, warning=FALSE}
-##### Get all fields in MAF files
-if ( !file.exists(paste(outDir, "MAF_fields.xlsx", sep = "/")) ){
-  for ( i in 1:length(mafFiles) ) {
-    write.xlsx(maftools::getFields(mafInfo[[i]]), file=paste(outDir, "MAF_fields.xlsx", sep="/"), sheetName=cohorts.list[i], row.names=FALSE,  append=TRUE, col.names=FALSE)
-  }
+##### Additionally ceate an excel spreadsheet listing all fields (columns) in the individaul MAF files
+##### Create a new workbook
+wb <- createWorkbook("MAF_fields.xlsx")
+
+##### Add worksheets, one for each cohort
+for ( i in 1:length(mafFiles) ) {
+  
+    addWorksheet(wb, cohorts.list[i], tabColour = cohorts.colour[[1]][i])
+    writeData(wb, sheet = i, maftools::getFields(mafInfo[[i]]))
 }
+
+saveWorkbook(wb, paste(outDir, "MAF_fields.xlsx", sep="/"), overwrite = TRUE)
 ```
 
 ### Samples summary
@@ -100,12 +123,17 @@ Create tables with samples summary. Each table contains per-sample information (
 
 ```{r sample_summary, warning=FALSE}
 ##### Write samples summary into a file
-if ( !file.exists(paste(outDir, "MAF_sample_summary.xlsx", sep = "/")) ) {
+##### Create a new workbook
+wb <- createWorkbook("MAF_sample_summary.xlsx")
 
-  for ( i in 1:length(mafFiles) ) {
-    write.xlsx(maftools::getSampleSummary(mafInfo[[i]]), file=paste(outDir, "MAF_sample_summary.xlsx", sep="/"), sheetName=cohorts.list[i], row.names=FALSE,  append=TRUE)
-  }
+##### Add worksheets, one for each cohort
+for ( i in 1:length(mafFiles) ) {
+  
+    addWorksheet(wb, cohorts.list[i], tabColour = cohorts.colour[[1]][i])
+    writeData(wb, sheet = i, maftools::getSampleSummary(mafInfo[[i]]))
 }
+
+saveWorkbook(wb, paste(outDir, "MAF_sample_summary.xlsx", sep="/"), overwrite = TRUE)
 
 ##### Present a sample table in the html report
 ##### Create a list for htmlwidgets
@@ -125,11 +153,17 @@ Now present gene summary info. This part creates tables for individual cohorts w
 
 ```{r gene_summary, warning=FALSE}
 ##### Write gene summary into a file
-if ( !file.exists(paste(outDir, "MAF_gene_summary.xlsx", sep = "/")) ){
-  for ( i in 1:length(mafFiles) ) {
-    write.xlsx(maftools::getGeneSummary(mafInfo[[i]]), file=paste(outDir, "MAF_gene_summary.xlsx", sep="/"), sheetName=cohorts.list[i], row.names=FALSE,  append=TRUE)
-  }
+##### Create a new workbook
+wb <- createWorkbook("MAF_gene_summary.xlsx")
+
+##### Add worksheets, one for each cohort
+for ( i in 1:length(mafFiles) ) {
+  
+    addWorksheet(wb, cohorts.list[i], tabColour = cohorts.colour[[1]][i])
+    writeData(wb, sheet = i, maftools::getGeneSummary(mafInfo[[i]]))
 }
+
+saveWorkbook(wb, paste(outDir, "MAF_gene_summary.xlsx", sep="/"), overwrite = TRUE)
 
 ##### Present a gene table in the html report
 ##### Create a list for htmlwidgets
@@ -288,16 +322,23 @@ for ( i in 1:length(mafFiles) ) {
 
 ```{r maf_TiTv_table}
 ##### Write per-sample transitions and transversions distribution into a file
-if ( !file.exists(paste(outDir, "MAF_summary_titv.xlsx", sep = "/")) ) {
+##### Create a new workbook
+wb <- createWorkbook("MAF_summary_titv.xlsx")
 
-  for ( i in 1:length(mafFiles) ) {
-    write.xlsx(titv.info$fraction.contribution, file=paste(outDir, "MAF_summary_titv.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (fraction)"), row.names=FALSE,  append=TRUE)
-    write.xlsx(titv.info$raw.counts, file=paste(outDir,"MAF_summary_titv.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (count)"), row.names=FALSE,  append=TRUE)
-    write.xlsx(titv.info$TiTv.fractions, file=paste(outDir,"MAF_summary_titv.xlsx", sep="/"), sheetName=paste0(cohorts.list[i], " (TiTv fractions)"), row.names=FALSE,  append=TRUE)
-  }
-} else {
-    cat(paste("\nFile \"MAF_summary_titv.xlsx\" already exists in", outDir, "!\n\n", sep=" "))
+##### Add worksheets, three for each cohort
+for ( i in 1:length(mafFiles) ) {
+  
+    addWorksheet(wb, paste0(cohorts.list[i], " (fraction)"), tabColour = cohorts.colour[[1]][i])
+    writeData(wb, sheet = i, titv.info$fraction.contribution)
+    
+    addWorksheet(wb, paste0(cohorts.list[i], " (count)"), tabColour = cohorts.colour[[1]][i])
+    writeData(wb, sheet = i, titv.info$raw.counts)
+    
+    addWorksheet(wb, paste0(cohorts.list[i], " (TiTv fractions)"), tabColour = cohorts.colour[[1]][i])
+    writeData(wb, sheet = i, titv.info$TiTv.fractions)
 }
+
+saveWorkbook(wb, paste(outDir, "MAF_summary_titv.xlsx", sep="/"), overwrite = TRUE)
 ```
 
 ### Pair-wise comparisons
