@@ -1,7 +1,7 @@
 ---
 title: "Multiple MAF files summarisation and visualisation"
-author:
-date:
+author: "UMCCR"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 params:
   mafDir:
   mafFiles:
@@ -30,7 +30,6 @@ options( java.parameters = "-Xmx2000m" )
 suppressMessages(library(knitr))
 suppressMessages(library(maftools))
 suppressMessages(library(xlsx))
-suppressMessages(library(optparse))
 suppressMessages(library(DT))
 ```
 
@@ -38,7 +37,7 @@ suppressMessages(library(DT))
 
 Go to the MAF files directory, read the files and create directory for output files, if does not exist already
 
-```{r load_data, message=FALSE, warning=FALSE}
+```{r load_data, comment = NA, message=FALSE, warning=FALSE}
 ##### Read MAF files and put associated info into a list
 mafFiles <- params$mafFiles
 mafInfo <- vector("list", length(mafFiles))
@@ -240,7 +239,7 @@ This part creates a set of plots summarising individual MAF files.
 
 A summary for MAF file displaying frequency of various mutation/SNV types/classes (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of different mutation types for the top 10 mutated genes (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the cohort.
 
-```{r maf_summary_plot}
+```{r maf_summary_plot, comment = NA}
 ###### Generate separate plot for each cohort
 for ( i in 1:length(mafFiles) ) {
 
@@ -256,7 +255,7 @@ for ( i in 1:length(mafFiles) ) {
 
 Oncoplot illustrating different types of mutations observed across samples for the 10 most frequently mutated genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively.
 
-```{r maf_oncoplot}
+```{r maf_oncoplot, comment = NA}
 ###### Generate separate plot for each cohort
 for ( i in 1:length(mafFiles) ) {
 
@@ -273,7 +272,7 @@ for ( i in 1:length(mafFiles) ) {
 
 Plots presenting the transition and transversions distribution. The box-plots (top panel) show the overall distribution of the six different conversions (C>A, C>G, C>T, T>C, T>A and T>G)(left), and the transition and transversions frequency (right). The stacked bar-plot (bottom) displays the fraction of the six different conversions in each sample.
 
-```{r maf_TiTv_plot}
+```{r maf_TiTv_plot, comment = NA}
 ###### Generate separate plot for each cohort
 for ( i in 1:length(mafFiles) ) {
 
@@ -372,7 +371,7 @@ detach("package:plotly", unload=FALSE)
 
 Plot illustrating the mutation load in ICGC PACA-CA cohort along distribution of variants compiled from over 10,000 WXS samples across 33 TCGA landmark cohorts. Every dot represents a sample whereas the red horizontal lines are the median numbers of mutations in the respective cancer types. The vertical axis (log scaled) shows the number of mutations per megabase whereas the different cancer types are ordered on the horizontal axis based on their median numbers of somatic mutations. This plot is similar to the one described in the paper "Signatures of mutational processes in human cancer" by Alexandrov et al. (PMID: 23945592)
 
-```{r maf_tcga_cohorts, message=FALSE, warning=FALSE}
+```{r maf_tcga_cohorts, comment = NA, message=FALSE, warning=FALSE}
 ###### Generate separate plot for each cohort
 for ( i in 1:length(mafFiles) ) {
 
@@ -383,7 +382,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ## Save plots into PDF files
 
-```{r maf_visualisation_pdf, message=FALSE, warning=FALSE}
+```{r maf_visualisation_pdf, comment = NA, message=FALSE, warning=FALSE}
 ###### Generate separate file with plots for each cohort
 for ( i in 1:length(mafFiles) ) {
 
@@ -415,7 +414,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ## Parameters
 
-```{r params_info}
+```{r params_info, comment = NA}
 for ( i in 1:length(params) ) {
 
   cat(paste("Parameter: ", names(params)[i], "\nValue: ", paste(unlist(params[i]), collapse = ","), "\n\n", sep=""))
@@ -424,6 +423,6 @@ for ( i in 1:length(params) ) {
 
 ## Session info
 
-```{r session_info}
+```{r session_info, comment = NA }
 sessionInfo()
 ```
