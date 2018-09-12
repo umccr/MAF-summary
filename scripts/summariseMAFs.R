@@ -81,4 +81,4 @@ if ( is.na(opt$out_dir) ) {
 }
 
 ##### Pass the user-defined argumentas to the SVbezierPlot R markdown script and run the analysis
-rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_dir, "Report", sep = "/"), params = list(mafDir = opt$maf_dir, mafFiles = opt$maf_files, cohorts = opt$cohorts, outDir = opt$out_dir))
+rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_dir, "Report", sep = "/"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, cohorts = opt$cohorts, out_dir = opt$out_dir))
