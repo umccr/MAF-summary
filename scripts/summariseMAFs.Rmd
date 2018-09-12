@@ -15,19 +15,19 @@ output:
 #    toc_float: true
 ---
 
-This report summarises and visualises [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) (MAF) files for the following datasets:
+This report summarises and visualises mutation data in [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) (MAF) files for the following datasets:
 
 ```{r datasets, comment = NA}
 ##### Present patient cohorts to be summarised
 mafFiles <- params$maf_files
 datasets.list <- params$datasets
 
-datasets.df <- as.data.frame(cbind(datasets.list, mafFiles))
+datasets.df <- as.data.frame(cbind(datasets.list, unlist(lapply(strsplit(mafFiles, split='/', fixed=TRUE), tail, n = 1L))))
 names(datasets.df) <- c("Dataset", "MAF file")
 
 DT::datatable( data = datasets.df, filter = "none", options = list(pageLength = length(mafFiles), sDom  = '<"top">lrt<"bottom">ip') )
 
-cat("located in ", params$maf_dir, "\n\n")
+cat("These MAF files are located in the following directory: ", params$maf_dir, "\n\n")
 ```
 
 ```{r define_functions}
@@ -80,7 +80,7 @@ if ( !file.exists(params$out_dir) ){
 
 ### Overall summary
 
-Generate tables  with basic information about each MAF file, including NCBI build, no. fo samples and genes, no. of different mutation types ( frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations), as well as the total no. of mutations present in the MAF file. Individual tables present summary for corresponding datasets.
+Tables with basic information about each dataset, including NCBI build, no. fo samples and genes, no. of different mutation types, as well as the total no. of mutations, as provided in corresponding MAF files.
 
 ```{r overll_summary, warning=FALSE}
 ##### Write overall summary into a file
@@ -131,7 +131,7 @@ saveWorkbook(wb, paste(outDir, "MAF_fields.xlsx", sep="/"), overwrite = TRUE)
 
 ### Samples summary
 
-Create tables with samples summary. Each table contains per-sample information (rows) about no. of different types of mutations (columns), including frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations, as well as the total no. of mutations present in the MAF file.
+Tables with samples summary in individual dataset. Each table contains per-sample information (rows) about no. of different types of mutations (columns), as well as the total no. of mutations present in corresponding MAF file.
 
 ```{r sample_summary, warning=FALSE}
 ##### Write samples summary into a file
@@ -164,7 +164,7 @@ cat("\n\n\n")
 
 ### Genes summary
 
-Now present gene summary info. This part creates tables for individual datasets with per-gene information (rows) about no. of different types of mutations (columns), including frameshift deletions, frameshift insertions, in-frame deletions, in-frame insertions, missense mutations, nonsense mutations, nonstop mutations, splice site mutations, translation start site mutations, as well as the total no. of mutations present in the MAF file. The last two columns contain the no. of samples with mutations/alterations in the corresponding gene.
+Tables with genes summary in individual dataset. Each table contains per-gene information (rows) about no. of different types of mutations (columns), as well as the total no. of mutations present in corresponding MAF file. The last two columns contain the no. of samples with mutations/alterations in the corresponding gene.
 
 ```{r gene_summary, warning=FALSE}
 ##### Write gene summary into a file
@@ -199,7 +199,7 @@ cat("\n\n\n")
 
 ### Samples summary
 
-Generate an interactive heatmap to facilitate outlier samples detection. Rows and columns represent samples and mutation types, respectively. The colour scale from blue to yellow indicates low and high number of various mutations types, respectively, reported for corresponding samples. Samples are ordered by the number of mutations to facilitate identification of individuals with extreme mutation burden.
+Interactive heatmap generated to facilitate outlier samples detection. Rows and columns represent samples and mutation types, respectively. The colour scale from blue to yellow indicates low and high number of various mutations types, respectively, reported for corresponding samples. Samples are ordered by the number of mutations to facilitate identification of individuals with extreme mutation burden.
 
 ```{r sample_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 9}
 suppressMessages(library(plotly))
@@ -242,7 +242,7 @@ widges.list
 
 ### Genes summary
 
-This time generate an interactive heatmap to summmarise genes information. Rows and columns represent genes and mutation types, respectively. The colour scale from blue to yellow indicates low and high number of various mutations types, respectively, observed in corresponding genes. Genes are ordered by the number of reported mutations. The total number of mutations in individual genes, as well as the number of samples with mutations are also presented in the last three columns. Note, for transparency we show only the top 50 mutated genes.
+Interactive heatmap summmarising genes information. Rows and columns represent genes and mutation types, respectively. The colour scale from blue to yellow indicates low and high number of various mutations types, respectively, observed in corresponding genes. Genes are ordered by the number of reported mutations. The total number of mutations in individual genes, as well as the number of samples with mutations are also presented in the last three columns. Note, for transparency we show only the top 50 mutated genes.
 
 ```{r gene_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 9}
 suppressMessages(library(plotly))
