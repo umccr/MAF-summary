@@ -36,7 +36,7 @@ getDatasetsColours <- function(datasets) {
 }
 ```
 
-```{r load_libraries}
+```{r load_libraries, warning=FALSE}
 suppressMessages(library(knitr))
 suppressMessages(library(maftools))
 suppressMessages(library(openxlsx))
@@ -100,6 +100,9 @@ for ( i in 1:length(mafFiles) ) {
 
 ##### Print a list of htmlwidgets
 widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
 ```
 
 ```{r maf_fields, warning=FALSE}
@@ -145,6 +148,9 @@ for ( i in 1:length(mafFiles) ) {
 
 ##### Print a list of htmlwidgets
 widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
 ```
 
 ### Genes summary
@@ -175,6 +181,9 @@ for ( i in 1:length(mafFiles) ) {
 
 ##### Print a list of htmlwidgets
 widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
 ```
 
 ## MAF files summary  - heatmaps {.tabset .tabset-fade}
@@ -199,7 +208,7 @@ for ( i in 1:length(mafFiles) ) {
 
   ##### Generate interactive heatmap
   p <- heatmaply(sampleSummary, main = paste0("Samples summary: ", cohorts.list[i]), Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Sample","Mutation_type","Count")) %>%
-  layout(width  = 900, height = 600, margin = list(l=150, r=10, b=150, t=50, pad=4), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+  layout(width  = 900, height = 550, margin = list(l=150, r=10, b=230, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
 
   ##### Add plot to the list for htmlwidgets
   widges.list[[i]] <- as_widget(ggplotly(p))
@@ -242,7 +251,7 @@ for ( i in 1:length(mafFiles) ) {
 
   ##### Generate interactive heatmap
   p <- heatmaply(geneSummary, main = paste0("Genes summary: ", cohorts.list[i]), Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Mutation_type","Count")) %>%
-  layout(width  = 900, height = 600, margin = list(l=150, r=10, b=150, t=50, pad=4), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+  layout(width  = 900, height = 550, margin = list(l=150, r=10, b=230, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
 
   ##### Add plot to the list for htmlwidgets
   widges.list[[i]] <- as_widget(ggplotly(p))
@@ -308,14 +317,18 @@ Plots presenting the transition and transversions distribution. The box-plots (t
 
 ```{r maf_TiTv_plot, comment = NA}
 ###### Generate separate plot for each cohort
+
+###### Create empty list for TiTv info from each cohort
+titv.info <- list()
+
 for ( i in 1:length(mafFiles) ) {
 
   cat(paste(cohorts.list[i], "cohort\n\n", sep=" "))
 
   ##### Drawing distribution plots of the transitions and transversions
-  titv.info <- maftools::titv(maf = mafInfo[[i]], plot = FALSE, useSyn = TRUE)
+  titv.info[[cohorts.list[i]]] <- maftools::titv(maf = mafInfo[[i]], plot = FALSE, useSyn = TRUE)
 
-  maftools::plotTiTv(res = titv.info)
+  maftools::plotTiTv(res = titv.info[[cohorts.list[i]])
   mtext("Transition and transversions distribution", outer=TRUE,  cex=1, line=-1.5)
 }
 ```
@@ -328,14 +341,14 @@ wb <- createWorkbook("MAF_summary_titv.xlsx")
 ##### Add worksheets, three for each cohort
 for ( i in 1:length(mafFiles) ) {
   
-    addWorksheet(wb, paste0(cohorts.list[i], " (fraction)"), tabColour = cohorts.colour[[1]][i])
-    writeData(wb, sheet = i, titv.info$fraction.contribution)
+    addWorksheet(wb, substring(paste0(cohorts.list[i], " (fraction)"), 0, 31), tabColour = cohorts.colour[[1]][i])
+    writeData(wb, sheet = i*3-2, titv.info[[cohorts.list[i]]$fraction.contribution)
     
-    addWorksheet(wb, paste0(cohorts.list[i], " (count)"), tabColour = cohorts.colour[[1]][i])
-    writeData(wb, sheet = i, titv.info$raw.counts)
+    addWorksheet(wb, substring(paste0(cohorts.list[i], " (count)"), 0, 31), tabColour = cohorts.colour[[1]][i])
+    writeData(wb, sheet = i*3-1, titv.info[[cohorts.list[i]]$raw.counts)
     
-    addWorksheet(wb, paste0(cohorts.list[i], " (TiTv fractions)"), tabColour = cohorts.colour[[1]][i])
-    writeData(wb, sheet = i, titv.info$TiTv.fractions)
+    addWorksheet(wb, substring(paste0(cohorts.list[i], " (TiTv fractions)"), 0, 31), tabColour = cohorts.colour[[1]][i])
+    writeData(wb, sheet = i*3, titv.info[[cohorts.list[i]]$TiTv.fractions)
 }
 
 saveWorkbook(wb, paste(outDir, "MAF_summary_titv.xlsx", sep="/"), overwrite = TRUE)
@@ -396,7 +409,7 @@ hr <- hclust(as.dist(dist(mafCompare.res.common.p, method="euclidean")), method=
 
 ##### Generate interactive heatmap
 p <- heatmaply(mafCompare.res.common.p, Rowv=as.dendrogram(hr), Colv=NULL, viridis(n=256, alpha = 1, begin = 1, end = 0, option = "viridis"), scale="none", dendrogram="row", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Comparison","P-value")) %>%
-  layout(width  = 900, height = 900, margin = list(l=150, r=10, b=250, t=50, pad=4), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+  layout(width  = 900, height = 900, margin = list(l=150, r=10, b=250, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
 
 as_widget(ggplotly(p))
 
