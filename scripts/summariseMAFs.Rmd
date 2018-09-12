@@ -3,10 +3,10 @@ title: "Multiple MAF files summarisation and visualisation"
 author: "UMCCR"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 params:
-  mafDir: 
-  mafFiles: 
+  maf_dir: 
+  maf_files: 
   cohorts: 
-  outDir: 
+  out_dir: 
 output:
   html_document:
     keep_md: yes
@@ -49,7 +49,7 @@ Go to the MAF files directory, read the files and create directory for output fi
 
 ```{r load_data, comment = NA, message=FALSE, warning=FALSE}
 ##### Read MAF files and put associated info into a list
-mafFiles <- params$mafFiles
+mafFiles <- params$maf_files
 mafInfo <- vector("list", length(mafFiles))
 
 cohorts.list <- params$cohorts
@@ -60,9 +60,9 @@ for ( i in 1:length(mafFiles) ) {
 }
 
 ##### Create directory for output files
-outDir <- paste(params$mafDir, params$outDir, sep = "/")
+outDir <- paste(params$maf_dir, params$out_dir, sep = "/")
 
-if ( !file.exists(params$outDir) ){
+if ( !file.exists(params$out_dir) ){
   dir.create(outDir, recursive=TRUE)
 }
 ```
@@ -95,7 +95,7 @@ saveWorkbook(wb, paste(outDir, "MAF_summary.xlsx", sep="/"), overwrite = TRUE)
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable(data = mafInfo[[i]]@summary, caption = paste0("MAF summary: ", cohorts.list[i]))
+  widges.list[[i]] <- DT::datatable( data = mafInfo[[i]]@summary, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;','Overall summary: ', htmltools::strong(cohorts.list[i])), filter = "none", options = list(pageLength = 20, sDom  = '<"top">lrt<"bottom">ip'), height = 100 )
 }
 
 ##### Print a list of htmlwidgets
@@ -143,7 +143,7 @@ saveWorkbook(wb, paste(outDir, "MAF_sample_summary.xlsx", sep="/"), overwrite = 
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable(data = maftools::getSampleSummary(mafInfo[[i]]), caption = paste0("Samples summary: ", cohorts.list[i]), filter = "top")
+  widges.list[[i]] <- DT::datatable( data = maftools::getSampleSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', 'Samples summary: ', htmltools::strong(cohorts.list[i])), filter = "top", options = list(pageLength = 5), height = 100 )
 }
 
 ##### Print a list of htmlwidgets
@@ -176,7 +176,7 @@ saveWorkbook(wb, paste(outDir, "MAF_gene_summary.xlsx", sep="/"), overwrite = TR
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable(data = maftools::getGeneSummary(mafInfo[[i]]), caption = paste0("Genes summary: ", cohorts.list[i]), filter = "top")
+  widges.list[[i]] <- DT::datatable(data = maftools::getGeneSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', 'Genes summary: ', htmltools::strong(cohorts.list[i])), filter = "top", options = list(pageLength = 5), height = 100 )
 }
 
 ##### Print a list of htmlwidgets
@@ -317,7 +317,6 @@ Plots presenting the transition and transversions distribution. The box-plots (t
 
 ```{r maf_TiTv_plot, comment = NA}
 ###### Generate separate plot for each cohort
-
 ###### Create empty list for TiTv info from each cohort
 titv.info <- list()
 
@@ -328,7 +327,7 @@ for ( i in 1:length(mafFiles) ) {
   ##### Drawing distribution plots of the transitions and transversions
   titv.info[[cohorts.list[i]]] <- maftools::titv(maf = mafInfo[[i]], plot = FALSE, useSyn = TRUE)
 
-  maftools::plotTiTv(res = titv.info[[cohorts.list[i]])
+  maftools::plotTiTv(res = titv.info[[cohorts.list[i]]])
   mtext("Transition and transversions distribution", outer=TRUE,  cex=1, line=-1.5)
 }
 ```
@@ -342,13 +341,13 @@ wb <- createWorkbook("MAF_summary_titv.xlsx")
 for ( i in 1:length(mafFiles) ) {
   
     addWorksheet(wb, substring(paste0(cohorts.list[i], " (fraction)"), 0, 31), tabColour = cohorts.colour[[1]][i])
-    writeData(wb, sheet = i*3-2, titv.info[[cohorts.list[i]]$fraction.contribution)
+    writeData(wb, sheet = i*3-2, titv.info[[cohorts.list[i]]]$fraction.contribution)
     
     addWorksheet(wb, substring(paste0(cohorts.list[i], " (count)"), 0, 31), tabColour = cohorts.colour[[1]][i])
-    writeData(wb, sheet = i*3-1, titv.info[[cohorts.list[i]]$raw.counts)
+    writeData(wb, sheet = i*3-1, titv.info[[cohorts.list[i]]]$raw.counts)
     
     addWorksheet(wb, substring(paste0(cohorts.list[i], " (TiTv fractions)"), 0, 31), tabColour = cohorts.colour[[1]][i])
-    writeData(wb, sheet = i*3, titv.info[[cohorts.list[i]]$TiTv.fractions)
+    writeData(wb, sheet = i*3, titv.info[[cohorts.list[i]]]$TiTv.fractions)
 }
 
 saveWorkbook(wb, paste(outDir, "MAF_summary_titv.xlsx", sep="/"), overwrite = TRUE)
