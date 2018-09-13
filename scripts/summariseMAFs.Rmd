@@ -11,24 +11,9 @@ output:
   html_document:
     keep_md: yes
     code_folding: hide
-#    toc: true
-#    toc_float: true
+    toc: true
+    toc_float: true
 ---
-
-This report summarises and visualises mutation data in [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) (MAF) files for the following datasets:
-
-```{r datasets, comment = NA}
-##### Present patient cohorts to be summarised
-mafFiles <- params$maf_files
-datasets.list <- params$datasets
-
-datasets.df <- as.data.frame(cbind(datasets.list, unlist(lapply(strsplit(mafFiles, split='/', fixed=TRUE), tail, n = 1L))))
-names(datasets.df) <- c("Dataset", "MAF file")
-
-DT::datatable( data = datasets.df, filter = "none", options = list(pageLength = length(mafFiles), sDom  = '<"top">lrt<"bottom">ip') )
-
-cat("These MAF files are located in the following directory: ", params$maf_dir, "\n\n")
-```
 
 ```{r define_functions}
 ##### Define functions
@@ -56,7 +41,22 @@ suppressMessages(library(openxlsx))
 suppressMessages(library(DT))
 ```
 
-## Read MAF files
+## Datasets
+
+This report summarises and visualises mutation data in [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) (MAF) files for the following dataset(s):
+
+```{r datasets, comment = NA}
+##### Present patient cohorts to be summarised
+mafFiles <- params$maf_files
+datasets.list <- params$datasets
+
+datasets.df <- as.data.frame(cbind(datasets.list, unlist(lapply(strsplit(mafFiles, split='/', fixed=TRUE), tail, n = 1L))))
+names(datasets.df) <- c("Dataset", "MAF file")
+
+DT::datatable( data = datasets.df, filter = "none", options = list(pageLength = length(mafFiles), sDom  = '<"top">lrt<"bottom">ip') )
+
+cat("These MAF files are located in the following directory: ", params$maf_dir, "\n\n")
+```
 
 ```{r load_data, comment = NA, message=FALSE, warning=FALSE}
 ##### Read MAF files and put associated info into a list
@@ -76,11 +76,11 @@ if ( !file.exists(params$out_dir) ){
 }
 ```
 
-## MAF files summary - tables {.tabset}
+## Summary tables {.tabset}
 
 ### Overall summary
 
-Tables with basic information about each dataset, including NCBI build, no. fo samples and genes, no. of different mutation types, as well as the total no. of mutations, as provided in corresponding MAF files.
+Table(s) with basic information about each dataset, including *NCBI build*, *number fo samples* and *mutated genes*, *number of different mutation types*, as well as the *total number of mutations*, as reported in corresponding MAF file(s).
 
 ```{r overll_summary, warning=FALSE}
 ##### Write overall summary into a file
@@ -104,7 +104,7 @@ saveWorkbook(wb, paste(outDir, "MAF_summary.xlsx", sep="/"), overwrite = TRUE)
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable( data = mafInfo[[i]]@summary, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;','Overall summary: ', htmltools::strong(datasets.list[i])), filter = "none", options = list(pageLength = nrow(mafInfo[[i]]@summary), sDom  = '<"top">lrt<"bottom">ip') )
+  widges.list[[i]] <- DT::datatable( data = mafInfo[[i]]@summary, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "none", options = list(pageLength = nrow(mafInfo[[i]]@summary), sDom  = '<"top">lrt<"bottom">ip') )
 }
 
 ##### Print a list of htmlwidgets
@@ -131,7 +131,7 @@ saveWorkbook(wb, paste(outDir, "MAF_fields.xlsx", sep="/"), overwrite = TRUE)
 
 ### Samples summary
 
-Tables with samples summary in individual dataset. Each table contains per-sample information (rows) about no. of different types of mutations (columns), as well as the total no. of mutations present in corresponding MAF file.
+Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file.
 
 ```{r sample_summary, warning=FALSE}
 ##### Write samples summary into a file
@@ -152,7 +152,7 @@ saveWorkbook(wb, paste(outDir, "MAF_sample_summary.xlsx", sep="/"), overwrite = 
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable( data = maftools::getSampleSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', 'Samples summary: ', htmltools::strong(datasets.list[i])), filter = "top", options = list(pageLength = 5) )
+  widges.list[[i]] <- DT::datatable( data = maftools::getSampleSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", options = list(pageLength = 5) )
 }
 
 ##### Print a list of htmlwidgets
@@ -164,7 +164,7 @@ cat("\n\n\n")
 
 ### Genes summary
 
-Tables with genes summary in individual dataset. Each table contains per-gene information (rows) about no. of different types of mutations (columns), as well as the total no. of mutations present in corresponding MAF file. The last two columns contain the no. of samples with mutations/alterations in the corresponding gene.
+Table(s) summarising mutated genes in individual datasets. Each table contains per-gene information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file. The last two columns contain the *number of samples with mutations/alterations* in the corresponding gene.
 
 ```{r gene_summary, warning=FALSE}
 ##### Write gene summary into a file
@@ -185,7 +185,7 @@ saveWorkbook(wb, paste(outDir, "MAF_gene_summary.xlsx", sep="/"), overwrite = TR
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable(data = maftools::getGeneSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', 'Genes summary: ', htmltools::strong(datasets.list[i])), filter = "top", options = list(pageLength = 5) )
+  widges.list[[i]] <- DT::datatable(data = maftools::getGeneSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", options = list(pageLength = 5) )
 }
 
 ##### Print a list of htmlwidgets
@@ -195,107 +195,19 @@ widges.list
 cat("\n\n\n")
 ```
 
-## MAF files summary  - heatmaps {.tabset .tabset-fade}
 
-### Samples summary
-
-Interactive heatmap generated to facilitate outlier samples detection. Rows and columns represent samples and mutation types, respectively. The colour scale from blue to yellow indicates low and high number of various mutations types, respectively, reported for corresponding samples. Samples are ordered by the number of mutations to facilitate identification of individuals with extreme mutation burden.
-
-```{r sample_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 9}
-suppressMessages(library(plotly))
-suppressMessages(library(heatmaply))
-
-##### Create a list for htmlwidgets
-widges.list <- htmltools::tagList()
-
-##### Display samples summary in a form of interactive heatmap
-for ( i in 1:length(mafFiles) ) {
-
-  sampleSummary <- data.frame(maftools::getSampleSummary(mafInfo[[i]]))
-  rownames(sampleSummary) <-sampleSummary[,"Tumor_Sample_Barcode"]
-  sampleSummary <- subset(sampleSummary, select=-c(Tumor_Sample_Barcode, total))
-
-  ##### Generate interactive heatmap
-  p <- heatmaply(sampleSummary, main = paste0("Samples summary: ", datasets.list[i]), Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Sample","Mutation_type","Count")) %>%
-  layout(width  = 900, height = 550, margin = list(l=150, r=10, b=230, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
-
-  ##### Add plot to the list for htmlwidgets
-  widges.list[[i]] <- as_widget(ggplotly(p))
-
-   ##### Save the heatmap as html (PLOTLY)
-  htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_sample_summary_heatmap_", datasets.list[i], ".html"), selfcontained = TRUE)
-
-  ##### Plotly option
-  #p <- plot_ly(x = colnames(sampleSummary), y = rownames(sampleSummary), z = as.matrix(sampleSummary), height = 600, type = "heatmap") %>%
-  #layout(title = paste0("Samples summary: ", datasets.list[i]), autosize = TRUE, margin = list(l=150, r=10, b=100, t=100, pad=4), showlegend = TRUE)
-
-  #widges.list[[i]] <- ggplotly(p)
-}
-
-##### Detach plotly package. Otherwise it clashes with other graphics devices
-detach("package:heatmaply", unload=FALSE)
-detach("package:plotly", unload=FALSE)
-
-##### Print a list of htmlwidgets
-widges.list
-```
-
-### Genes summary
-
-Interactive heatmap summmarising genes information. Rows and columns represent genes and mutation types, respectively. The colour scale from blue to yellow indicates low and high number of various mutations types, respectively, observed in corresponding genes. Genes are ordered by the number of reported mutations. The total number of mutations in individual genes, as well as the number of samples with mutations are also presented in the last three columns. Note, for transparency we show only the top 50 mutated genes.
-
-```{r gene_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 9}
-suppressMessages(library(plotly))
-suppressMessages(library(heatmaply))
-
-##### Create a list for htmlwidgets
-widges.list <- htmltools::tagList()
-
-##### Display genes summary in a form of interactive heatmap
-for ( i in 1:length(mafFiles) ) {
-
-  geneSummary <- data.frame(maftools::getGeneSummary(mafInfo[[i]])[1:50,])
-  rownames(geneSummary) <-geneSummary[,"Hugo_Symbol"]
-  geneSummary <- subset(geneSummary, select=-c(Hugo_Symbol))
-
-  ##### Generate interactive heatmap
-  p <- heatmaply(geneSummary, main = paste0("Genes summary: ", datasets.list[i]), Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Mutation_type","Count")) %>%
-  layout(width  = 900, height = 550, margin = list(l=150, r=10, b=230, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
-
-  ##### Add plot to the list for htmlwidgets
-  widges.list[[i]] <- as_widget(ggplotly(p))
-
-  ##### Save the heatmap as html (PLOTLY)
-  htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_gene_summary_heatmap_", datasets.list[i], ".html"), selfcontained = TRUE)
-
-  ##### Plotly option
-  #p <- plot_ly(x = colnames(geneSummary), y = rownames(geneSummary), z = as.matrix(geneSummary), height = 600, type = "heatmap") %>%
-  #layout(title = paste0("Genes summary: ", datasets.list[i]), autosize = TRUE, margin = list(l=150, r=10, b=100, t=100, pad=4), showlegend = TRUE)
-
-  #widges.list[[i]] <- ggplotly(p)
-}
-
-##### Detach plotly package. Otherwise it clashes with other graphics devices
-detach("package:heatmaply", unload=FALSE)
-detach("package:plotly", unload=FALSE)
-
-##### Print a list of htmlwidgets
-widges.list
-```
-
-## Visualisation {.tabset .tabset-fade}
-
-This part creates a set of plots summarising individual MAF files.
+## Summary plots {.tabset .tabset-fade}
 
 ### MAF summary
 
-A summary for MAF file displaying frequency of various mutation/SNV types/classes (top panel), the number of variants in each sample as a stacked bar-plot (bottom-left) and variant types as a box-plot (bottom-middle), as well as the frequency of different mutation types for the top 10 mutated genes (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
+A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **top 10 mutated genes** (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
 
 ```{r maf_summary_plot, comment = NA}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
 
   cat(paste(datasets.list[i], "\n\n", sep=" "))
+  
   ##### Plotting MAF summary
   par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
   maftools::plotmafSummary(maf = mafInfo[[i]], rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
@@ -303,9 +215,9 @@ for ( i in 1:length(mafFiles) ) {
 }
 ```
 
-### Oncoplots
+### Oncoplot
 
-Oncoplot illustrating different types of mutations observed across samples for the 10 most frequently mutated genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively.
+Oncoplot(s) illustrating different types of mutations observed across samples for the **10 most frequently mutated genes**. The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
 ```{r maf_oncoplot, comment = NA}
 ###### Generate separate plot for each dataset
@@ -320,9 +232,9 @@ for ( i in 1:length(mafFiles) ) {
 }
 ```
 
-### Transition and transversions
+### Transitions/transversions
 
-Plots presenting the transition and transversions distribution. The box-plots (top panel) show the overall distribution of the six different conversions (C>A, C>G, C>T, T>C, T>A and T>G)(left), and the transition and transversions frequency (right). The stacked bar-plot (bottom) displays the fraction of the six different conversions in each sample.
+Plots presenting the transitions and transversions distribution in individual dataset(s). In each panel, the box-plots show the *overall distribution* of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*)(top-left), and the transitions and transversions *frequency* (top-right). The stacked bar-plot (bottom) displays the *fraction* of the six different conversions in each sample.
 
 ```{r maf_TiTv_plot, comment = NA}
 ###### Generate separate plot for each dataset
@@ -364,7 +276,7 @@ saveWorkbook(wb, paste(outDir, "MAF_summary_titv.xlsx", sep="/"), overwrite = TR
 
 ### Pair-wise comparisons
 
-Perform *Fisher Exact* test on all genes for all possible pair-wise comprisons to find differentially mutated genes between queried datasets and to aid identification of global differences in mutation patterns in corresponding *MAFs*. The results are presented in form of a heatmap with rows and columns representing genes and datasets, respectively, and heatmap colours indicating the adjusted *Fisher Exact* test p-values. The colour key is on the left-hand side. Low p-values (yellow) indicate differentially mutated genes between the corresponding datasets. Genes are clustered to facilite the indetification possible differences between individaul datasets.
+Interactive heatmap of *adjusted p-values* from *Fisher Exact* test performed for all possible pair-wise comprisons to find differentially mutated genes between queried datasets and to aid identification of global differences in mutation patterns in corresponding MAF files. The rows and columns represent genes and datasets, respectively, and heatmap colours indicate the *Fisher Exact* test *adjusted p-values*. The colour key is on the left-hand side. **Low *p-values*** (yellow) indicate differentially mutated genes between the corresponding datasets. Genes are clustered to facilite the indetification possible differences between individaul datasets. Note, only overlap of mutated genes reported across all MAF files is presented.
 
 ```{r compare_mafs, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 12}
 suppressMessages(library(plotly))
@@ -429,22 +341,111 @@ detach("package:heatmaply", unload=FALSE)
 detach("package:plotly", unload=FALSE)
 ```
 
-### Comparison with TCGA cohorts
+### Cross-cancers comparison
 
-Plot illustrating the mutation load in ICGC PACA-CA cohort along distribution of variants compiled from over 10,000 WXS samples across 33 TCGA landmark cohorts. Every dot represents a sample whereas the red horizontal lines are the median numbers of mutations in the respective cancer types. The vertical axis (log scaled) shows the number of mutations per megabase whereas the different cancer types are ordered on the horizontal axis based on their median numbers of somatic mutations. This plot is similar to the one described in the paper "Signatures of mutational processes in human cancer" by Alexandrov et al. (PMID: 23945592)
+Plot(s) illustrating the mutation load in investigated dataset(s) along with distribution of variants compiled from over 10,000 whole-exome sequencing samples across 33 [TCGA](https://cancergenome.nih.gov/) landmark cohorts. Every dot represents a sample whereas the red horizontal lines are the median numbers of mutations in the respective cancer types. The vertical axis (log scaled) shows the number of mutations per megabase whereas the different cancer types are ordered on the horizontal axis based on their median numbers of somatic mutations. This plot is similar to the one described in the paper [Signatures of mutational processes in human cancer](https://www.ncbi.nlm.nih.gov/pubmed/23945592) by Alexandrov *et al*.
 
 ```{r maf_tcga_cohorts, comment = NA, message=FALSE, warning=FALSE}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
-
+  
+  cat(paste(datasets.list[i], "\n\n", sep=" "))
+  
   ##### Compare mutation load against TCGA cohorts
   maftools::tcgaCompare(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
 }
 ```
 
-## Save plots into PDF files
+## Heatmaps {.tabset .tabset-fade}
+
+### Samples
+
+Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *samples* (rows). Samples are ordered by the number of mutations to facilitate identification of individuals with extreme mutation burden. 
+
+```{r sample_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 9}
+suppressMessages(library(plotly))
+suppressMessages(library(heatmaply))
+
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+##### Display samples summary in a form of interactive heatmap
+for ( i in 1:length(mafFiles) ) {
+
+  sampleSummary <- data.frame(maftools::getSampleSummary(mafInfo[[i]]))
+  rownames(sampleSummary) <-sampleSummary[,"Tumor_Sample_Barcode"]
+  sampleSummary <- subset(sampleSummary, select=-c(Tumor_Sample_Barcode, total))
+
+  ##### Generate interactive heatmap
+  p <- heatmaply(sampleSummary, main = datasets.list[i], Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Sample","Mutation_type","Count")) %>%
+  layout(width  = 900, height = 550, margin = list(l=150, r=10, b=230, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+
+  ##### Add plot to the list for htmlwidgets
+  widges.list[[i]] <- as_widget(ggplotly(p))
+
+   ##### Save the heatmap as html (PLOTLY)
+  htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_sample_summary_heatmap_", datasets.list[i], ".html"), selfcontained = TRUE)
+
+  ##### Plotly option
+  #p <- plot_ly(x = colnames(sampleSummary), y = rownames(sampleSummary), z = as.matrix(sampleSummary), height = 600, type = "heatmap") %>%
+  #layout(title = paste0("Samples summary: ", datasets.list[i]), autosize = TRUE, margin = list(l=150, r=10, b=100, t=100, pad=4), showlegend = TRUE)
+
+  #widges.list[[i]] <- ggplotly(p)
+}
+
+##### Detach plotly package. Otherwise it clashes with other graphics devices
+detach("package:heatmaply", unload=FALSE)
+detach("package:plotly", unload=FALSE)
+
+##### Print a list of htmlwidgets
+widges.list
+```
+
+### Genes
+
+Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. Note, for transparency only the **top 50 mutated genes** are presented.
+
+```{r gene_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 8}
+suppressMessages(library(plotly))
+suppressMessages(library(heatmaply))
+
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+##### Display genes summary in a form of interactive heatmap
+for ( i in 1:length(mafFiles) ) {
+
+  geneSummary <- data.frame(maftools::getGeneSummary(mafInfo[[i]])[1:50,])
+  rownames(geneSummary) <-geneSummary[,"Hugo_Symbol"]
+  geneSummary <- subset(geneSummary, select=-c(Hugo_Symbol))
+
+  ##### Generate interactive heatmap
+  p <- heatmaply(geneSummary, main = datasets.list[i], Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Mutation_type","Count")) %>%
+  layout(width  = 900, height = 550, margin = list(l=150, r=10, b=230, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+
+  ##### Add plot to the list for htmlwidgets
+  widges.list[[i]] <- as_widget(ggplotly(p))
+
+  ##### Save the heatmap as html (PLOTLY)
+  htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_gene_summary_heatmap_", datasets.list[i], ".html"), selfcontained = TRUE)
+
+  ##### Plotly option
+  #p <- plot_ly(x = colnames(geneSummary), y = rownames(geneSummary), z = as.matrix(geneSummary), height = 600, type = "heatmap") %>%
+  #layout(title = paste0("Genes summary: ", datasets.list[i]), autosize = TRUE, margin = list(l=150, r=10, b=100, t=100, pad=4), showlegend = TRUE)
+
+  #widges.list[[i]] <- ggplotly(p)
+}
+
+##### Detach plotly package. Otherwise it clashes with other graphics devices
+detach("package:heatmaply", unload=FALSE)
+detach("package:plotly", unload=FALSE)
+
+##### Print a list of htmlwidgets
+widges.list
+```
 
 ```{r maf_visualisation_pdf, comment = NA, message=FALSE, warning=FALSE}
+###### Save plots into PDF files
 ###### Generate separate file with plots for each dataset
 for ( i in 1:length(mafFiles) ) {
 
@@ -467,11 +468,13 @@ for ( i in 1:length(mafFiles) ) {
   mtext("Transition and transversions distribution", outer=TRUE,  cex=1, line=-1.5)
 
   ##### Compare mutation load against TCGA cohorts
-  tcgaCompare(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
-  mtext("Mutation load in TCGA cohorts", outer=TRUE,  cex=1, line=-0.5)
+  #maftools::tcgaCompare(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
+  #mtext("Mutation load in TCGA cohorts", outer=TRUE,  cex=1, line=-0.5)
 
   dev.off()
 }
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
 ```
 
 ## Parameters
@@ -483,8 +486,8 @@ for ( i in 1:length(params) ) {
 }
 ```
 
-## Session info
+## Addendum
 
-```{r session_info, comment = NA }
-sessionInfo()
+```{r sessioninfo}
+devtools::session_info()
 ```
