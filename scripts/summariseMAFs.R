@@ -53,11 +53,10 @@ option_list <- list(
 
 opt <- parse_args(OptionParser(option_list=option_list))
 
-##### Split the string of MAF files and datasets names put into a vector
+##### Collect MAF files names
 opt$maf_files <- gsub("\\s","", opt$maf_files)
-opt$maf_files <- unlist(strsplit(opt$maf_files, split=',', fixed=TRUE))
-opt$maf_files <- paste(opt$maf_dir, opt$maf_files, sep="/")
 
+##### Split the string of datasets names and put them into a vector
 opt$datasets <- gsub("\\s","", opt$datasets)
 opt$datasets <- unlist(strsplit(opt$datasets, split=',', fixed=TRUE))
 
@@ -68,7 +67,7 @@ if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$datasets) ) {
   cat("\ncommand example:\n\nRscript summariseMAFs.R --maf_dir /data --maf_files PACA-AU.icgc.maf,PACA-CA.icgc.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --out_dir MAF_summary\n\n")
 
   q()
-} else if ( length(opt$maf_files) != length(opt$datasets) ) {
+} else if ( length(unlist(strsplit(opt$maf_files, split=',', fixed=TRUE))) != length(opt$datasets) ) {
 
   cat("\nMake sure that the number of datasets names match the number of queried MAF files\n\n")
 
