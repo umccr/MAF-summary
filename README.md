@@ -40,11 +40,11 @@ Tumor_Sample_Barcode | Sample ID | Either a TCGA barcode, or for non-TCGA data, 
 
 ## Scripts summary
 
-Script | Description | Packages
------------- | ------------ | ------------
-*[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/scripts/icgcMutationToMAF.R)* | Converts ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file to [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* <br> *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)* 
-*[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s) |  *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* <br> *[xlsx](https://cran.r-project.org/web/packages/xlsx/xlsx.pdf)* <br> *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)* <br> *[knitr](https://cran.r-project.org/web/packages/knitr/knitr.pdf)* <br> *[DT](https://rstudio.github.io/DT/)* <br> *[plotly](https://plot.ly/r/)* <br> *[heatmaply](https://cran.r-project.org/web/packages/heatmaply/vignettes/heatmaply.html)*
-*[summariseMAFsGenes.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s) for selected genes | *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* <br> *[xlsx](https://cran.r-project.org/web/packages/xlsx/xlsx.pdf)* <br> *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)* <br> *[knitr](https://cran.r-project.org/web/packages/knitr/knitr.pdf)* <br> *[DT](https://rstudio.github.io/DT/)* <br> *[plotly](https://plot.ly/r/)* <br> *[heatmaply](https://cran.r-project.org/web/packages/heatmaply/vignettes/heatmaply.html)*
+Script | Description
+------------ | ------------
+*[icgcMutationToMAF.R](https://github.com/umccr/MAF-summary/tree/master/scripts/icgcMutationToMAF.R)* | Converts ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file to [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file 
+*[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s)
+*[summariseMAFsGenes.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s) for selected genes
 <br />
 
 
@@ -60,6 +60,8 @@ Argument | Description
 --icgc_file | ICGC Simple Somatic Mutation Format file to be converted
 --output | Output file name
 <br />
+
+**Packages**: *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*, *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)*
 
 **Command line use example**:
 
@@ -86,6 +88,8 @@ Argument | Description
 --cohorts | Desired names of each cohort. The names are expected to be in the same order as provided *MAF* files
 --out_dir | Output directory
 <br />
+
+**Packages**: *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*, *[xlsx](https://cran.r-project.org/web/packages/xlsx/xlsx.pdf)*, *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)*, *[knitr](https://cran.r-project.org/web/packages/knitr/knitr.pdf)*, *[DT](https://rstudio.github.io/DT/)*, *[plotly](https://plot.ly/r/)*, *[heatmaply](https://cran.r-project.org/web/packages/heatmaply/vignettes/heatmaply.html)*
 
 **Command line use example**:
 
@@ -120,6 +124,8 @@ Argument | Description
 --genes | Genes to query in each *MAF* file
 --out_dir | Output directory
 <br />
+
+**Packages**: *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*, *[xlsx](https://cran.r-project.org/web/packages/xlsx/xlsx.pdf)*, *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)*, *[knitr](https://cran.r-project.org/web/packages/knitr/knitr.pdf)*, *[DT](https://rstudio.github.io/DT/)*, *[plotly](https://plot.ly/r/)*, *[heatmaply](https://cran.r-project.org/web/packages/heatmaply/vignettes/heatmaply.html)*
 
 **Command line use example**:
 
