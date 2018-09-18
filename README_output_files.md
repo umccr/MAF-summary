@@ -15,7 +15,7 @@
 
 **Script**: *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)*
 
-Along with the *[summariseMAFs.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)* and *[summariseMAFs.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md)* reports, described [here](README.md#summarising-and-visualising-multiple-maf-files), the script also generates a folder with user-defined name with tables and plots described below:
+Along with the *[summariseMAFs.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)* and *[summariseMAFs.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md)* reports, described [here](README.md#summarising-and-visualising-maf-files), the script also generates a folder with user-defined name with tables and plots described below:
 
 Output file | Component | Description
 ------------ | ------------| -----------
@@ -39,7 +39,7 @@ MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each 
 
 **Script**: *[summariseMAFsGenes.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.R)*
 
-Along with the *[summariseMAFsGenes.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html)* and *[summariseMAFsGenes.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.md)* reports, described [here](README.md#summarising-and-visualising-multiple-maf-files-for-selected-genes), the script also generates a folder with user-defined name with the following output tables and plots:
+Along with the *[summariseMAFsGenes.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html)* and *[summariseMAFsGenes.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.md)* reports, described [here](README.md#summarising-and-visualising-maf-files-for-selected-genes), the script also generates a folder with user-defined name with the following output tables and plots:
 
 Output file | Component | Description
 ------------ | ------------| -----------
