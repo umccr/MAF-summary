@@ -6,11 +6,7 @@
 
 <!-- vim-markdown-toc GFM -->
 * [Summarising and visualising MAF file(s)](#summarising-and-visualising-maf-files)
-  * [Output description](#example-output)
-  * [HTML report example](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)
 * [Summarising and visualising MAF file(s) for selected genes](#summarising-and-visualising-maf-files-for-selected-genes)
-  * [Output description](#example-output)
-  * [HTML report example](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html)
 
 <!-- vim-markdown-toc -->
 <br>
@@ -19,7 +15,7 @@
 
 **Script**: *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)*
 
-This script generates *[summariseMAFs.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)* and *[summariseMAFs.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md)* reports with interactive summary tables and heatmaps. It also creates a folder with user-defined name with tables and plots described below:
+Along with the *[summariseMAFs.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)* and *[summariseMAFs.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.md)* reports, described [here](README.md#summarising-and-visualising-multiple-maf-files), the script also generates a folder with user-defined name with tables and plots described below:
 
 Output file | Component | Description
 ------------ | ------------| -----------
@@ -39,19 +35,11 @@ MAF_summary_[***cohort***].pdf | MAF summary | Displays no. of variants in each 
 <br />
 
 
-### Example output
-
-Some example MAF files are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/) cluster and are described in [Pancreatic-data-harmonization](https://github.com/umccr/Pancreatic-data-harmonization) repository.<br>
-
-* [Example HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)
-
-<br />
-
 ## Summarising and visualising MAF file(s) for selected genes
 
 **Script**: *[summariseMAFsGenes.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.R)*
 
-This script generates *[summariseMAFsGenes.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html)* and *[summariseMAFsGenes.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.md)* reports with interactive summary tables and heatmaps. It also creates a folder with user-defined name with the following output tables and plots:
+Along with the *[summariseMAFsGenes.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html)* and *[summariseMAFsGenes.md](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFsGenes.md)* reports, described [here](README.md#summarising-and-visualising-multiple-maf-files-for-selected-genes), the script also generates a folder with user-defined name with the following output tables and plots:
 
 Output file | Component | Description
 ------------ | ------------| -----------
@@ -63,10 +51,3 @@ MAF_pair-wise_comparisons_heatmap.html | - | Interactive heatmap with colours in
 MAF_summary_genes_[***cohort***].pdf | Oncoplots | A heatmap-like plots illustrating different types of mutations observed across all samples for the selected genes. The side and top bar-plots present the frequency of mutations in each gene and in each sample, respectively
 MAF_summary_genes_[***cohort***].pdf | Somatic interactions plots | Pair-wise heatmaps with colurs indicating the pair-wise *Fisher’s Exact* test p-values to faclilitate detection of mutually exclusive or co-occurring genes.
 <br />
-
-### Example output
-
-Some example MAF files are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/) cluster and are described in [Pancreatic-data-harmonization](https://github.com/umccr/Pancreatic-data-harmonization) repository.<br>
-
-* [Example HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html)
-
