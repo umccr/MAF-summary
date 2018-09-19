@@ -53,12 +53,9 @@ option_list <- list(
 
 opt <- parse_args(OptionParser(option_list=option_list))
 
-##### Collect MAF files names
+##### Collect MAF files and correspondiong datasets names
 opt$maf_files <- gsub("\\s","", opt$maf_files)
-
-##### Split the string of datasets names and put them into a vector
 opt$datasets <- gsub("\\s","", opt$datasets)
-opt$datasets <- unlist(strsplit(opt$datasets, split=',', fixed=TRUE))
 
 ##### Read in argument from command line and check if all were provide by the user
 if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$datasets) ) {
