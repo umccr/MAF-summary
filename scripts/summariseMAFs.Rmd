@@ -289,7 +289,14 @@ for ( i in 1:length(mafFiles) ) {
 ##### Print a list of htmlwidgets
 widges.list
 
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
 ##### Note samples with no non-synonymours variants according to corresponding MAF file
+if ( nrow(MAF_samples.silent.df) > 0 ) {
+  cat("The samples listed below will not be included in the summary tables above, nor will be included in the summary plots\n\n\n")
+}
+
 DT::datatable( data = MAF_samples.silent.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong("Samples with no non-synonymours variants detected")), filter = "top", options = list(pageLength = 5) )
 
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
