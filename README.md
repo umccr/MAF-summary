@@ -81,10 +81,6 @@ To summarise MAF file(s) run the *[summariseMAFs.R](https://github.com/umccr/MAF
 
 NOTE: Only non-synonymous variants with high/moderate variant consequences, including *frame shift deletions*, *frame shift deletions*, *splice site mutations*, *translation start site mutations* ,*nonsense mutation*, *nonstop mutations*, *in-frame deletion*, *in-frame insertions* and *missense mutation*, are reported (silent variants are ignored).
 
-[*High impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535) -	the variant is assumed to have high (disruptive) impact in the protein, probably causing protein truncation, loss of function or triggering nonsense mediated decay.
-
-[*Moderate impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535) -	a non-disruptive variant that might change protein effectiveness.
-
 **Script**: *[summariseMAFs.R](https://github.com/umccr/MAF-summary/tree/master/scripts/summariseMAFs.R)*
 
 Argument | Description
