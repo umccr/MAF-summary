@@ -4,7 +4,6 @@ author: "UMCCR"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 params:
   maf_dir: 
-  maf_files: 
   datasets: 
   out_dir: 
 output:
@@ -176,7 +175,7 @@ wb <- createWorkbook("MAF_summary.xlsx")
 ##### Add worksheets, one for each dataset
 for ( i in 1:length(mafFiles) ) {
   
-    addWorksheet(wb, datasets.list[i], tabColour = datasets.colour[[1]][i])
+    addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
     writeData(wb, sheet = i, mafInfo[[i]]@summary)
 }
 
@@ -205,7 +204,7 @@ wb <- createWorkbook("MAF_fields.xlsx")
 ##### Add worksheets, one for each dataset
 for ( i in 1:length(mafFiles) ) {
   
-    addWorksheet(wb, datasets.list[i], tabColour = datasets.colour[[1]][i])
+    addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
     writeData(wb, sheet = i, maftools::getFields(mafInfo[[i]]))
 }
 
@@ -224,7 +223,7 @@ wb <- createWorkbook("MAF_sample_summary.xlsx")
 ##### Add worksheets, one for each dataset
 for ( i in 1:length(mafFiles) ) {
   
-    addWorksheet(wb, datasets.list[i], tabColour = datasets.colour[[1]][i])
+    addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
     writeData(wb, sheet = i, maftools::getSampleSummary(mafInfo[[i]]))
 }
 
@@ -257,7 +256,7 @@ wb <- createWorkbook("MAF_gene_summary.xlsx")
 ##### Add worksheets, one for each dataset
 for ( i in 1:length(mafFiles) ) {
   
-    addWorksheet(wb, datasets.list[i], tabColour = datasets.colour[[1]][i])
+    addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
     writeData(wb, sheet = i, maftools::getGeneSummary(mafInfo[[i]]))
 }
 
@@ -462,9 +461,11 @@ widges.list
 
 ### Pair-wise comparisons
 
-Interactive heatmap of *adjusted p-values* from *Fisher Exact* test performed for all possible pair-wise comprisons to find differentially mutated genes between queried datasets and to aid identification of global differences in mutation patterns in corresponding MAF files. The rows and columns represent genes and datasets, respectively, and heatmap colours indicate the *Fisher Exact* test *adjusted p-values*. The colour key is on the left-hand side. **Low *p-values*** (yellow) indicate differentially mutated genes between the corresponding datasets. Genes are clustered to facilite the indetification possible differences between individaul datasets. Note, only overlap of mutated genes reported across all MAF files is presented.
+Interactive heatmap of *adjusted p-values* from *Fisher Exact* test performed for all possible pair-wise comprisons to find differentially mutated genes between queried datasets and to aid identification of global differences in mutation patterns in corresponding MAF files. The rows and columns represent genes and datasets, respectively, and heatmap colours indicate the *Fisher Exact* test *adjusted p-values*. The colour key is on the left-hand side. **Low *p-values*** (yellow) **indicate differentially mutated genes between corresponding datasets**. Genes are clustered to facilite the indetification possible differences between individaul datasets. Note, only overlap of mutated genes reported across all MAF files is presented. This section is available for multiple MAFs and will be skipped if only one MAF file is provided.
 
 ```{r compare_mafs, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 12}
+
+
 suppressMessages(library(plotly))
 suppressMessages(library(heatmaply))
 
