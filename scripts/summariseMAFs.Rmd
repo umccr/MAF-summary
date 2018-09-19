@@ -18,6 +18,17 @@ output:
 ```{r define_functions}
 ##### Define functions
 
+##### Create 'not in' operator
+"%!in%" <- function(x,table) match(x,table, nomatch = 0) == 0
+
+##### Prepare object to write into a file
+prepare2write <- function (x) {
+  
+  x2write <- cbind(rownames(x), x)
+  colnames(x2write) <- c("Gene",colnames(x))
+  return(x2write)
+}
+
 ##### Assign colours to different datasets. These colours will be used to distinguish tabs in generated excel summary spreadsheets
 getDatasetsColours <- function(datasets) {
   
@@ -164,10 +175,36 @@ for ( i in 1:length(mafFiles) ) {
 
 ##### Create directory for output files
 outDir <- paste(params$maf_dir, params$out_dir, sep = "/")
-
 if ( !file.exists(params$out_dir) ){
   dir.create(outDir, recursive=TRUE)
 }
+```
+
+```{r silent_variants, comment = NA, message=FALSE, warning=FALSE}
+##### Identify and record samples with no non-synonymous mutations
+##### Prepare list to store all samples and samples with > 0 non-synonymous variants
+MAF_samples <- vector("list", length(datasets.list))
+names(MAF_samples) <- datasets.list
+MAF_samples.silent.df <- NULL
+
+##### Loop through MAF files
+for ( i in 1:length(mafFiles) ) {
+  
+  ##### Identify samples with no non-synonymours variants according to corresponding MAF file
+  MAF_samples[[i]]$all <- unlist(unique(mafInfo[[i]]@maf.silent[, "Tumor_Sample_Barcode"]))
+  MAF_samples[[i]]$nonsyn <- unlist(maftools::getSampleSummary(mafInfo[[i]])[, "Tumor_Sample_Barcode"])
+  MAF_samples[[i]]$silent <-  MAF_samples[[i]]$all[ MAF_samples[[i]]$all %!in% MAF_samples[[i]]$nonsyn  ]
+  
+  ##### Check if there thre are any samples with no non-synonymours variants. If so, add them to data frame
+  if ( length(MAF_samples[[i]]$silent) > 0 ) {
+    for ( sample in MAF_samples[[i]]$silent ) {
+      
+      MAF_samples.silent.df <- rbind( MAF_samples.silent.df, cbind( datasets.list[i], sample))
+    }
+  }
+}
+
+colnames(MAF_samples.silent.df) <- c("Dataset", "Sample")
 ```
 
 ## Summary tables {.tabset}
@@ -227,7 +264,7 @@ saveWorkbook(wb, paste(outDir, "MAF_fields.xlsx", sep="/"), overwrite = TRUE)
 
 Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file.
 
-```{r sample_summary, warning=FALSE}
+```{r sample_summary, comment = NA, warning=FALSE}
 ##### Write samples summary into a file
 ##### Create a new workbook
 wb <- createWorkbook("MAF_sample_summary.xlsx")
@@ -251,6 +288,9 @@ for ( i in 1:length(mafFiles) ) {
 
 ##### Print a list of htmlwidgets
 widges.list
+
+##### Note samples with no non-synonymours variants according to corresponding MAF file
+DT::datatable( data = MAF_samples.silent.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong("Samples with no non-synonymours variants detected")), filter = "top", options = list(pageLength = 5) )
 
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
