@@ -64,7 +64,7 @@ if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$datasets) ) {
   cat("\ncommand example:\n\nRscript summariseMAFs.R --maf_dir /data --maf_files PACA-AU.icgc.maf,PACA-CA.icgc.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --out_dir MAF_summary\n\n")
 
   q()
-} else if ( length(unlist(strsplit(opt$maf_files, split=',', fixed=TRUE))) != length(opt$datasets) ) {
+} else if ( length(unlist(strsplit(opt$maf_files, split=',', fixed=TRUE))) != length(unlist(strsplit(opt$datasets, split=',', fixed=TRUE))) ) {
 
   cat("\nMake sure that the number of datasets names match the number of queried MAF files\n\n")
 
