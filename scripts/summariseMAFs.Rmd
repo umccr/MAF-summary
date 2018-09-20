@@ -361,6 +361,11 @@ for ( i in 1:length(mafFiles) ) {
 Oncoplot(s) illustrating different types of mutations observed across samples for the **10 most frequently mutated genes**. The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
 ```{r maf_oncoplot, comment = NA}
+##### Changing colours (from RColorBrewer palette) for variant classifications
+col = RColorBrewer::brewer.pal(n = 8, name = 'Paired')
+names(col) = c('Frame_Shift_Del','Missense_Mutation', 'Nonsense_Mutation', 'Multi_Hit', 'Frame_Shift_Ins',
+               'In_Frame_Ins', 'Splice_Site', 'In_Frame_Del')
+
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
 
@@ -369,7 +374,7 @@ for ( i in 1:length(mafFiles) ) {
   ##### Drawing oncoplots for the top 10 genes in each dataset
   plot.new()
   par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-  maftools::oncoplot(maf = mafInfo[[i]], top = 10, fontSize = 12)
+  maftools::oncoplot(maf = mafInfo[[i]], colors = col, top = 10, fontSize = 12)
 }
 ```
 
@@ -589,7 +594,7 @@ if ( length(mafFiles) != 1 ) {
   
 } else {
   
-  cat(paste("This section was skipped since MAF for only one dataset (", datasets.list[i], ") was provided\n\n", sep=" "))
+  cat(paste("This section was skipped since MAF for only one dataset (", datasets.list[i], ") was provided.\n\n", sep=" "))
 }
 ```
 
