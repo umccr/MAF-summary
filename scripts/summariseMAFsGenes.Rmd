@@ -154,6 +154,41 @@ for ( i in 1:length(mafFiles) ) {
 }
 ```
 
+### Lollipop plots
+
+Lollipop plot(s) showing mutation spots on protein structure for the **10 most frequently mutated genes**. Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Note, that for the MAF file does not contain field with amino acid changes details.
+
+```{r lollipop_plot, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 2}
+##### Check if the amino acid changes information is available in MAF provided files. The script expects column called "HGVSp_Short", which is produced with vcf2maf (https://github.com/mskcc/vcf2maf) when converting VCFs to MAFs (https://github.com/cBioPortal/cbioportal/issues/2996) and describes a mutation's amino acid change. The "aa_mutation" field used for annotation in ICGC samples is also acceptable.
+
+###### Generate separate set of plots for each dataset
+for ( i in 1:length(mafFiles) ) {
+
+  cat(paste(datasets.list[i], "\n\n", sep=" "))
+  
+  ##### Get the 10 most frequently mutated genes
+  genes.top10 <- maftools::getGeneSummary(mafInfo[[i]])[c(1:10), Hugo_Symbol]
+  
+  ##### Drawing lollipop for the top 10 genes in each dataset
+  ##### Check if the "HGVSp_Short" or "aa_mutation" fields are present
+  if ( "HGVSp_Short" %in% maftools::getFields(mafInfo[[i]]) ) {
+    
+    for ( gene in genes.top10 ) {
+      plot(lollipopPlot(maf = mafInfo[[i]], gene = gene, AACol = "HGVSp_Short",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, verbose=FALSE))
+    }
+  } else if ( "aa_mutation" %in% maftools::getFields(mafInfo[[i]]) ) {
+  
+    for ( gene in genes.top10 ) {
+     plot(lollipopPlot(maf = mafInfo[[i]], gene = gene, AACol = "aa_mutation",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, verbose=FALSE))
+    }
+  
+  ##### ...otherwise leave a message
+  } else {
+  cat(paste("This section was skipped since MAF for dataset (", datasets.list[i], ") does not contain field with amino acid changes details.\n\n", sep=" "))
+  }
+}
+```
+
 ### Somatic Interactions - plots
 
 Somatic interactions plots facilitate detection of mutually exclusive or co-occurring set of genes. The somatic interactions function performs pair-wise *Fisher’s Exact test* to detect significant pair of genes and uses *cometExactTest* to identify potentially altered gene sets involving > 2 two genes (see [ CoMEt: a statistical approach to identify combinations of mutually exclusive alterations in cancer](https://www.ncbi.nlm.nih.gov/pubmed/26253137) for more details). The colour key, indicating the Fisher’s Exact test p-value, is presented on the right-hand side. This part of the script also generates a table with Fisher’s Exact test and cometExactTest results.
