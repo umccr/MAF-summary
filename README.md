@@ -11,12 +11,8 @@ Set of scripts to summarise, analyse and visualise [Mutation Annotation Format](
 * [Converting ICGC mutation format to MAF](#converting-icgc-mutation-format-to-maf)
 * [Summarising and visualising MAF file(s)](#summarising-and-visualising-maf-files)
   * [Example output](#example-output)
-    * [ICGC PACA-CA cohort](https://github.com/umccr/MAF-summary/blob/master/examples/ICGC_PACA-CA_MAF_summary)
-    * [TCGA PAAD cohort](https://github.com/umccr/MAF-summary/blob/master/examples/TCGA_PAAD_MAF_summary)
-    * [HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)
 * [Summarising and visualising MAF file(s) for selected genes](#summarising-and-visualising-maf-files-for-selected-genes)
   * [Example output](#example-output)
-    * [HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html)
 
 <!-- vim-markdown-toc -->
 <br>
