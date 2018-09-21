@@ -44,6 +44,37 @@ getDatasetsColours <- function(datasets) {
   return( list(vec.datasets, datasets.colour) )
 }
 
+###### Generate lollipop plot for each dataset for selected gene
+lollipops.datasets <- function(mafInfo, gene) {
+  
+  for ( dataset in names(mafInfo) ) {
+    
+    ##### Check if the gene has any mutations in correspoding dataset
+    if ( nrow(subsetMaf(maf = mafInfo[[dataset]], includeSyn = FALSE, genes = gene, 
+        query = "Variant_Type != 'CNV'")) != 0 ) {
+      
+      cat(paste(dataset, "\n\n", sep=" "))
+      
+      ##### Drawing lollipop for the top 10 genes in each dataset
+      ##### Check if the amino acid changes information is available in MAF provided files. The script expects column called "HGVSp_Short", which is produced with vcf2maf (https://github.com/mskcc/vcf2maf) when converting VCFs to MAFs (https://github.com/cBioPortal/cbioportal/issues/2996) and describes a mutation's amino acid change. The "aa_mutation" field used for annotation in ICGC samples is also acceptable.
+      if ( "HGVSp_Short" %in% maftools::getFields(mafInfo[[dataset]]) ) {
+        
+        plot(lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "HGVSp_Short",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
+        
+      } else if ( "aa_mutation" %in% maftools::getFields(mafInfo[[dataset]]) ) {
+      
+        plot(lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "aa_mutation",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
+      
+      ##### ...otherwise leave a message
+      } else {
+      cat(paste("This section was skipped since MAF for dataset (", names(mafInfo)[dataset], ") does not contain field with amino acid changes details.\n\n", sep=" "))
+      }
+    } else {
+      cat(paste("Gene", gene, "has no mutations reported in detaset", names(mafInfo)[dataset], ".\n\n", sep=" "))
+    }
+  }
+}
+
 ##### Stop the maftools::tcgaCompare function from printing the summary table
 tcgaCompare_mod <- function (maf, capture_size = NULL, cohortName = NULL, primarySite = FALSE, 
     col = c("gray70", "black"), medianCol = "red", fn = NULL, 
@@ -433,6 +464,98 @@ for ( i in 1:length(mafFiles) ) {
   ##### Compare mutation load against TCGA cohorts
   tcgaCompare_mod(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
 }
+```
+
+## Mutation maps {.tabset .tabset-fade}
+
+Lollipop plot(s) showing mutation spots on protein structure for the **10 genes** with **highest mutation rate** across all datasets. Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Note, that for the MAF file does not contain field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
+
+```{r top_mutated_genes, comment = NA, message=FALSE, warning=FALSE}
+##### Get the 10 most frequently mutated genes across all datasets
+mutRate.top10.datasets <- NULL
+
+for ( i in 1:length(mafFiles) ) {
+  
+  genes.top10 <- maftools::getGeneSummary(mafInfo[[i]])[c(1:10), Hugo_Symbol]
+  sampleSize <- as.numeric(mafInfo[[i]]@summary[ID %in% "Samples", summary])
+  
+  mutRate.top10 <- round(getGeneSummary(x = mafInfo[[i]])[ Hugo_Symbol %in% genes.top10, MutatedSamples]/sampleSize * 100, digits = 2)
+  names(mutRate.top10) <- genes.top10
+  
+  mutRate.top10.datasets <- c( mutRate.top10.datasets, mutRate.top10)
+}
+
+mutRate.top10.datasets <- sort(sort(mutRate.top10.datasets, decreasing = TRUE)[unique(names(mutRate.top10.datasets))], decreasing = TRUE)[c(1:10)]
+```
+
+### `r names(mutRate.top10.datasets)[1]`
+
+```{r lollipop_plot_1, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 1st top mutated gene.
+lollipops.datasets(mafInfo, names(mutRate.top10.datasets)[1])
+```
+
+### `r names(mutRate.top10.datasets)[2]`
+
+```{r lollipop_plot_2, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 2nd top mutated gene.
+lollipops.datasets(mafInfo, names(mutRate.top10.datasets)[2])
+```
+
+### `r names(mutRate.top10.datasets)[3]`
+
+```{r lollipop_plot_3, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 3rd top mutated gene.
+lollipops.datasets(mafInfo, names(mutRate.top10.datasets)[3])
+```
+
+### `r names(mutRate.top10.datasets)[4]`
+
+```{r lollipop_plot_4, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 4th top mutated gene.
+lollipops.datasets(mafInfo, names(mutRate.top10.datasets)[4])
+```
+
+### `r names(mutRate.top10.datasets)[5]`
+
+```{r lollipop_plot_5, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 5th top mutated gene.
+lollipops.datasets(mafInfo, names(mutRate.top10.datasets)[5])
+```
+
+### `r names(mutRate.top10.datasets)[6]`
+
+```{r lollipop_plot_6, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 6th top mutated gene.
+lollipops.datasets(mafInfo, names(mutRate.top10.datasets)[6])
+```
+
+### `r names(mutRate.top10.datasets)[7]`
+
+```{r lollipop_plot_7, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 7th top mutated gene.
+lollipops.datasets(mafInfo, names(mutRate.top10.datasets)[7])
+```
+
+### `r names(mutRate.top10.datasets)[8]`
+
+```{r lollipop_plot_8, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 8th top mutated gene.
+lollipops.datasets(mafInfo, names(mutRate.top10.datasets)[8])
+```
+
+### `r names(mutRate.top10.datasets)[9]`
+
+```{r lollipop_plot_9, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 9th top mutated gene.
+lollipops.datasets(mafInfo, names(mutRate.top10.datasets)[9])
+```
+
+### `r names(mutRate.top10.datasets)[10]`
+
+```{r lollipop_plot_10, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 10th top mutated gene.
+lollipops.datasets(mafInfo, names(mutRate.top10.datasets)[10])
 ```
 
 ## Heatmaps {.tabset .tabset-fade}
