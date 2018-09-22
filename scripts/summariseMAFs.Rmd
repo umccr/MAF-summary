@@ -75,6 +75,32 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
   }
 }
 
+
+###### Generate dataTable for each dataset with all mutation information for selected gene, as provided in MAF files
+mut.details.datasets <- function(mafInfo, datasets, gene) {
+  
+  ##### Create a list for htmlwidgets
+  widges.list <- htmltools::tagList()
+  
+  for ( i in 1:length(datasets) ) {
+  
+    cat(paste(datasets[i], "\n\n", sep=" "))
+    
+    mut.details.gene <- mafInfo[[datasets[i]]]@data[ mafInfo[[datasets[i]]]@data[, Hugo_Symbol] %in% gene, ]
+    
+    if ( nrow(mut.details.gene) != 0 ) {
+      
+      widges.list[[i]] <- DT::datatable( data = mut.details.gene, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;'), filter = "top", options = list(pageLength = 5) )
+      
+    } else {
+      cat(paste("Gene", gene, "has no mutations reported in dataset", datasets[i], "\n\n\n\n", sep=" "))
+    }
+  }
+  
+  ##### Print a list of htmlwidgets
+  widges.list
+}
+
 ##### Stop the maftools::tcgaCompare function from printing the summary table
 tcgaCompare_mod <- function (maf, capture_size = NULL, cohortName = NULL, primarySite = FALSE, 
     col = c("gray70", "black"), medianCol = "red", fn = NULL, 
@@ -468,7 +494,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ## Mutation maps {.tabset .tabset-fade}
 
-Lollipop plot(s) showing mutation spots on protein structure for the **10 genes** with **highest mutation rate** across all datasets. Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Note, that for the MAF file does not contain field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
+Lollipop plot(s) showing mutation spots on protein structure for the **10 genes the with highest mutation rate** across all datasets. Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Note, that for the MAF file does not contain field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
 
 ```{r top_mutated_genes, comment = NA, message=FALSE, warning=FALSE}
 ##### Get the 10 most frequently mutated genes across all datasets
@@ -560,36 +586,114 @@ lollipops.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[10])
 
 ## Mutation details {.tabset .tabset-fade}
 
-### `r names(mutRate.top10.datasets)[1]`
+Tables with detailed information, as as provided in corresponding MAF file(s), for the **10 genes with the highest mutation rate** across all datasets.
 
 ```{r details_mut_table}
 ##### Provide detiles information for each dataset for 1st top mutated gene
 ##### Create a new workbook
-wb <- createWorkbook("MAF_summary_top_genes_details.xlsx")
+wb <- createWorkbook("MAF_summary_top_mutations_details.xlsx")
 
 ##### Add worksheets, one for each dataset
 for ( i in 1:length(mafFiles) ) {
   
-    addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
-    writeData(wb, sheet = i, mafInfo[[i]]@data[ mafInfo[[i]]@data[, Hugo_Symbol] %in% names(mutRate.top10.datasets), ])
+  ##### Extract mutation details
+  mut.details <- mafInfo[[i]]@data[ mafInfo[[i]]@data[, Hugo_Symbol] %in% names(mutRate.top10.datasets), ]
+
+  addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
+  writeData(wb, sheet = i, mut.details[ order(mut.details$Hugo_Symbol) , ])
 }
 
-saveWorkbook(wb, paste(outDir, "MAF_summary_top_genes_details.xlsx", sep="/"), overwrite = TRUE)
+saveWorkbook(wb, paste(outDir, "MAF_summary_top_mutations_details.xlsx", sep="/"), overwrite = TRUE)
 ```
 
+### `r names(mutRate.top10.datasets)[1]`
 
 ```{r details_mut_1, comment = NA}
 ##### Provide detiles information for each dataset for 1st top mutated gene
-##### Create a list for htmlwidgets
-widges.list <- htmltools::tagList()
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[1])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
 
-for ( i in 1:length(mafFiles) ) {
+### `r names(mutRate.top10.datasets)[2]`
 
-  widges.list[[i]] <- DT::datatable( data = mafInfo[[i]]@data[ mafInfo[[i]]@data[, Hugo_Symbol] %in% names(mutRate.top10.datasets)[1], ], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "none", options = list(pageLength = nrow(mafInfo[[i]]@summary), sDom  = '<"top">lrt<"bottom">ip') )
-}
+```{r details_mut_2, comment = NA}
+##### Provide detiles information for each dataset for 2nd top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[2])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
 
-##### Print a list of htmlwidgets
-widges.list
+### `r names(mutRate.top10.datasets)[3]`
+
+```{r details_mut_3, comment = NA}
+##### Provide detiles information for each dataset for 3rd top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[3])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top10.datasets)[4]`
+
+```{r details_mut_4, comment = NA}
+##### Provide detiles information for each dataset for 4th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[4])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top10.datasets)[5]`
+
+```{r details_mut_5, comment = NA}
+##### Provide detiles information for each dataset for 5th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[5])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top10.datasets)[6]`
+
+```{r details_mut_6, comment = NA}
+##### Provide detiles information for each dataset for 6th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[6])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top10.datasets)[7]`
+
+```{r details_mut_7, comment = NA}
+##### Provide detiles information for each dataset for 7th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[7])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top10.datasets)[8]`
+
+```{r details_mut_8, comment = NA}
+##### Provide detiles information for each dataset for 8th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[8])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top10.datasets)[9]`
+
+```{r details_mut_9, comment = NA}
+##### Provide detiles information for each dataset for 9th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[9])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top10.datasets)[10]`
+
+```{r details_mut_10, comment = NA}
+##### Provide detiles information for each dataset for 10th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[10])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
 ```
 
 ## Heatmaps {.tabset .tabset-fade}
