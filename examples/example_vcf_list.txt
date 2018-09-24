@@ -1,0 +1,8 @@
+/data/MON1__PRJ180357_MON1-T-somatic.pcgr_acmg.grch37.vcf
+/data/MON2__PRJ180358_MON2-T-somatic.pcgr_acmg.grch37.vcf
+/data/MON3__PRJ180359_MON3-T-somatic.pcgr_acmg.grch37.vcf
+/data/MON4__PRJ180360_MON4-T-somatic.pcgr_acmg.grch37.vcf
+/data/MON5__PRJ180361_MON5-T-somatic.pcgr_acmg.grch37.vcf
+/data/MON6__PRJ180362_MON6-T-somatic.pcgr_acmg.grch37.vcf
+/data/MON7__PRJ180363_MON7-T-somatic.pcgr_acmg.grch37.vcf
+/data/MON8__PRJ180364_MON8-T-somatic.pcgr_acmg.grch37.vcf
