@@ -692,7 +692,8 @@ for ( i in 1:length(mafFiles) ) {
 ```{r maf_oncodrive_results, comment=NA, warning=FALSE, fig.width = 9, fig.height = 4 }
 ##### Create a new workbook
 wb <- createWorkbook("MAF_sample_oncodriveCLUST.xlsx")
-
+sheetNo <- 0
+  
 ##### Create a list for htmlwidgets
 #widges.list <- htmltools::tagList()
   
@@ -701,21 +702,23 @@ wb <- createWorkbook("MAF_sample_oncodriveCLUST.xlsx")
 for ( i in 1:length(mafFiles) ) {
   
   cat(paste(datasets.list[i], "\n\n", sep=" "))
-
+    
   if ( !is.null(oncodrive.res[[datasets.list[i]]]) ) {
       
       plot(oncodrive.res[[datasets.list[i]]][[2]])
       
+      sheetNo <- sheetNo+1
+      
+      ##### Write results into a file
+      addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
+      writeData(wb, sheet = sheetNo, oncodrive.res[[datasets.list[i]]][[1]])
+  
       ##### Report results in dataTable
       #widges.list[[i]] <- DT::datatable( data = oncodrive.res[[datasets.list[i]]][[1]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", options = list(pageLength = 5))
     
   } else {
     cat(paste("It was not possible to calculate cluster scores for dataset", datasets.list[i], "\n\n\n\n", sep=" "))
   }
-
-  ##### Write results into a file
-  addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
-  writeData(wb, sheet = i, oncodrive.res[[datasets.list[i]]][[1]])
 }
 
 ##### Print a list of htmlwidgets
