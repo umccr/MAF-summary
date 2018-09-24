@@ -9,13 +9,15 @@ params:
   out_dir: 
 output:
   html_document:
-    keep_md: yes
-    code_folding: hide
+    theme: readable
     toc: true
     toc_float: true
+    code_folding: hide
+  rmdformats::material:
+    highlight: kate
 ---
 
-```{r define_functions}
+```{r define_functions, comment=NA, message=FALSE, warning=FALSE}
 ##### Define functions
 
 ##### Create 'not in' operator
@@ -44,9 +46,42 @@ getDatasetsColours <- function(datasets) {
   return( list(vec.datasets, datasets.colour) )
 }
 
+###### Generate dataTable for each dataset with all mutation information for selected gene, as provided in MAF files
+mut.details.datasets <- function(mafInfo, datasets, gene) {
+  
+  ##### Vector with datasets with no mutations reported in selected gene
+  datasets.noMut <- NULL
+  
+  ##### Create a list for htmlwidgets
+  widges.list <- htmltools::tagList()
+  
+  for ( i in 1:length(datasets) ) {
+  
+    mut.details.gene <- mafInfo[[datasets[i]]]@data[ mafInfo[[datasets[i]]]@data[, Hugo_Symbol] %in% gene, ]
+    
+    if ( nrow(mut.details.gene) != 0 ) {
+      
+      widges.list[[i]] <- DT::datatable( data = mut.details.gene, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets[i])), filter = "top", options = list(pageLength = 5) )
+      
+    } else {
+      datasets.noMut <- c(datasets.noMut, datasets[i])
+    }
+  }
+  
+  ##### Report datasets with no mutations reported in selected gene
+  if ( length(datasets.noMut) != 0 ) {
+    
+    cat(paste("Note, gene", gene, "has no mutations reported in the following datasets:", paste(datasets.noMut, collapse = ", "), "\n\n\n\n", sep=" "))
+  }
+  
+  ##### Print a list of htmlwidgets
+  widges.list
+}
+
 ###### Generate lollipop plot for each dataset for selected gene
 lollipops.datasets <- function(mafInfo, datasets, gene) {
   
+  ##### Create a list to store MAF info for individual datasets
   for ( dataset in datasets ) {
     
     cat(paste(dataset, "\n\n", sep=" "))
@@ -56,49 +91,23 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         query = "Variant_Type != 'CNV'")) != 0 ) {
       
       ##### Drawing lollipop for the top 10 genes in each dataset
-      ##### Check if the amino acid changes information is available in MAF provided files. The script expects column called "HGVSp_Short", which is produced with vcf2maf (https://github.com/mskcc/vcf2maf) when converting VCFs to MAFs (https://github.com/cBioPortal/cbioportal/issues/2996) and describes a mutation's amino acid change. The "aa_mutation" field used for annotation in ICGC samples is also acceptable.
+      ##### Check if the amino acid changes information is available in MAF provided files. The script expects column called "HGVSp_Short", which is produced with vcf2maf (https://github.com/mskcc/vcf2maf) when converting VCFs to MAFs (https://github.com/cBioPortal/cbioportal/issues/2996) and describes a mutation's amino acid change. The "aa_mutation" field used for annotation in ICGC samples is also acceptable. NOTE: other possibilities are: "Protein_Change", "AAChange""
       if ( "HGVSp_Short" %in% maftools::getFields(mafInfo[[dataset]]) ) {
         
-        plot(lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "HGVSp_Short",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
-        
+        plot(lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "HGVSp_Short",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, fn = paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"))), add=TRUE )
+
       } else if ( "aa_mutation" %in% maftools::getFields(mafInfo[[dataset]]) ) {
-      
-        plot(lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "aa_mutation",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
+        
+        plot( lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "aa_mutation",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, fn = paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"))) )
       
       ##### ...otherwise leave a message
       } else {
-      cat(paste("This section was skipped for dataset", dataset, "since the corresponding MAF does not contain field with amino acid changes details!\n\n\n\n", sep=" "))
+        cat(paste("This section was skipped for dataset", dataset, "since the corresponding MAF does not contain field with amino acid changes details!\n\n\n\n", sep=" "))
       }
     } else {
       cat(paste("Gene", gene, "has no mutations reported in dataset", dataset, "\n\n\n\n", sep=" "))
     }
   }
-}
-
-
-###### Generate dataTable for each dataset with all mutation information for selected gene, as provided in MAF files
-mut.details.datasets <- function(mafInfo, datasets, gene) {
-  
-  ##### Create a list for htmlwidgets
-  widges.list <- htmltools::tagList()
-  
-  for ( i in 1:length(datasets) ) {
-  
-    cat(paste(datasets[i], "\n\n", sep=" "))
-    
-    mut.details.gene <- mafInfo[[datasets[i]]]@data[ mafInfo[[datasets[i]]]@data[, Hugo_Symbol] %in% gene, ]
-    
-    if ( nrow(mut.details.gene) != 0 ) {
-      
-      widges.list[[i]] <- DT::datatable( data = mut.details.gene, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;'), filter = "top", options = list(pageLength = 5) )
-      
-    } else {
-      cat(paste("Gene", gene, "has no mutations reported in dataset", datasets[i], "\n\n\n\n", sep=" "))
-    }
-  }
-  
-  ##### Print a list of htmlwidgets
-  widges.list
 }
 
 ##### Stop the maftools::tcgaCompare function from printing the summary table
@@ -179,6 +188,217 @@ tcgaCompare_mod <- function (maf, capture_size = NULL, cohortName = NULL, primar
     print(tcga.cohort.gg)
     return(tcga.cohort.gg)
 }
+
+##### Perfrom oncodrive analysis. Clusters variants based on their position to detect disease causing genes
+oncodrive.mod <- function(mafInfo, dataset, AACol, gl) {
+
+  ##### Check whether it's possible to run oncodrive analysis for given dataset by calculating cluster scores
+  nonsyn.scores <- parse_prot(mafInfo, AACol = AACol, gl = gl, m = 5, calBg = FALSE, nBg = 100)
+    
+  if ( !is.null(nonsyn.scores) ) {
+      
+    ##### Cluster variants based on their position to detect disease causing genes
+    sig = oncodrive(maf = mafInfo, AACol = AACol, minMut = 5, pvalMethod = 'zscore')
+    
+    oncodrive.plot <- plotOncodrive(res = sig, fdrCutOff = 0.05, useFraction = FALSE)
+      
+    return(list(sig, oncodrive.plot))
+  }
+}
+
+##### Functon to calcluate cluster score (from https://rdrr.io/github/PoisonAlien/maftools/src/R/clusterScore.R). It's required in order check whether it's possible to run oncodrive analysis for given dataset
+parse_prot <- function(dat, AACol, gl, m, calBg = FALSE, nBg){
+
+  mafInfo <- dat
+  dat <- mafInfo@data
+  
+  if(is.null(AACol)){
+    pchange = c('HGVSp_Short', 'Protein_Change', 'AAChange')
+    if(pchange[pchange %in% colnames(dat)] > 0){
+      pchange = suppressWarnings(pchange[pchange %in% colnames(dat)][1])
+      message(paste0("Assuming protein change information are stored under column ", pchange,". Use argument AACol to override if necessary."))
+      colnames(dat)[which(colnames(dat) == pchange)] = 'AAChange'
+    }else{
+      message('Available fields:')
+      print(colnames(dat))
+      stop('AAChange field not found in MAF. Use argument AACol to manually specifiy field name containing protein changes.')
+    }
+  }else{
+    colnames(dat)[which(colnames(dat) == AACol)] = 'AAChange'
+  }
+
+  all.prot.dat = dat[,.(Hugo_Symbol, Variant_Classification, AAChange)]
+  all.prot.dat = all.prot.dat[Variant_Classification != 'Splice_Site']
+  #parse AAchanges to get postion
+  prot.spl = strsplit(x = as.character(all.prot.dat$AAChange), split = '.', fixed = TRUE)
+  prot.conv = sapply(sapply(prot.spl, function(x) x[length(x)]), '[', 1)
+
+  all.prot.dat[,conv := prot.conv]
+  all.prot.dat = all.prot.dat[!conv == 'NULL']
+
+  #If conversions are in HGVSp_long (default HGVSp) format, we will remove strings Ter followed by anything (e.g; p.Asn1986GlnfsTer13)
+  pos = gsub(pattern = 'Ter.*', replacement = '',x = all.prot.dat$conv)
+
+  #Following parsing takes care of most of HGVSp_short and HGVSp_long format
+  pos = gsub(pattern = '[[:alpha:]]', replacement = '', x = pos)
+  pos = gsub(pattern = '\\*$', replacement = '', x = pos) #Remove * if nonsense mutation ends with *
+  pos = gsub(pattern = '^\\*', replacement = '', x = pos) #Remove * if nonsense mutation starts with *
+  pos = gsub(pattern = '\\*.*', replacement = '', x = pos) #Remove * followed by position e.g, p.C229Lfs*18
+
+  pos = suppressWarnings( as.numeric(sapply(strsplit(x = pos, split = '_', fixed = TRUE), '[', 1)) )
+  all.prot.dat[,pos := pos]
+
+  all.prot.dat = all.prot.dat[!is.na(pos)] #Remove NA's
+
+  gene.sum = mafInfo@gene.summary
+  gene.sum = merge(x = gene.sum, y = gl, by = 'Hugo_Symbol', all.x = TRUE)
+  gene.sum = gene.sum[!is.na(aa.length)]
+
+  num_mut_colIndex = which(colnames(gene.sum) == 'total')
+  aalen_colIndex = which(colnames(gene.sum) == 'aa.length')
+
+  #Get background threshold
+  gene.sum$th = apply(gene.sum, 1, function(x) get_threshold(gene_muts = as.numeric(x[num_mut_colIndex]), gene_length = as.numeric(x[aalen_colIndex])))
+  #use only genes with atleast 2 (or m ) mutations.
+  gene.sum = gene.sum[total >= m]
+
+  if(calBg){
+    if(nrow(gene.sum) < nBg){
+      #message("Not enough genes to build background. Using predefined values. (Mean = 0.279; SD = 0.13)")
+      return(NULL)
+    } else{
+      syn.res = c()
+      pb <- txtProgressBar(min = 0, max = nrow(gene.sum), style = 3) #progress bar
+
+      for(i in 1:nrow(gene.sum)){
+        prot.dat = all.prot.dat[Hugo_Symbol %in% gene.sum[i, Hugo_Symbol]]
+        syn.res = rbind(syn.res, cluster_prot(prot.dat = prot.dat, gene = gene.sum[i, Hugo_Symbol], th = gene.sum[i, th], protLen = gene.sum[i,aa.length]))
+        setTxtProgressBar(pb, i)
+      }
+      return(syn.res)
+    }
+  } else{
+    nonsyn.res = c()
+    #pb <- txtProgressBar(min = 0, max = nrow(gene.sum), style = 3) #progress bar
+
+    for(i in 1:nrow(gene.sum)){
+      hs = gene.sum[i, Hugo_Symbol]
+      #print(hs)
+      prot.dat = all.prot.dat[Hugo_Symbol %in% hs]
+      nonsyn.res = rbind(nonsyn.res, cluster_prot(prot.dat = prot.dat, gene = hs, th = gene.sum[Hugo_Symbol %in% hs, th], protLen = gene.sum[Hugo_Symbol %in% hs, aa.length]))
+      #setTxtProgressBar(pb, i)
+    }
+    return(nonsyn.res)
+  }
+}
+
+###### Estimate threshhold based on binaomial distribution (from https://rdrr.io/github/PoisonAlien/maftools/src/R/clusterScore.R). Required for parse_prot function
+get_threshold <- function(gene_muts, gene_length){
+  th = which(unlist(lapply(X = 2:gene_muts, FUN = function(x) dbinom(x = x, size = gene_muts, prob = 1/gene_length) )) < 0.01)[1]
+  return(th+1)
+}
+
+###### Clustering function (from https://rdrr.io/github/PoisonAlien/maftools/src/R/clusterScore.R). Required for parse_prot function
+cluster_prot <- function(prot.dat, gene, th, protLen){
+
+  mergeDist = 5 #hard coded inter event distance.
+  #prot.dat = all.prot.dat[Hugo_Symbol == gene]
+
+  #Summarise counts per position
+  pos.counts = prot.dat[,.N,pos]
+  pos.counts = pos.counts[order(pos)]
+
+  #classify position as meaningful if its greater than background threshhold.
+  pos.counts$cluster = ifelse(test = pos.counts$N >= th, yes = 'meaningful', no = 'nonMeaningful')
+
+  #Just choose meaningful positions
+  clust.tbl = pos.counts[cluster %in% 'meaningful']
+  nonclust.tbl = pos.counts[cluster %in% 'nonMeaningful']
+
+  if(nrow(clust.tbl) == 0){
+    #message(paste('No meaningful positions found for', gene, sep=' '))
+    return(NULL)
+  }
+
+  clust.tbl$distance = c(0,diff(clust.tbl$pos)) #calculate inter event distance.
+
+  #If more than one meaningful positions are found within a 5 aa distance, join them to form a cluster.
+  if(nrow(clust.tbl) > 1){
+
+    #initialize variables.
+    cstart = end = clust.tbl[1,pos]
+    n = clust.tbl[1,N]
+    cdf = c()
+    cluster = 1
+
+    #Go through entire table and update variables.
+    for(i in 2:nrow(clust.tbl)){
+      pos = clust.tbl[i,pos]
+
+      d = clust.tbl[i,distance]
+
+      if(d < mergeDist){
+        end = pos
+        n = n + clust.tbl[i,N]
+      }else{
+        tempdf = data.frame(cluster = paste('cluster', cluster, sep='_'), start = cstart, end = end ,N = n)
+        cdf = rbind(cdf, tempdf)
+        cstart = end = pos
+        n = clust.tbl[i,N]
+        cluster = cluster + 1
+      }
+    }
+    cdf = rbind(cdf, data.frame(cluster = paste('cluster', cluster, sep='_'), start = cstart, end = end ,N = n))
+  } else {
+    cdf = data.frame(cluster = 'cluster_1', start = clust.tbl$pos, end = clust.tbl$pos ,N = clust.tbl$N)
+  }
+
+  #merge adjacent variants to clusters.
+  for(i in 1:nrow(cdf)){
+    tempcdf = cdf[i,]
+    nonclust.tbl$startDist = nonclust.tbl$pos - tempcdf$start
+    nonclust.tbl$endDist = nonclust.tbl$pos - tempcdf$end
+
+    merge.adj.to.start = nonclust.tbl[startDist >= -5 & startDist <= 0]
+    if(nrow(merge.adj.to.start) > 0){
+      tempcdf$start = merge.adj.to.start[which(merge.adj.to.start$startDist == min(merge.adj.to.start$startDist)),pos]
+      tempcdf$N = tempcdf$N + sum(merge.adj.to.start$N)
+    }
+
+    merge.adj.to.end = nonclust.tbl[endDist <= 5 & endDist >= 0]
+    if(nrow(merge.adj.to.end) > 0){
+      tempcdf$end = merge.adj.to.end[which(merge.adj.to.end$endDist == max(merge.adj.to.end$endDist)),pos]
+      tempcdf$N = tempcdf$N + sum(merge.adj.to.end$N)
+    }
+    cdf[i,] = tempcdf
+  }
+  cdf$Hugo_Symbol = gene
+
+  #Calcluate cluster score.
+
+  total.muts = nrow(prot.dat) #total variants for this gene.
+  clusterScores = c()
+
+  for(i in 1:nrow(cdf)){
+    temp.prot.dat = prot.dat[pos >= as.numeric(cdf$start[i]) & pos <= as.numeric(cdf$end[i])]
+    temp.prot.dat.summary = temp.prot.dat[,.N, pos]
+    temp.prot.dat.summary[,fraction:= N/total.muts]
+
+    peak = temp.prot.dat.summary[N == max(N), pos]
+
+    posVector = as.numeric(temp.prot.dat.summary[,pos])
+    fractionMutVector = unlist(lapply(posVector, FUN = function(x) temp.prot.dat.summary[pos == x, fraction]))
+    distanceVector = suppressWarnings(abs(posVector - peak))
+
+    clusterScores = c(clusterScores,  sum( fractionMutVector / (sqrt(2)^ distanceVector)))
+
+  }
+
+  cdf$clusterScore = clusterScores
+
+  gene.clust.res = data.frame(Hugo_Symbol = gene, clusters = nrow(cdf), muts_in_clusters = sum(cdf$N), clusterScores = sum(cdf$clusterScore), protLen = protLen)
+  return(gene.clust.res)
+}
 ```
 
 ```{r load_libraries, warning=FALSE}
@@ -233,6 +453,7 @@ for ( i in 1:length(mafFiles) ) {
 ##### Create directory for output files
 outDir <- paste(params$maf_dir, params$out_dir, sep = "/")
 if ( !file.exists(params$out_dir) ){
+
   dir.create(outDir, recursive=TRUE)
 }
 ```
@@ -435,6 +656,75 @@ for ( i in 1:length(mafFiles) ) {
 }
 ```
 
+### Driver genes detection
+
+Cancer driver genes detection based on positional clustering using [oncodriveCLUST](http://bg.upf.edu/group/projects/oncodrive-clust.php) algorithm based on the fact that most of the variants in cancer causing genes are enriched at few specific loci (hot-spots). According to this concept mutations in these regions potentially change the function of these proteins in a manner that provides an adaptive advantage to cancer cells and consequently are positively selected during clonal evolution of tumours. This property can thus be used to nominate novel candidate driver genes, as described in the paper [OncodriveCLUST](https://www.ncbi.nlm.nih.gov/pubmed/23884480) by Tamborero *et al*.
+
+The size of the points on the scatter-plot(s) is proportional to the number of clusters found in the gene. X-axis shows the number of variants observed in these clusters. Y-axis illustrates false discovery rate (FDR) values transformed into -log10. Labels indicate Gene name with the number of observed clusters.
+
+```{r maf_oncodrive_analysis,  include=FALSE }
+##### In this chunk the clusters variants are calculated, but the results are reported in the next chunk
+##### Import protein info data provided within maftools package
+gl <- data.table::fread(input = paste("zcat <", system.file("extdata", "prot_len.txt.gz", package = "maftools")), sep = "\t", stringsAsFactors = FALSE)
+
+##### Create a list to store MAF info for individual datasets
+oncodrive.res <- vector("list", length(mafFiles))
+names(oncodrive.res) <- datasets.list
+
+###### Generate separate plot for each dataset
+for ( i in 1:length(mafFiles) ) {
+  
+  ##### Check if the amino acid changes information is available in MAF provided files. The script expects column called "HGVSp_Short", which is produced with vcf2maf (https://github.com/mskcc/vcf2maf) when converting VCFs to MAFs (https://github.com/cBioPortal/cbioportal/issues/2996) and describes a mutation's amino acid change. The "aa_mutation" field used for annotation in ICGC samples is also acceptable.
+  if ( "HGVSp_Short" %in% maftools::getFields(mafInfo[[i]]) ) {
+          
+    oncodrive.res[[datasets.list[i]]] <- oncodrive.mod(mafInfo[[i]], datasets.list[i], AACol = "HGVSp_Short", gl) 
+
+  } else if ( "aa_mutation" %in% maftools::getFields(mafInfo[[i]]) ) {
+    
+    oncodrive.res[[datasets.list[i]]] <- oncodrive.mod(mafInfo[[i]], datasets.list[i], AACol = "aa_mutation", gl)
+    
+  } else {
+    cat(paste("This section was skipped for dataset", datasets.list[i], "since the corresponding MAF does not contain field with amino acid changes details!\n\n\n\n", sep=" "))
+  }
+}
+```
+
+```{r maf_oncodrive_results, comment=NA, warning=FALSE, fig.width = 9, fig.height = 4 }
+##### Create a new workbook
+wb <- createWorkbook("MAF_sample_oncodriveCLUST.xlsx")
+
+##### Create a list for htmlwidgets
+#widges.list <- htmltools::tagList()
+  
+##### Draw oncodrive plot for each dataset
+###### Generate separate plot for each dataset
+for ( i in 1:length(mafFiles) ) {
+  
+  cat(paste(datasets.list[i], "\n\n", sep=" "))
+
+  if ( !is.null(oncodrive.res[[datasets.list[i]]]) ) {
+      
+      plot(oncodrive.res[[datasets.list[i]]][[2]])
+      
+      ##### Report results in dataTable
+      #widges.list[[i]] <- DT::datatable( data = oncodrive.res[[datasets.list[i]]][[1]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", options = list(pageLength = 5))
+    
+  } else {
+    cat(paste("It was not possible to calculate cluster scores for dataset", datasets.list[i], "\n\n\n\n", sep=" "))
+  }
+
+  ##### Write results into a file
+  addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
+  writeData(wb, sheet = i, oncodrive.res[[datasets.list[i]]][[1]])
+}
+
+##### Print a list of htmlwidgets
+#widges.list
+
+##### Write results into a file
+saveWorkbook(wb, paste(outDir, "MAF_oncodriveCLUST.xlsx", sep="/"), overwrite = TRUE)
+```
+
 ### Transitions/transversions
 
 Plots presenting the transitions and transversions distribution in individual dataset(s). In each panel, the box-plots show the *overall distribution* of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*)(top-left), and the transitions and transversions *frequency* (top-right). The stacked bar-plot (bottom) displays the *fraction* of the six different conversions in each sample.
@@ -488,7 +778,7 @@ for ( i in 1:length(mafFiles) ) {
   cat(paste(datasets.list[i], "\n\n", sep=" "))
   
   ##### Compare mutation load against TCGA cohorts
-  tcgaCompare_mod(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
+  plot(tcgaCompare_mod(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE))
 }
 ```
 
@@ -512,6 +802,13 @@ for ( i in 1:length(mafFiles) ) {
 }
 
 mutRate.top10.datasets <- sort(sort(mutRate.top10.datasets, decreasing = TRUE)[unique(names(mutRate.top10.datasets))], decreasing = TRUE)[c(1:10)]
+
+##### Create directory for pdf files
+mutationMapsDir <- paste0(normalizePath(outDir), "/", "MAF_mutation_maps")
+
+if ( !file.exists(mutationMapsDir) ){
+  dir.create(mutationMapsDir, recursive=TRUE)
+}
 ```
 
 ### `r names(mutRate.top10.datasets)[1]`
@@ -591,7 +888,7 @@ Tables with detailed information, as as provided in corresponding MAF file(s), f
 ```{r details_mut_table}
 ##### Provide detiles information for each dataset for 1st top mutated gene
 ##### Create a new workbook
-wb <- createWorkbook("MAF_summary_top_mutations_details.xlsx")
+wb <- createWorkbook("MAF_top_mutations_details.xlsx")
 
 ##### Add worksheets, one for each dataset
 for ( i in 1:length(mafFiles) ) {
@@ -603,7 +900,7 @@ for ( i in 1:length(mafFiles) ) {
   writeData(wb, sheet = i, mut.details[ order(mut.details$Hugo_Symbol) , ])
 }
 
-saveWorkbook(wb, paste(outDir, "MAF_summary_top_mutations_details.xlsx", sep="/"), overwrite = TRUE)
+saveWorkbook(wb, paste(outDir, "MAF_top_mutations_details.xlsx", sep="/"), overwrite = TRUE)
 ```
 
 ### `r names(mutRate.top10.datasets)[1]`
@@ -788,7 +1085,9 @@ widges.list
 
 Interactive heatmap of *adjusted p-values* from *Fisher Exact* test performed for all possible pair-wise comprisons to find differentially mutated genes between queried datasets and to aid identification of global differences in mutation patterns in corresponding MAF files. The rows and columns represent genes and datasets, respectively, and heatmap colours indicate the *Fisher Exact* test *adjusted p-values*. The colour key is on the left-hand side. **Low *p-values*** (yellow) **indicate differentially mutated genes between corresponding datasets**. Genes are clustered to facilite the indetification possible differences between individaul datasets. Note, only overlap of mutated genes reported across all MAF files is presented. This section is available for multiple MAFs and will be skipped if only one MAF file is provided.
 
-```{r compare_mafs, message = FALSE, warning=FALSE, comment = NA, fig.width = 6, fig.height = 12}
+**NOTE**: This step is skipped for the moment as it is too computationally intensive.
+
+```{r compare_mafs, message = FALSE, warning=FALSE, comment = NA, fig.width = 6, fig.height = 12, eval = FALSE, echo = FALSE}
 ##### Skip this section if only one MAF file is provided
 if ( length(mafFiles) != 1 ) {
   
@@ -842,10 +1141,10 @@ if ( length(mafFiles) != 1 ) {
   
   ##### Generate interactive heatmap
   p <- heatmaply(mafCompare.res.common.p, Rowv=as.dendrogram(hr), Colv=NULL, viridis(n=256, alpha = 1, begin = 1, end = 0, option = "viridis"), scale="none", dendrogram="row", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Comparison","P-value")) %>%
-    layout(width  = 900, height = 900, margin = list(l=150, r=10, b=250, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+    layout(width  = 900, height = 900, margin = list(l=150, r=10, b=350, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
   
   as_widget(ggplotly(p))
-  
+  p
   ##### Save the heatmap as html (PLOTLY)
   htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_pair-wise_comparisons_heatmap.html"), selfcontained = TRUE)
 
@@ -859,7 +1158,8 @@ if ( length(mafFiles) != 1 ) {
 }
 ```
 
-```{r maf_visualisation_pdf, comment = NA, message=FALSE, warning=FALSE}
+```{r maf_visualisation_pdf, comment=NA, message=FALSE, warning=FALSE}
+
 ###### Save plots into PDF files
 ###### Generate separate file with plots for each dataset
 for ( i in 1:length(mafFiles) ) {
@@ -875,7 +1175,13 @@ for ( i in 1:length(mafFiles) ) {
   plot.new()
   par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
   oncoplot(maf = mafInfo[[i]], top = 10, fontSize = 12)
-
+  
+  ##### Drawing oncodrive plot for each dataset
+  if ( !is.null(oncodrive.res[[datasets.list[i]]]) ) {
+      
+      plot(oncodrive.res[[datasets.list[i]]][[2]])
+  }
+  
   ##### Drawing distribution plots of the transitions and transversions
   titv.info = titv(maf = mafInfo[[i]], plot = FALSE, useSyn = TRUE)
 
@@ -885,24 +1191,6 @@ for ( i in 1:length(mafFiles) ) {
   ##### Compare mutation load against TCGA cohorts
   tcgaCompare_mod(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
   mtext("Mutation load in TCGA cohorts", outer=TRUE,  cex=1, line=-0.5)
-}
-
-##### Add extra lines to make sure that this section doesn't overlap with the next one
-```
-
-```{r mutation_maps_pdf, comment = NA, message=FALSE, warning=FALSE}
-###### Save plots into PDF files
-###### Generate separate file with plots for each dataset
-for ( i in 1:length(mafFiles) ) {
-  
-  pdf( file = paste(outDir, "/MAF_summary_", datasets.list[i], "_mutation_maps.pdf", sep = ""), height = 4 )
-
-  ###### Generate lollipop plot for 10 most frequently mutated genes across all datasets
-  for ( gene in names(mutRate.top10.datasets) ) {
-
-    lollipops.datasets(mafInfo, datasets.list[i], gene)
-  }
-  dev.off()
 }
 
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
