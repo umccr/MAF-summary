@@ -174,12 +174,12 @@ for ( i in 1:length(mafFiles) ) {
   if ( "HGVSp_Short" %in% maftools::getFields(mafInfo[[i]]) ) {
     
     for ( gene in genes.top10 ) {
-      plot(lollipopPlot(maf = mafInfo[[i]], gene = gene, AACol = "HGVSp_Short",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, verbose=FALSE))
+      plot(lollipopPlot(maf = mafInfo[[i]], gene = gene, AACol = "HGVSp_Short",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
     }
   } else if ( "aa_mutation" %in% maftools::getFields(mafInfo[[i]]) ) {
   
     for ( gene in genes.top10 ) {
-     plot(lollipopPlot(maf = mafInfo[[i]], gene = gene, AACol = "aa_mutation",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, verbose=FALSE))
+     plot(lollipopPlot(maf = mafInfo[[i]], gene = gene, AACol = "aa_mutation",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
     }
   
   ##### ...otherwise leave a message
