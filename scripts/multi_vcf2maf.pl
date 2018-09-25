@@ -127,6 +127,9 @@ if ($vcfList and $outMaf and $v2m and $ref) {
                 system("perl $v2m  --input-vcf $vcfFile --output-maf $mafFile --ref-fasta $ref --filter-vcf 0 --species homo_sapiens --tumor-id $sampleName --normal-id $sampleName.normal");
                 
                 system("rm $vepFile");
+		
+		##### Compress VCFs
+                system( "gzip $vcfFile" );         
                 
              } else {
                 
