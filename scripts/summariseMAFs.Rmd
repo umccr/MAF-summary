@@ -17,6 +17,15 @@ output:
     highlight: kate
 ---
 
+***
+NOTE: this report summarises only non-synonymous variants with high/moderate variant consequences, including *frame shift deletions*, *frame shift deletions*, *splice site mutations*, *translation start site mutations*, *nonsense mutation*, *nonstop mutations*, *in-frame deletion*, *in-frame insertions* and *missense mutation*, and ignores silent variants.
+
+[*High impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535) -	the variant is assumed to have high (disruptive) impact in the protein, probably causing protein truncation, loss of function or triggering nonsense mediated decay.
+
+[*Moderate impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535) -	a non-disruptive variant that might change protein effectiveness.
+
+***
+
 ```{r define_functions, comment=NA, message=FALSE, warning=FALSE}
 ##### Define functions
 
@@ -408,15 +417,6 @@ suppressMessages(library(openxlsx))
 suppressMessages(library(ggplot2))
 suppressMessages(library(DT))
 ```
-
-***
-NOTE: this report summarised only non-synonymous variants with high/moderate variant consequences, including *frame shift deletions*, *frame shift deletions*, *splice site mutations*, *translation start site mutations* ,*nonsense mutation*, *nonstop mutations*, *in-frame deletion*, *in-frame insertions* and *missense mutation*, and ignores silent variants.
-
-[*High impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535) -	the variant is assumed to have high (disruptive) impact in the protein, probably causing protein truncation, loss of function or triggering nonsense mediated decay.
-
-[*Moderate impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535) -	a non-disruptive variant that might change protein effectiveness.
-
-***
 
 ## Datasets
 
