@@ -90,13 +90,13 @@ if ($vcfList and $outMaf and $v2m and $ref) {
         my @info = split(/\t/, $record);
         
         ##### Extract names of listed VCFs
-        $vcfFile = $info[ 0 ];
+	$info[ 0 ] =~ s/\.gz$//g;
+	$vcfFile = $info[ 0 ];
         
         ##### ... and check if they exist
         if ( $vcfFile =~ m/.*?\.vcf\.gz$/ || $vcfFile =~ m/.*?\.vcf$/ ) {
             
             ##### uncompress .gz VCFs
-            $vcfFile =~ s/\.gz$//g;
             $vcfFileGZ = $vcfFile . ".gz";
             
             if (-e $vcfFileGZ ) {
@@ -127,8 +127,8 @@ if ($vcfList and $outMaf and $v2m and $ref) {
                 system("perl $v2m  --input-vcf $vcfFile --output-maf $mafFile --ref-fasta $ref --filter-vcf 0 --species homo_sapiens --tumor-id $sampleName --normal-id $sampleName.normal");
                 
                 system("rm $vepFile");
-		
-		##### Compress VCFs
+                
+                ##### Compress VCFs
                 system( "gzip $vcfFile" );         
                 
              } else {
