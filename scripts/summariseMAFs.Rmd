@@ -17,6 +17,8 @@ output:
     highlight: kate
 ---
 
+Mutation data summary for dataset(s) **`r params$datasets `**
+
 ***
 NOTE: this report summarises only non-synonymous variants with high/moderate variant consequences, including *frame shift deletions*, *frame shift deletions*, *splice site mutations*, *translation start site mutations*, *nonsense mutation*, *nonstop mutations*, *in-frame deletion*, *in-frame insertions* and *missense mutation*, and ignores silent variants.
 
@@ -619,9 +621,9 @@ cat("\n\n\n")
 
 ### MAF summary
 
-A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **top 10 mutated genes** (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
+A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **30 most frequently mutated genes** (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
 
-```{r maf_summary_plot, comment = NA}
+```{r maf_summary_plot, comment = NA, fig.width = 9, fig.height = 9}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
 
@@ -629,16 +631,16 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Plotting MAF summary
   par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-  maftools::plotmafSummary(maf = mafInfo[[i]], rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
+  maftools::plotmafSummary(maf = mafInfo[[i]], top = 30, rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
   mtext("MAF summary", outer=TRUE,  cex=1, line=-0.5)
 }
 ```
 
 ### Oncoplot
 
-Oncoplot(s) illustrating different types of mutations observed across samples for the **10 most frequently mutated genes**. The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
+Oncoplot(s) illustrating different types of mutations observed across samples for the **30 most frequently mutated genes**. The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
-```{r maf_oncoplot, comment = NA}
+```{r maf_oncoplot, comment = NA, fig.width = 9, fig.height = 8}
 ##### Changing colours (from RColorBrewer palette) for variant classifications
 col = RColorBrewer::brewer.pal(n = 8, name = 'Paired')
 names(col) = c('Frame_Shift_Del','Missense_Mutation', 'Nonsense_Mutation', 'Multi_Hit', 'Frame_Shift_Ins',
@@ -652,7 +654,7 @@ for ( i in 1:length(mafFiles) ) {
   ##### Drawing oncoplots for the top 10 genes in each dataset
   plot.new()
   par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-  maftools::oncoplot(maf = mafInfo[[i]], colors = col, top = 10, fontSize = 12)
+  maftools::oncoplot(maf = mafInfo[[i]], colors = col, top = 30, fontSize = 12)
 }
 ```
 
@@ -781,30 +783,30 @@ for ( i in 1:length(mafFiles) ) {
   cat(paste(datasets.list[i], "\n\n", sep=" "))
   
   ##### Compare mutation load against TCGA cohorts
-  plot(tcgaCompare_mod(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE))
+  tcgaCompare_mod(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
 }
 ```
 
 ## Mutation maps {.tabset .tabset-fade}
 
-Lollipop plot(s) showing mutation spots on protein structure for the **10 genes the with highest mutation rate** across all datasets. Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Note, that for the MAF file does not contain field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
+Lollipop plot(s) showing mutation spots on protein structure for the **30 most frequently mutated genes** across all datasets. Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Note, that for the MAF file does not contain field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
 
 ```{r top_mutated_genes, comment = NA, message=FALSE, warning=FALSE}
-##### Get the 10 most frequently mutated genes across all datasets
-mutRate.top10.datasets <- NULL
+##### Get the 30 most frequently mutated genes across all datasets
+mutRate.top.datasets <- NULL
 
 for ( i in 1:length(mafFiles) ) {
   
-  genes.top10 <- maftools::getGeneSummary(mafInfo[[i]])[c(1:10), Hugo_Symbol]
+  genes.top <- maftools::getGeneSummary(mafInfo[[i]])[c(1:30), Hugo_Symbol]
   sampleSize <- as.numeric(mafInfo[[i]]@summary[ID %in% "Samples", summary])
   
-  mutRate.top10 <- round(getGeneSummary(x = mafInfo[[i]])[ Hugo_Symbol %in% genes.top10, MutatedSamples]/sampleSize * 100, digits = 2)
-  names(mutRate.top10) <- genes.top10
+  mutRate.top <- round(getGeneSummary(x = mafInfo[[i]])[ Hugo_Symbol %in% genes.top, MutatedSamples]/sampleSize * 100, digits = 2)
+  names(mutRate.top) <- genes.top
   
-  mutRate.top10.datasets <- c( mutRate.top10.datasets, mutRate.top10)
+  mutRate.top.datasets <- c( mutRate.top.datasets, mutRate.top)
 }
 
-mutRate.top10.datasets <- sort(sort(mutRate.top10.datasets, decreasing = TRUE)[unique(names(mutRate.top10.datasets))], decreasing = TRUE)[c(1:10)]
+mutRate.top.datasets <- sort(sort(mutRate.top.datasets, decreasing = TRUE)[unique(names(mutRate.top.datasets))], decreasing = TRUE)[c(1:30)]
 
 ##### Create directory for pdf files
 mutationMapsDir <- paste0(normalizePath(outDir), "/", "MAF_mutation_maps")
@@ -814,79 +816,218 @@ if ( !file.exists(mutationMapsDir) ){
 }
 ```
 
-### `r names(mutRate.top10.datasets)[1]`
+### `r names(mutRate.top.datasets)[1]`
 
 ```{r lollipop_plot_1, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
 ###### Generate lollipop plot for each dataset for 1st top mutated gene
-lollipops.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[1])
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[1])
 ```
 
-### `r names(mutRate.top10.datasets)[2]`
+### `r names(mutRate.top.datasets)[2]`
 
 ```{r lollipop_plot_2, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
 ###### Generate lollipop plot for each dataset for 2nd top mutated gene
-lollipops.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[2])
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[2])
 ```
 
-### `r names(mutRate.top10.datasets)[3]`
+### `r names(mutRate.top.datasets)[3]`
 
 ```{r lollipop_plot_3, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
 ###### Generate lollipop plot for each dataset for 3rd top mutated gene
-lollipops.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[3])
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[3])
 ```
 
-### `r names(mutRate.top10.datasets)[4]`
+### `r names(mutRate.top.datasets)[4]`
 
 ```{r lollipop_plot_4, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
 ###### Generate lollipop plot for each dataset for 4th top mutated gene
-lollipops.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[4])
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[4])
 ```
 
-### `r names(mutRate.top10.datasets)[5]`
+### `r names(mutRate.top.datasets)[5]`
 
 ```{r lollipop_plot_5, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
 ###### Generate lollipop plot for each dataset for 5th top mutated gene
-lollipops.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[5])
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[5])
 ```
 
-### `r names(mutRate.top10.datasets)[6]`
+### `r names(mutRate.top.datasets)[6]`
 
 ```{r lollipop_plot_6, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
 ###### Generate lollipop plot for each dataset for 6th top mutated gene
-lollipops.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[6])
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[6])
 ```
 
-### `r names(mutRate.top10.datasets)[7]`
+### `r names(mutRate.top.datasets)[7]`
 
 ```{r lollipop_plot_7, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
 ###### Generate lollipop plot for each dataset for 7th top mutated gene
-lollipops.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[7])
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[7])
 ```
 
-### `r names(mutRate.top10.datasets)[8]`
+### `r names(mutRate.top.datasets)[8]`
 
 ```{r lollipop_plot_8, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
 ###### Generate lollipop plot for each dataset for 8th top mutated gene
-lollipops.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[8])
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[8])
 ```
 
-### `r names(mutRate.top10.datasets)[9]`
+### `r names(mutRate.top.datasets)[9]`
 
 ```{r lollipop_plot_9, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
 ###### Generate lollipop plot for each dataset for 9th top mutated gene
-lollipops.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[9])
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[9])
 ```
 
-### `r names(mutRate.top10.datasets)[10]`
+### `r names(mutRate.top.datasets)[10]`
 
 ```{r lollipop_plot_10, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
 ###### Generate lollipop plot for each dataset for 10th top mutated gene
-lollipops.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[10])
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[10])
+```
+
+### `r names(mutRate.top.datasets)[11]`
+
+```{r lollipop_plot_11, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 11th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[11])
+```
+
+### `r names(mutRate.top.datasets)[12]`
+
+```{r lollipop_plot_12, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 12th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[12])
+```
+
+### `r names(mutRate.top.datasets)[13]`
+
+```{r lollipop_plot_13, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 13th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[13])
+```
+
+### `r names(mutRate.top.datasets)[14]`
+
+```{r lollipop_plot_14, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 14th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[14])
+```
+
+### `r names(mutRate.top.datasets)[15]`
+
+```{r lollipop_plot_15, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 15th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[15])
+```
+
+### `r names(mutRate.top.datasets)[16]`
+
+```{r lollipop_plot_16, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 16th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[16])
+```
+
+### `r names(mutRate.top.datasets)[17]`
+
+```{r lollipop_plot_17, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 17th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[17])
+```
+
+### `r names(mutRate.top.datasets)[18]`
+
+```{r lollipop_plot_18, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 18th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[18])
+```
+
+### `r names(mutRate.top.datasets)[19]`
+
+```{r lollipop_plot_19, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 19th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[19])
+```
+
+### `r names(mutRate.top.datasets)[20]`
+
+```{r lollipop_plot_20, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 20th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[20])
+```
+
+### `r names(mutRate.top.datasets)[21]`
+
+```{r lollipop_plot_21, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 21st top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[21])
+```
+
+### `r names(mutRate.top.datasets)[22]`
+
+```{r lollipop_plot_22, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 22nd top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[22])
+```
+
+### `r names(mutRate.top.datasets)[23]`
+
+```{r lollipop_plot_23, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 23rd top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[23])
+```
+
+### `r names(mutRate.top.datasets)[24]`
+
+```{r lollipop_plot_24, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 24th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[24])
+```
+
+### `r names(mutRate.top.datasets)[25]`
+
+```{r lollipop_plot_25, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 25th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[25])
+```
+
+### `r names(mutRate.top.datasets)[26]`
+
+```{r lollipop_plot_26, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 26th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[26])
+```
+### `r names(mutRate.top.datasets)[27]`
+
+```{r lollipop_plot_27, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 27th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[27])
+```
+
+### `r names(mutRate.top.datasets)[28]`
+
+```{r lollipop_plot_28, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 28th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[28])
+```
+
+### `r names(mutRate.top.datasets)[29]`
+
+```{r lollipop_plot_29, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 29th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[29])
+```
+
+### `r names(mutRate.top.datasets)[30]`
+
+```{r lollipop_plot_30, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+###### Generate lollipop plot for each dataset for 30th top mutated gene
+lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[30])
 ```
 
 ## Mutation details {.tabset .tabset-fade}
 
-Tables with detailed information, as as provided in corresponding MAF file(s), for the **10 genes with the highest mutation rate** across all datasets.
+Tables with detailed information, as as provided in corresponding MAF file(s), for the **30 most frequently mutated genes** across all datasets.
 
 ```{r details_mut_table}
 ##### Provide detiles information for each dataset for 1st top mutated gene
@@ -897,7 +1038,7 @@ wb <- createWorkbook("MAF_top_mutations_details.xlsx")
 for ( i in 1:length(mafFiles) ) {
   
   ##### Extract mutation details
-  mut.details <- mafInfo[[i]]@data[ mafInfo[[i]]@data[, Hugo_Symbol] %in% names(mutRate.top10.datasets), ]
+  mut.details <- mafInfo[[i]]@data[ mafInfo[[i]]@data[, Hugo_Symbol] %in% names(mutRate.top.datasets), ]
 
   addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
   writeData(wb, sheet = i, mut.details[ order(mut.details$Hugo_Symbol) , ])
@@ -906,92 +1047,272 @@ for ( i in 1:length(mafFiles) ) {
 saveWorkbook(wb, paste(outDir, "MAF_top_mutations_details.xlsx", sep="/"), overwrite = TRUE)
 ```
 
-### `r names(mutRate.top10.datasets)[1]`
+### `r names(mutRate.top.datasets)[1]`
 
 ```{r details_mut_1, comment = NA}
 ##### Provide detiles information for each dataset for 1st top mutated gene
-mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[1])
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[1])
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
 
-### `r names(mutRate.top10.datasets)[2]`
+### `r names(mutRate.top.datasets)[2]`
 
 ```{r details_mut_2, comment = NA}
 ##### Provide detiles information for each dataset for 2nd top mutated gene
-mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[2])
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[2])
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
 
-### `r names(mutRate.top10.datasets)[3]`
+### `r names(mutRate.top.datasets)[3]`
 
 ```{r details_mut_3, comment = NA}
 ##### Provide detiles information for each dataset for 3rd top mutated gene
-mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[3])
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[3])
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
 
-### `r names(mutRate.top10.datasets)[4]`
+### `r names(mutRate.top.datasets)[4]`
 
 ```{r details_mut_4, comment = NA}
 ##### Provide detiles information for each dataset for 4th top mutated gene
-mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[4])
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[4])
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
 
-### `r names(mutRate.top10.datasets)[5]`
+### `r names(mutRate.top.datasets)[5]`
 
 ```{r details_mut_5, comment = NA}
 ##### Provide detiles information for each dataset for 5th top mutated gene
-mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[5])
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[5])
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
 
-### `r names(mutRate.top10.datasets)[6]`
+### `r names(mutRate.top.datasets)[6]`
 
 ```{r details_mut_6, comment = NA}
 ##### Provide detiles information for each dataset for 6th top mutated gene
-mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[6])
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[6])
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
 
-### `r names(mutRate.top10.datasets)[7]`
+### `r names(mutRate.top.datasets)[7]`
 
 ```{r details_mut_7, comment = NA}
 ##### Provide detiles information for each dataset for 7th top mutated gene
-mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[7])
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[7])
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
 
-### `r names(mutRate.top10.datasets)[8]`
+### `r names(mutRate.top.datasets)[8]`
 
 ```{r details_mut_8, comment = NA}
 ##### Provide detiles information for each dataset for 8th top mutated gene
-mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[8])
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[8])
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
 
-### `r names(mutRate.top10.datasets)[9]`
+### `r names(mutRate.top.datasets)[9]`
 
 ```{r details_mut_9, comment = NA}
 ##### Provide detiles information for each dataset for 9th top mutated gene
-mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[9])
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[9])
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
 
-### `r names(mutRate.top10.datasets)[10]`
+### `r names(mutRate.top.datasets)[10]`
 
 ```{r details_mut_10, comment = NA}
 ##### Provide detiles information for each dataset for 10th top mutated gene
-mut.details.datasets(mafInfo, datasets.list, names(mutRate.top10.datasets)[10])
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[10])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[11]`
+
+```{r details_mut_11, comment = NA}
+##### Provide detiles information for each dataset for 11th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[11])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[12]`
+
+```{r details_mut_12, comment = NA}
+##### Provide detiles information for each dataset for 12th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[12])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[13]`
+
+```{r details_mut_13, comment = NA}
+##### Provide detiles information for each dataset for 13th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[13])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[14]`
+
+```{r details_mut_14, comment = NA}
+##### Provide detiles information for each dataset for 14th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[14])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[15]`
+
+```{r details_mut_15, comment = NA}
+##### Provide detiles information for each dataset for 15th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[15])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[16]`
+
+```{r details_mut_16, comment = NA}
+##### Provide detiles information for each dataset for 16th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[16])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[17]`
+
+```{r details_mut_17, comment = NA}
+##### Provide detiles information for each dataset for 17th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[17])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[18]`
+
+```{r details_mut_18, comment = NA}
+##### Provide detiles information for each dataset for 18th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[18])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[19]`
+
+```{r details_mut_19, comment = NA}
+##### Provide detiles information for each dataset for 19th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[19])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[20]`
+
+```{r details_mut_20, comment = NA}
+##### Provide detiles information for each dataset for 20th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[20])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[21]`
+
+```{r details_mut_21, comment = NA}
+##### Provide detiles information for each dataset for 21st top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[21])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[22]`
+
+```{r details_mut_22, comment = NA}
+##### Provide detiles information for each dataset for 22nd top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[22])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[23]`
+
+```{r details_mut_23, comment = NA}
+##### Provide detiles information for each dataset for 23rd top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[23])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[24]`
+
+```{r details_mut_24, comment = NA}
+##### Provide detiles information for each dataset for 24th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[24])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[25]`
+
+```{r details_mut_25, comment = NA}
+##### Provide detiles information for each dataset for 25th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[25])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[26]`
+
+```{r details_mut_26, comment = NA}
+##### Provide detiles information for each dataset for 26th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[26])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[27]`
+
+```{r details_mut_27, comment = NA}
+##### Provide detiles information for each dataset for 27th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[27])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[28]`
+
+```{r details_mut_28, comment = NA}
+##### Provide detiles information for each dataset for 28th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[28])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[29]`
+
+```{r details_mut_29, comment = NA}
+##### Provide detiles information for each dataset for 29th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[29])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### `r names(mutRate.top.datasets)[30]`
+
+```{r details_mut_30, comment = NA}
+##### Provide detiles information for each dataset for 30th top mutated gene
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[30])
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
