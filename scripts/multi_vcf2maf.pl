@@ -15,9 +15,10 @@
 #
 #	Description: Script for converting multiple VCF files into corresponding MAF files, which are then merged into one collective MAF file.
 #
-#	Command line use example: perl multi_vcf2maf.pl  -l /examples/example_vcf_list.txt  -s /tools/vcf2maf.pl  -r /reference/GRCh37-lite.fa  -m /data/example.maf
+#	Command line use example: perl multi_vcf2maf.pl  -l /examples/example_vcf_list.txt  -e FALSE  -s /tools/vcf2maf.pl  -r /reference/GRCh37-lite.fa  -m /data/example.maf
 #
 #	-l / --vcf_list:    Full path with name of a file listing VCF files, along with corresponding directories, to be converted
+#	-e / --exons:       Include exonic regions only? TRUE/T or FALSE/F (defualt)
 #	-s / --v2m:         Full path to vcf2maf.pl script (https://github.com/mskcc/vcf2maf)
 #	-r / --ref:         Reference FASTA file
 #	-m / --maf_file:    Name of the merged MAF file to be created. It will be save in the folder with the file listing VCF files
@@ -26,6 +27,7 @@
 
 use strict;
 use warnings;
+use List::MoreUtils qw(firstidx);
 
 sub usage ();
 
@@ -41,6 +43,7 @@ sub usage ();
 our @ARGV;
 my $arg;
 my $vcfList;
+my $exons;
 my $outMaf;
 my $v2m;
 my $ref;
@@ -53,12 +56,16 @@ my $mafFile;
 my $mafFiles = "";
 my @mafInfo;
 my $mafInfo;
+my @varInfo;
+my $exon_col = 0;
 my $sampleName;
 my $mafHeader;
 
 while ($arg = shift) {
     if ($arg =~ /^-l$/ || $arg =~ /^--vcf_list/) {
         $vcfList = shift;
+    } elsif ($arg =~ /^-e$/ || $arg =~ /^--exons/) {
+        $exons = shift;
     } elsif ($arg =~ /^-m$/ || $arg =~ /^--maf_file$/) {
         $outMaf = shift;
     } elsif ($arg =~ /^-s$/ || $arg =~ /^--v2m$/) {
@@ -71,7 +78,7 @@ while ($arg = shift) {
 }
 
 ##### Check the required paramters
-if ($vcfList and $outMaf and $v2m and $ref) {
+if ($vcfList and $exons and $outMaf and $v2m and $ref) {
     
     ##### Extract the directory info for the final MAF file
     @dir = split('/', $vcfList);
@@ -79,19 +86,19 @@ if ($vcfList and $outMaf and $v2m and $ref) {
     $outMaf = $dir . "/" . $outMaf;
     
     ##### Open the file listing input VCFs
-    open (INFILE, $vcfList) or die $!;
+    open (FILES_LIST, '<', $vcfList) or die "Could not open file '$vcfList' $!";
     
     ##### Loop thorough all VCF files listed in provided file
-    while (my $record = <INFILE>) {
+    while (my $record = <FILES_LIST>) {
         
         chomp $record;
         
-        ##### Put lines into an array
+        ##### Put columns into an array
         my @info = split(/\t/, $record);
         
         ##### Extract names of listed VCFs
-	$info[ 0 ] =~ s/\.gz$//g;
-	$vcfFile = $info[ 0 ];
+        $info[ 0 ] =~ s/\.gz$//g;
+        $vcfFile = $info[ 0 ];
         
         ##### ... and check if they exist
         if ( $vcfFile =~ m/.*?\.vcf\.gz$/ || $vcfFile =~ m/.*?\.vcf$/ ) {
@@ -124,12 +131,52 @@ if ($vcfList and $outMaf and $v2m and $ref) {
                 system("ln -s $vcfFile $vepFile");
                 
                 ##### Run vcf2maf.pl script (https://github.com/mskcc/vcf2maf)
-                system("perl $v2m  --input-vcf $vcfFile --output-maf $mafFile --ref-fasta $ref --filter-vcf 0 --species homo_sapiens --tumor-id $sampleName --normal-id $sampleName.normal");
-                
+                system("perl $v2m  --input-vcf $vcfFile --output-maf $mafFile --ref-fasta $ref --filter-vcf 0 --species homo_sapiens --tumor-id $sampleName --normal-id $sampleName.normal");            
                 system("rm $vepFile");
                 
                 ##### Compress VCFs
-                system( "gzip $vcfFile" );         
+                system( "gzip $vcfFile" );
+                
+                #####  If only exonic regions are to be included than keep only variants with non-empty values in the "Exon_Number" column
+                if ( $exons eq "TRUE" ) {
+                    
+                    ##### Open the new MAF file
+                    open (MAF_ALL, '<', $mafFile) or die $!;
+                    
+                    $mafFile =~ s/\.maf/\.exonic.maf/g;
+                    
+                    ##### Open new MAF file to keep the exonic regions info
+                    open( MAF_EXONIC, '>', $mafFile) or die "Could not open file '$mafFile' $!";
+                    
+                    ##### Get the header
+                    $. = 0;
+                    do { $mafHeader = <MAF_ALL> } until $. == 2 || eof;
+                    chomp $mafHeader;
+                    print( MAF_EXONIC '#version 2.4' . "\n" );
+                    print( MAF_EXONIC $mafHeader . "\n" );
+                    
+                    ##### Get column number with "Exon_Number"
+                    my @mafHeader = split('\t', $mafHeader);
+                    $exon_col = firstidx { $_ eq 'Exon_Number' } @mafHeader;
+    
+                    ##### Loop thorough all variants and keep only variants with non-empty values in the "Exon_Number" column
+                    while (my $var_record = <MAF_ALL>) {
+                        
+                        chomp $var_record;
+                        
+                        ##### Extract info about each variant
+                        @varInfo = split('\t', $var_record);
+                        
+                        ##### Keep only variants with non-empty values in the "Exon_Number" column
+                        if ( $varInfo[ $exon_col ] ne "" ) {
+
+                            print( MAF_EXONIC $var_record . "\n" );
+                        }
+                    }
+                
+                    close (MAF_ALL);
+                    close (MAF_EXONIC);
+                }       
                 
              } else {
                 
@@ -140,28 +187,33 @@ if ($vcfList and $outMaf and $v2m and $ref) {
     }
     
     ##### Concatenate MAF files from individual VCFs and remove multiple headers
+    if ( $exons eq "TRUE" ) {
+        
+        $mafFiles =~ s/\.maf/\.exonic.maf/g;
+    }
+    
     system("cat $mafFiles > $outMaf.tmp");
     system("sed -i '' '/version 2.4/d' $outMaf.tmp");
     system("sed -i '' '/Hugo_Symbol/d' $outMaf.tmp");
         
     ##### Add the header at the beginning of the final MAF file
-    open ( MAF, $mafFile) or die $!;
+    open ( MAF, '<',  $mafFile) or die "Could not open file '$mafFile' $!";
     $. = 0;
     do { $mafHeader = <MAF> } until $. == 2 || eof;
     chomp $mafHeader;
-    system("echo '#version 2.4' > $outMaf.hear");
-    system("echo '$mafHeader' >> $outMaf.hear");
-    system("cat $outMaf.hear $outMaf.tmp > $outMaf");
+    system("echo '#version 2.4' > $outMaf.head");
+    system("echo '$mafHeader' >> $outMaf.head");
+    system("cat $outMaf.head $outMaf.tmp > $outMaf");
     
     ##### Remove temporary files
-    system("rm $outMaf.hear");
+    system("rm $outMaf.head");
     system("rm $outMaf.tmp");
      
     print( "\n\nThe merged MAF file is saved in the following directory\n\n$outMaf\n\n");
     system( "date" );
     print( "\n" );
             
-    close (INFILE);
+    close (FILES_LIST);
     close (MAF);
         
 } else {
@@ -181,12 +233,13 @@ exit;
 sub usage () {
     print <<"EOS";
     
-usage: perl $0 -l /examples/example_vcf_list.txt  -s /tools/vcf2maf.pl  -r /reference/GRCh37-lite.fa  -m /data/example.maf
+usage: perl $0 -l /examples/example_vcf_list.txt  -s /tools/vcf2maf.pl  -e FALSE  -r /reference/GRCh37-lite.fa  -m /data/example.maf
        perl $0 -h
     
     Input data
     -l / --vcf_list:    Full path with name of a file listing VCF files, along with 
 			corresponding directories, to be converted
+    -e / --exons:       Include exonic regions only? TRUE/T or FALSE/F (defualt)
     -s / --v2m:         Full path to vcf2maf.pl script (https://github.com/mskcc/vcf2maf)
     -r / --ref:         Reference FASTA file
 
