@@ -92,6 +92,7 @@ if ($vcfList and $exons and $outMaf and $v2m and $ref) {
     while (my $record = <FILES_LIST>) {
         
         chomp $record;
+        $record =~ s/"//g;
         
         ##### Put columns into an array
         my @info = split(/\t/, $record);
@@ -138,7 +139,7 @@ if ($vcfList and $exons and $outMaf and $v2m and $ref) {
                 system( "gzip $vcfFile" );
                 
                 #####  If only exonic regions are to be included than keep only variants with non-empty values in the "Exon_Number" column
-                if ( $exons eq "TRUE" ) {
+                if ( $exons eq "TRUE" or $exons eq "T"  ) {
                     
                     ##### Open the new MAF file
                     open (MAF_ALL, '<', $mafFile) or die $!;
@@ -155,11 +156,12 @@ if ($vcfList and $exons and $outMaf and $v2m and $ref) {
                     print( MAF_EXONIC '#version 2.4' . "\n" );
                     print( MAF_EXONIC $mafHeader . "\n" );
                     
-                    ##### Get column number with "Exon_Number"
+                    ##### Get column number with "Variant_Classification" info
                     my @mafHeader = split('\t', $mafHeader);
-                    $exon_col = firstidx { $_ eq 'Exon_Number' } @mafHeader;
-    
-                    ##### Loop thorough all variants and keep only variants with non-empty values in the "Exon_Number" column
+                    #$exon_col = firstidx { $_ =~ m/.*?amino_acids.*?/i or $_ =~ m/.*?aa_mutation.*?/i or $_ =~ m/.*?aa_change.*?/i } @mafHeader;
+                    $exon_col = firstidx { $_ eq "Variant_Classification" } @mafHeader;
+                    
+                    ##### Loop thorough all variants and keep only variants within exonic regions
                     while (my $var_record = <MAF_ALL>) {
                         
                         chomp $var_record;
@@ -167,8 +169,8 @@ if ($vcfList and $exons and $outMaf and $v2m and $ref) {
                         ##### Extract info about each variant
                         @varInfo = split('\t', $var_record);
                         
-                        ##### Keep only variants with non-empty values in the "Exon_Number" column
-                        if ( $varInfo[ $exon_col ] ne "" ) {
+                       ##### Keep only variants with non-empty values within exonic regions
+                        if ( $varInfo[ $exon_col ] eq "Missense_Mutation" or $varInfo[ $exon_col ] eq "Nonsense_Mutation" or $varInfo[ $exon_col ] eq "Frame_Shift_Del" or $varInfo[ $exon_col ] eq "Frame_Shift_Ins" or $varInfo[ $exon_col ] eq "In_Frame_Del" or $varInfo[ $exon_col ] eq "In_Frame_Ins" or $varInfo[ $exon_col ] eq "Silent" or $varInfo[ $exon_col ] eq "Translation_Start_Site" ) {
 
                             print( MAF_EXONIC $var_record . "\n" );
                         }
@@ -187,7 +189,7 @@ if ($vcfList and $exons and $outMaf and $v2m and $ref) {
     }
     
     ##### Concatenate MAF files from individual VCFs and remove multiple headers
-    if ( $exons eq "TRUE" ) {
+    if ( $exons eq "TRUE" or $exons eq "T" ) {
         
         $mafFiles =~ s/\.maf/\.exonic.maf/g;
     }
