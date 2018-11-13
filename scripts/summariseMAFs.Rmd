@@ -1555,6 +1555,8 @@ detach("package:plotly", unload=FALSE)
 widges.list
 ```
 
+<!--This step is skipped for the moment as it is too computationally intensive.
+
 ### Pair-wise comparisons
 
 Interactive heatmap of *adjusted p-values* from *Fisher Exact* test performed for all possible pair-wise comprisons to find differentially mutated genes between queried datasets and to aid identification of global differences in mutation patterns in corresponding MAF files. The rows and columns represent genes and datasets, respectively, and heatmap colours indicate the *Fisher Exact* test *adjusted p-values*. The colour key is on the left-hand side. **Low *p-values*** (yellow) **indicate differentially mutated genes between corresponding datasets**. Genes are clustered to facilite the indetification possible differences between individaul datasets. Note, only overlap of mutated genes reported across all MAF files is presented. This section is available for multiple MAFs and will be skipped if only one MAF file is provided.
@@ -1631,6 +1633,8 @@ if ( length(mafFiles) != 1 ) {
   cat(paste("This section was skipped since MAF for only one dataset (", datasets.list[i], ") was provided.\n\n", sep=" "))
 }
 ```
+
+--> 
 
 ```{r maf_visualisation_pdf, comment=NA, message=FALSE, warning=FALSE}
 
