@@ -72,7 +72,8 @@ mut.details.datasets <- function(mafInfo, datasets, gene) {
     
     if ( nrow(mut.details.gene) != 0 ) {
       
-      widges.list[[i]] <- DT::datatable( data = mut.details.gene, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets[i])), filter = "top", options = list(pageLength = 5) )
+      widges.list[[i]] <- DT::datatable( data = mut.details.gene, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets[i])), filter = "top", options = list(pageLength = 5) ) %>%
+        DT::formatStyle( columns = names(mut.details.gene), 'text-align' = 'center' )
       
     } else {
       datasets.noMut <- c(datasets.noMut, datasets[i])
@@ -436,7 +437,8 @@ datasets.list <- unlist(strsplit(params$datasets, split=',', fixed=TRUE))
 datasets.df <- as.data.frame( cbind(datasets.list, unlist(strsplit(params$maf_files, split=',', fixed=TRUE))) )
 names(datasets.df) <- c("Dataset", "MAF file")
 
-DT::datatable( data = datasets.df, filter = "none", options = list(pageLength = length(mafFiles), sDom  = '<"top">lrt<"bottom">ip') )
+DT::datatable( data = datasets.df, filter = "none", options = list(pageLength = length(mafFiles), sDom  = '<"top">lrt<"bottom">ip') ) %>%
+        DT::formatStyle( columns = names(datasets.df), 'text-align' = 'center' )
 
 cat("These MAF files are located in the following directory: ", params$maf_dir, "\n\n")
 ```
@@ -514,7 +516,8 @@ saveWorkbook(wb, paste(outDir, "MAF_summary.xlsx", sep="/"), overwrite = TRUE)
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable( data = mafInfo[[i]]@summary, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "none", options = list(pageLength = nrow(mafInfo[[i]]@summary), sDom  = '<"top">lrt<"bottom">ip') )
+  widges.list[[i]] <- DT::datatable( data = mafInfo[[i]]@summary, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "none", options = list(pageLength = nrow(mafInfo[[i]]@summary), sDom  = '<"top">lrt<"bottom">ip') ) %>%
+        DT::formatStyle( columns = names(mafInfo[[i]]@summary), 'text-align' = 'center' )
 }
 
 ##### Print a list of htmlwidgets
@@ -562,7 +565,8 @@ saveWorkbook(wb, paste(outDir, "MAF_sample_summary.xlsx", sep="/"), overwrite = 
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable( data = maftools::getSampleSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", options = list(pageLength = 5) )
+  widges.list[[i]] <- DT::datatable( data = maftools::getSampleSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", options = list(pageLength = 5) ) %>%
+        DT::formatStyle( columns = names(maftools::getSampleSummary(mafInfo[[i]])), 'text-align' = 'center' )
 }
 
 ##### Print a list of htmlwidgets
@@ -575,7 +579,8 @@ widges.list <- htmltools::tagList()
 if ( !is.null(MAF_samples.silent.df) ) {
   cat("The samples listed below will not be included in the summary tables above, nor will be included in the summary plots\n\n\n")
 
-  DT::datatable( data = MAF_samples.silent.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong("Samples with no non-synonymours variants detected")), filter = "top", options = list(pageLength = 5) )
+  DT::datatable( data = MAF_samples.silent.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong("Samples with no non-synonymours variants detected")), filter = "top", options = list(pageLength = 5) ) %>%
+        DT::formatStyle( columns = names(MAF_samples.silent.df), 'text-align' = 'center' )
 }
 
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
@@ -605,7 +610,8 @@ saveWorkbook(wb, paste(outDir, "MAF_gene_summary.xlsx", sep="/"), overwrite = TR
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable(data = maftools::getGeneSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", options = list(pageLength = 5) )
+  widges.list[[i]] <- DT::datatable(data = maftools::getGeneSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", options = list(pageLength = 5) ) %>%
+        DT::formatStyle( columns = names(maftools::getGeneSummary(mafInfo[[i]])), 'text-align' = 'center' )
 }
 
 ##### Print a list of htmlwidgets
@@ -710,7 +716,8 @@ for ( i in 1:length(mafFiles) ) {
       writeData(wb, sheet = sheetNo, oncodrive.res[[datasets.list[i]]][[1]])
   
       ##### Report results in dataTable
-      #widges.list[[i]] <- DT::datatable( data = oncodrive.res[[datasets.list[i]]][[1]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", options = list(pageLength = 5))
+      #widges.list[[i]] <- DT::datatable( data = oncodrive.res[[datasets.list[i]]][[1]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", options = list(pageLength = 5)) %>%
+        #DT::formatStyle( columns = names(oncodrive.res[[datasets.list[i]]][[1]]), 'text-align' = 'center' )
     
   } else {
     cat(paste("It was not possible to calculate cluster scores for dataset", datasets.list[i], "\n\n\n\n", sep=" "))
