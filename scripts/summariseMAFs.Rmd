@@ -618,23 +618,6 @@ cat("\n\n\n")
 
 ## Summary plots {.tabset .tabset-fade}
 
-### MAF summary
-
-A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **30 most frequently mutated genes** (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
-
-```{r maf_summary_plot, comment = NA, fig.width = 9, fig.height = 9}
-###### Generate separate plot for each dataset
-for ( i in 1:length(mafFiles) ) {
-
-  cat(paste(datasets.list[i], "\n\n", sep=" "))
-  
-  ##### Plotting MAF summary
-  par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-  maftools::plotmafSummary(maf = mafInfo[[i]], top = 30, rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
-  mtext("MAF summary", outer=TRUE,  cex=1, line=-0.5)
-}
-```
-
 ### Oncoplot
 
 Oncoplot(s) illustrating different types of mutations observed across samples for the **30 most frequently mutated genes**. The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
@@ -649,6 +632,23 @@ for ( i in 1:length(mafFiles) ) {
   plot.new()
   par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
   maftools::oncoplot(maf = mafInfo[[i]], top = 30, fontSize = 12)
+}
+```
+
+### MAF summary
+
+A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **30 most frequently mutated genes** (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
+
+```{r maf_summary_plot, comment = NA, fig.width = 9, fig.height = 9}
+###### Generate separate plot for each dataset
+for ( i in 1:length(mafFiles) ) {
+
+  cat(paste(datasets.list[i], "\n\n", sep=" "))
+  
+  ##### Plotting MAF summary
+  par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
+  maftools::plotmafSummary(maf = mafInfo[[i]], top = 30, rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
+  mtext("MAF summary", outer=TRUE,  cex=1, line=-0.5)
 }
 ```
 
