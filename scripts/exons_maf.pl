@@ -13,7 +13,7 @@
 
 ################################################################################
 #
-#	Description: Script for extracing variants within exonic regions from user-defined MAF file. The output file will be saved as MAF file with ".exonic.maf" extension.
+#	Description: Script for extracting variants within exonic regions (e.i. marked as "Missense_Mutation", "Nonsense_Mutation", "Frame_Shift_Del", "Frame_Shift_Ins", "In_Frame_Del", "In_Frame_Ins", "Silent" or "Translation_Start_Site") from user-defined MAF file. The output file will be saved as MAF file with ".exonic.maf" extension.
 #
 #	Command line use example: perl exons_maf.pl  -m /examples/example.maf
 #
