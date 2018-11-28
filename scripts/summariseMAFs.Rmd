@@ -6,6 +6,7 @@ params:
   maf_dir: 
   maf_files: 
   datasets: 
+  genes_no: 
   out_dir: 
 output:
   html_document:
@@ -17,7 +18,7 @@ output:
     highlight: kate
 ---
 
-Mutation data summary for dataset(s) **`r params$datasets `**
+Mutation data summary for dataset(s) **`r gsub(",", ", ", params$datasets) `**
 
 ***
 NOTE: this report summarises only non-synonymous variants with high/moderate variant consequences, including *frame shift deletions*, *frame shift deletions*, *splice site mutations*, *translation start site mutations*, *nonsense mutation*, *nonstop mutations*, *in-frame deletion*, *in-frame insertions* and *missense mutation*, and ignores silent variants.
@@ -617,6 +618,21 @@ for ( i in 1:length(mafFiles) ) {
 ##### Print a list of htmlwidgets
 widges.list
 
+##### Check if the use-defined number of genes to present is not higher than the number of genes with non-synonymous mutations reported in individual MAFs
+top_genes_no <- vector("list", length(mafFiles))
+names(top_genes_no) <- datasets.list
+
+for ( i in 1:length(mafFiles) ) {
+  
+  if ( nrow(getGeneSummary(mafInfo[[i]])) < as.numeric(params$genes_no)  ) {
+    
+    top_genes_no[[i]] <- nrow(getGeneSummary(mafInfo[[i]]))
+    
+  } else {
+    top_genes_no[[i]] <- as.numeric(params$genes_no)
+  }
+}
+
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
@@ -626,26 +642,33 @@ cat("\n\n\n")
 
 ### Oncoplot
 
-Oncoplot(s) illustrating different types of mutations observed across samples for the **30 most frequently mutated genes**. The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
+Oncoplot(s) illustrating different types of mutations observed across samples for the **`r params$genes_no` most frequently mutated genes**. The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
-```{r maf_oncoplot, comment = NA, fig.width = 9, fig.height = 8}
+```{r maf_oncoplot, comment = NA, fig.width = 9, fig.height = 12}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
 
   cat(paste(datasets.list[i], "\n\n", sep=" "))
-
-  ##### Drawing oncoplots for the top 10 genes in each dataset
-  plot.new()
-  par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-  maftools::oncoplot(maf = mafInfo[[i]], top = 30, fontSize = 12)
+  
+  ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
+  if ( nrow(maftools::getSampleSummary(mafInfo[[i]])) > 1 ) {
+    
+    ##### Drawing oncoplots for the top mutated genes in each dataset
+    plot.new()
+    par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
+    maftools::oncoplot(maf = mafInfo[[i]], top = params$genes_no, fontSize = 12)
+  
+  } else {
+    cat(paste0("Dataset ", datasets.list[i], " has ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample with non-synonymous variants. Cannot create oncoplot for ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample.\n\n\n"))
+  }
 }
 ```
 
 ### MAF summary
 
-A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **30 most frequently mutated genes** (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
+A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r params$genes_no` most frequently mutated genes** (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
 
-```{r maf_summary_plot, comment = NA, fig.width = 9, fig.height = 9}
+```{r maf_summary_plot, comment = NA, fig.width = 9, fig.height = 10}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
 
@@ -653,16 +676,16 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Plotting MAF summary
   par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-  maftools::plotmafSummary(maf = mafInfo[[i]], top = 30, rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
+  maftools::plotmafSummary(maf = mafInfo[[i]], top = params$genes_no, rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
   mtext("MAF summary", outer=TRUE,  cex=1, line=-0.5)
 }
 ```
 
 ### Driver genes detection
 
-Cancer driver genes detection based on positional clustering using [oncodriveCLUST](http://bg.upf.edu/group/projects/oncodrive-clust.php) algorithm based on the fact that most of the variants in cancer causing genes are enriched at few specific loci (hot-spots). According to this concept mutations in these regions potentially change the function of these proteins in a manner that provides an adaptive advantage to cancer cells and consequently are positively selected during clonal evolution of tumours. This property can thus be used to nominate novel candidate driver genes, as described in the paper [OncodriveCLUST](https://www.ncbi.nlm.nih.gov/pubmed/23884480) by Tamborero *et al*.
+Cancer driver genes detection based on positional clustering using [oncodriveCLUST](http://bg.upf.edu/group/projects/oncodrive-clust.php) algorithm is based on the fact that most of the variants in cancer causing genes are enriched at few specific loci (hot-spots). According to this concept mutations in these regions potentially change the function of these proteins in a manner that provides an adaptive advantage to cancer cells and consequently are positively selected during clonal evolution of tumours. This property can thus be used to nominate novel candidate driver genes, as described in the paper [OncodriveCLUST](https://www.ncbi.nlm.nih.gov/pubmed/23884480) by Tamborero *et al*.
 
-The size of the points on the scatter-plot(s) is proportional to the number of clusters found in the gene. X-axis shows the number of variants observed in these clusters. Y-axis illustrates false discovery rate (FDR) values transformed into -log10. Labels indicate Gene name with the number of observed clusters.
+The size of the points on the scatter-plot(s) is proportional to the number of clusters found in the gene. X-axis shows the number of variants observed in these clusters. Y-axis illustrates false discovery rate (FDR) values transformed into -log10. Labels indicate gene name with the number of observed clusters.
 
 ```{r maf_oncodrive_analysis,  include=FALSE }
 ##### In this chunk the clusters variants are calculated, but the results are reported in the next chunk
@@ -1521,7 +1544,7 @@ widges.list
 
 ### Genes
 
-Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. Note, for transparency only the **top 50 mutated genes** are presented.
+Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. Note, for transparency only the **top `r params$genes_no` mutated genes** are presented.
 
 ```{r gene_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 8}
 suppressMessages(library(plotly))
@@ -1533,7 +1556,7 @@ widges.list <- htmltools::tagList()
 ##### Display genes summary in a form of interactive heatmap
 for ( i in 1:length(mafFiles) ) {
 
-  geneSummary <- data.frame(maftools::getGeneSummary(mafInfo[[i]])[1:50,])
+  geneSummary <- data.frame(maftools::getGeneSummary(mafInfo[[i]])[1:top_genes_no[[i]],])
   rownames(geneSummary) <-geneSummary[,"Hugo_Symbol"]
   geneSummary <- subset(geneSummary, select=-c(Hugo_Symbol))
 
@@ -1568,9 +1591,9 @@ widges.list
 
 Interactive heatmap of *adjusted p-values* from *Fisher Exact* test performed for all possible pair-wise comprisons to find differentially mutated genes between queried datasets and to aid identification of global differences in mutation patterns in corresponding MAF files. The rows and columns represent genes and datasets, respectively, and heatmap colours indicate the *Fisher Exact* test *adjusted p-values*. The colour key is on the left-hand side. **Low *p-values*** (yellow) **indicate differentially mutated genes between corresponding datasets**. Genes are clustered to facilite the indetification possible differences between individaul datasets. Note, only overlap of mutated genes reported across all MAF files is presented. This section is available for multiple MAFs and will be skipped if only one MAF file is provided.
 
-**NOTE**: This step is skipped for the moment as it is too computationally intensive.
+--> 
 
-```{r compare_mafs, message = FALSE, warning=FALSE, comment = NA, fig.width = 6, fig.height = 12, eval = FALSE, echo = FALSE}
+```{r compare_mafs, message = FALSE, warning=FALSE, comment = NA, fig.width = 6, fig.height = 12, echo = FALSE, eval = FALSE}
 ##### Skip this section if only one MAF file is provided
 if ( length(mafFiles) != 1 ) {
   
@@ -1641,8 +1664,6 @@ if ( length(mafFiles) != 1 ) {
 }
 ```
 
---> 
-
 ```{r maf_visualisation_pdf, comment=NA, message=FALSE, warning=FALSE}
 
 ###### Save plots into PDF files
@@ -1656,10 +1677,14 @@ for ( i in 1:length(mafFiles) ) {
   plotmafSummary(maf = mafInfo[[i]], rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
   mtext("MAF summary", outer=TRUE,  cex=1, line=-0.5)
 
-  ##### Drawing oncoplots for the top 10 genes in each dataset
-  plot.new()
-  par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-  oncoplot(maf = mafInfo[[i]], top = 10, fontSize = 12)
+  ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
+  if ( nrow(maftools::getSampleSummary(mafInfo[[i]])) > 1 ) {
+    
+    ##### Drawing oncoplots for the top 10 genes in each dataset
+    plot.new()
+    par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
+    oncoplot(maf = mafInfo[[i]], top = params$genes_no, fontSize = 12)
+  }
   
   ##### Drawing oncodrive plot for each dataset
   if ( !is.null(oncodrive.res[[datasets.list[i]]]) ) {
