@@ -10,6 +10,7 @@ Set of scripts to summarise, analyse and visualise [Mutation Annotation Format](
 * [Scripts summary](#scripts-summary)
 * [Converting VCF files to MAF files](#converting-vcf-files-to-maf-files)
 * [Converting ICGC mutation format to MAF](#converting-icgc-mutation-format-to-maf)
+* [Extracting variants within exonic regions](#extracting-variants-within-exonic-regions)
 * [Summarising and visualising MAF file(s)](#summarising-and-visualising-maf-files)
   * [Example output](#example-output)
 * [Summarising and visualising MAF file(s) for selected genes](#summarising-and-visualising-maf-files-for-selected-genes)
@@ -34,6 +35,7 @@ Tumor_Seq_Allele2 | Primary data genotype | A, T, C, G
 Variant_Classification | Translational effect of variant allele | Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region, Unknown
 Variant_Type | Variant Type | SNP, DNP, INS, DEL, TNP and ONP
 Tumor_Sample_Barcode | Sample ID | Either a TCGA barcode, or for non-TCGA data, a literal SAMPLE_ID as listed in the clinical data file
+
 <br />
 
 ## Scripts summary
@@ -44,6 +46,7 @@ Script | Description
 *[icgcMutationToMAF.R](./scripts/icgcMutationToMAF.R)* | Converts ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file to [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file 
 *[summariseMAFs.R](./scripts/summariseMAFs.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s)
 *[summariseMAFsGenes.R](./scripts/summariseMAFsGenes.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s) for selected genes
+
 <br />
 
 ## Converting VCF files to MAF files
@@ -60,6 +63,7 @@ Argument | Description
 --v2m | Full path to [vcf2maf.pl](https://github.com/mskcc/vcf2maf) script
 --ref | Reference FASTA file
 --maf_file | Name of the merged MAF file to be created
+
 <br />
 
 **Command line use example**:
@@ -86,6 +90,7 @@ Argument | Description
 ------------ | ------------
 --icgc_file | ICGC Simple Somatic Mutation Format file to be converted
 --output | Output file name
+
 <br />
 
 **Packages**: *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*, *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)*
@@ -93,12 +98,43 @@ Argument | Description
 **Command line use example**:
 
 ```
-Rscript icgcMutationToMAF.R --icgc_file PACA-AU.icgc.simple_somatic_mutation.tsv --output PACA-AU.icgc.simple_somatic_mutation.maf
+Rscript icgcMutationToMAF.R --icgc_file /data/simple_somatic_mutation.open.PACA-AU.tsv --output simple_somatic_mutation.open.PACA-AU.maf
 ```
 <br>
 
 
->This will convert the ***../data/PACA-AU.icgc.simple_somatic_mutation.tsv*** [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file into [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) as output it as ***../data/PACA-AU.icgc.simple_somatic_mutation.maf***.
+>This will convert the ***/data/simple_somatic_mutation.open.PACA-AU.tsv*** [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file into [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) as output it as ***/data/simple_somatic_mutation.open.PACA-AU.maf***.
+
+<br>
+
+## Extracting variants within exonic regions
+
+To extract variants detected within exonic regions run the *[exons_maf.pl](./scripts/exons_maf.pl)* script. It will create a MAF file with *.exonic.maf* extension, which will have the following variants included/excluded based on the input MAF's *Variant_Classification* field:
+
+Variants **included** | Variants **excluded**
+------------ | ------------
+Missense_Mutation, Nonsense_Mutation, Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Silent, Translation_Start_Site | 3'Flank, 3'UTR, 5'Flank, 5'UTR, IGR, Intron, RNA, Splice_Site, Splice_Region
+
+<br />
+
+**Script**: *[exons_maf.pl](./scripts/exons_maf.pl)*
+
+Argument | Description
+------------ | ------------
+--maf | Full path with name of a MAF file to be converted
+
+<br />
+
+**Command line use example**:
+
+```
+perl exons_maf.pl --maf /data/simple_somatic_mutation.open.PACA-AU.maf
+```
+
+<br>
+
+
+>This will extract variants within exonic regions reported in ***/data/simple_somatic_mutation.open.PACA-AU.maf*** [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file and will save them in ***/data/simple_somatic_mutation.open.PACA-AU.exonic.maf*** file.
 
 <br>
 
@@ -116,6 +152,7 @@ Argument | Description
 --maf_files | List of *MAF* file(s) to be processed. Each file name is expected to be separated by comma
 --datasets | Desired names of each dataset. The names are expected to be in the same order as provided *MAF* files
 --out_dir | Output directory
+
 <br />
 
 **Packages**: *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*, *[openxlsx](https://cran.r-project.org/web/packages/openxlsx/openxlsx.pdf)*, *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)*, *[knitr](https://cran.r-project.org/web/packages/knitr/knitr.pdf)*, *[DT](https://rstudio.github.io/DT/)*, *[plotly](https://plot.ly/r/)*, *[heatmaply](https://cran.r-project.org/web/packages/heatmaply/vignettes/heatmaply.html)*, *[ggplot2](https://cran.r-project.org/web/packages/ggplot2/ggplot2.pdf)*
@@ -123,7 +160,7 @@ Argument | Description
 **Command line use example**:
 
 ```
-Rscript summariseMAFs.R --maf_dir /data --maf_files PACA-AU.icgc.simple_somatic_mutation.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --out_dir MAF_summary
+Rscript summariseMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --out_dir MAF_summary
 ```
 <br>
 
@@ -133,8 +170,8 @@ This will generate *[summariseMAFs.html](https://rawgit.com/umccr/MAF-summary/ma
 
 Some example MAF files are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/) cluster and are described in [Pancreatic-data-harmonization](https://github.com/umccr/Pancreatic-data-harmonization) repository.<br>
 
-* [ICGC PACA-CA dataset](https://github.com/umccr/MAF-summary/blob/master/examples/ICGC_PACA-CA_MAF_summary) &nbsp; ( <img src="img/flag-of-Canada.png" width="2.5%"> ) - includes descrition for output tables and plots
-* [TCGA PAAD dataset](https://github.com/umccr/MAF-summary/blob/master/examples/TCGA_PAAD_MAF_summary) &nbsp; ( <img src="img/flag-of-United-States-of-America.png" width="2.5%"> ) - highlihts sample demonstrating extremely high mutation burden
+* [ICGC PACA-CA dataset](./examples/ICGC_PACA-CA_MAF_summary) &nbsp; ( <img src="img/flag-of-Canada.png" width="2.5%"> ) - includes descrition for output tables and plots
+* [TCGA PAAD dataset](./examples/TCGA_PAAD_MAF_summary) &nbsp; ( <img src="img/flag-of-United-States-of-America.png" width="2.5%"> ) - highlihts sample demonstrating extremely high mutation burden
 * [HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html) - R html report for all datasets
 
 <br />
@@ -154,6 +191,7 @@ Argument | Description
 --datasets | Desired names of each dataset. The names are expected to be in the same order as provided *MAF* files
 --genes | Genes to query in each *MAF* file
 --out_dir | Output directory
+
 <br />
 
 **Packages**: *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*, *[openxlsx](https://cran.r-project.org/web/packages/openxlsx/openxlsx.pdf)*, *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)*, *[knitr](https://cran.r-project.org/web/packages/knitr/knitr.pdf)*, *[DT](https://rstudio.github.io/DT/)*, *[plotly](https://plot.ly/r/)*, *[heatmaply](https://cran.r-project.org/web/packages/heatmaply/vignettes/heatmaply.html)*, *[ggplot2](https://cran.r-project.org/web/packages/ggplot2/ggplot2.pdf)*
@@ -161,7 +199,7 @@ Argument | Description
 **Command line use example**:
 
 ```
-Rscript summariseMAFsGenes.R --maf_dir /data --maf_files PACA-AU.icgc.simple_somatic_mutation.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes KRAS,SMAD4,TP53,CDKN2A,ARID1A,BRCA1,BRCA2 --out_dir MAF_summary
+Rscript summariseMAFsGenes.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes KRAS,SMAD4,TP53,CDKN2A,ARID1A,BRCA1,BRCA2 --out_dir MAF_summary
 ```
 <br>
 
