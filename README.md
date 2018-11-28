@@ -11,6 +11,7 @@ Set of scripts to summarise, analyse and visualise [Mutation Annotation Format](
 * [Converting VCF files to MAF files](#converting-vcf-files-to-maf-files)
 * [Converting ICGC mutation format to MAF](#converting-icgc-mutation-format-to-maf)
 * [Extracting variants within exonic regions](#extracting-variants-within-exonic-regions)
+* [Changing sample names](#changing-sample-names)
 * [Summarising and visualising MAF file(s)](#summarising-and-visualising-maf-files)
   * [Example output](#example-output)
 * [Summarising and visualising MAF file(s) for selected genes](#summarising-and-visualising-maf-files-for-selected-genes)
@@ -47,6 +48,7 @@ Script | Description
 *[summariseMAFs.R](./scripts/summariseMAFs.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s)
 *[summariseMAFsGenes.R](./scripts/summariseMAFsGenes.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s) for selected genes
 *[exons_maf.pl](./scripts/exons_maf.pl)* | Extracts variants detected within exonic regions
+*[MAFsamplesRename.R](./scripts/MAFsamplesRename.R)* | Changes sample names in [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Tumor_Sample_Barcode* field
 
 <br />
 
@@ -138,6 +140,39 @@ perl exons_maf.pl --maf /data/simple_somatic_mutation.open.PACA-AU.maf
 >This will extract variants within exonic regions reported in ***/data/simple_somatic_mutation.open.PACA-AU.maf*** file and will save them in ***/data/simple_somatic_mutation.open.PACA-AU.exonic.maf***.
 
 <br>
+
+## Changing sample names
+
+To change sample names (as shown in [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Tumor_Sample_Barcode* field) run the *[MAFsamplesRename.R](./scripts/MAFsamplesRename.R)* script. It expects a file listing samples to be renamed. The first column is expected to contain sample names (as shown [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Tumor_Sample_Barcode* field) to be changed and the second columns is expected to contain the corresponding name to be used instead (see example file [example_samples_to_rename.txt](./examples/example_samples_to_rename.txt)).
+
+<br />
+
+**Script**: *[MAFsamplesRename.R](./scripts/MAFsamplesRename.R)
+
+Argument | Description
+------------ | ------------
+--maf_file | MAF file to be processed
+--names_file | Name and path to a file listing samples to be renamed
+--output | Name for the output MAF file
+
+<br />
+
+**Packages**: *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*, *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)*, *[tibble](https://cran.r-project.org/web/packages/tibble/tibble.pdf)*
+
+**Command line use example**:
+
+```
+Rscript MAFsamplesRename.R --maf_file /data/simple_somatic_mutation.open.PACA-AU.maf --names_file /examples/example_samples_to_rename.txt --output /data/simple_somatic_mutation.open.PACA-AU_samples_renamed.maf
+```
+
+NOTE: If no output file name is specified the output will have the same name as the input *maf_file* with suffix *_samples_renamed.maf*.
+
+<br>
+
+>This will create a ***/data/simple_somatic_mutation.open.PACA-AU_samples_renamed.maf*** with sample names changed according to ***/examples/example_samples_to_rename.txt*** file.
+
+<br>
+
 
 ## Summarising and visualising MAF file(s)
 
