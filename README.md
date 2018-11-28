@@ -13,7 +13,7 @@ Set of scripts to summarise, analyse and visualise [Mutation Annotation Format](
 * [Extracting variants within exonic regions](#extracting-variants-within-exonic-regions)
 * [Changing sample names](#changing-sample-names)
 * [Subsetting MAF](#subsetting-maf)
-* [Merging MAFs](#merging-maf)
+* [Merging MAFs](#merging-mafs)
 * [Summarising and visualising MAF file(s)](#summarising-and-visualising-maf-files)
   * [Example output](#example-output)
 * [Summarising and visualising MAF file(s) for selected genes](#summarising-and-visualising-maf-files-for-selected-genes)
@@ -226,7 +226,7 @@ Argument | Description
 ------------ | ------------
 --maf_dir | Directory with MAF files to be merged
 --maf_files | List of MAF files to be merged. Each file name is expected to be separated by comma
---output | Name for the output merged MAF file
+--output | Name for the merged MAF file
 
 <br />
 
@@ -240,7 +240,7 @@ Rscript mergeMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PAC
 
 <br>
 
->This will create merged ***/data/icgc.simple_somatic_mutation.merged.maf*** MAF with variants data from  ***/data/simple_somatic_mutation.open.PACA-AU.maf*** and ***/data/simple_somatic_mutation.open.PACA-CA.maf***.
+>This will create merged ***/data/icgc.simple_somatic_mutation.merged.maf*** file with mutation data from the individual ***/data/simple_somatic_mutation.open.PACA-AU.maf*** and ***/data/simple_somatic_mutation.open.PACA-CA.maf*** files.
 
 NOTE: If no output file name is specified the output will be saved as *merged.maf*.
 
