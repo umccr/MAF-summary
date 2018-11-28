@@ -20,7 +20,7 @@
 #   samples (optional): Name and path to a file listing samples to be kept in the subsetted MAF. Sample names (as shown MAF "Tumor_Sample_Barcode" field) are expected to be separated by comma. Use "all" to keep all samples
 #   genes (optional): Name and path to a file listing genes to be kept in the subsetted MAF. Gene symbols are expected to be separated by comma. Use "all" to keep all genes
 #   var_class (optional): Classificiation of variants to be kept in the subsetted MAF. Available variants types are: Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region, Unknown
-#   output:       Name for the output subsetted MAF. If no output file name is specified the output will have the same name as the input maf_file with suffix changed from ".maf" to "_subset.maf"
+#   output:       Name for the output subsetted MAF. If no output file name is specified the output will have the same name as the input maf_file with suffix "_subset.maf"
 #
 ################################################################################
 
@@ -102,12 +102,6 @@ cat("\nReading MAF file...\n\n")
 ##### Read MAF file
 mafInfo = maftools::read.maf(maf = opt$maf_file, verbose = FALSE)
 
-##### Remove the unzipped file if its .gz exists
-if ( length(grep(".gz$", opt$maf_file, perl = TRUE)) > 0 ) {
-  
-  system(paste0("rm ", opt$maf_file, sep = " "))
-}
-
 ##### Specify samples to keep in the subsetted MAF (if sepcified). NOTE, if there are multiple column then only the first one is taken into account
 if ( !is.na(opt$samples) ) {
   
@@ -140,6 +134,12 @@ if ( !is.na(opt$var_class) ) {
 
 ##### Extract required data from MAF
 MAF.sub <- subsetMaf(maf = mafInfo, tsb = sample2keep, genes = genes2keep, fields = NULL, query = vars2keep, mafObj = FALSE, includeSyn = TRUE)
+
+##### The subsetMaf adds a column with the MAF genes order. Use it to reorder the new MAF and remove that column once done
+if ( length(MAF.sub[ ,1]$V1) > 0 ) {
+  MAF.sub <- MAF.sub[ order(MAF.sub[ ,1]$V1), ]
+  MAF.sub <- MAF.sub[ , -1]
+}
 
 ##### Write subsetted MAF into a file
 write.table(prepare2write(MAF.sub), file=opt$output, sep="\t", row.names=FALSE, quote = FALSE)
