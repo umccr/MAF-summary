@@ -46,6 +46,7 @@ Script | Description
 *[icgcMutationToMAF.R](./scripts/icgcMutationToMAF.R)* | Converts ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file to [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file 
 *[summariseMAFs.R](./scripts/summariseMAFs.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s)
 *[summariseMAFsGenes.R](./scripts/summariseMAFsGenes.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s) for selected genes
+*[exons_maf.pl](./scripts/exons_maf.pl)* | Extracts variants detected within exonic regions
 
 <br />
 
@@ -109,7 +110,7 @@ Rscript icgcMutationToMAF.R --icgc_file /data/simple_somatic_mutation.open.PACA-
 
 ## Extracting variants within exonic regions
 
-To extract variants detected within exonic regions run the *[exons_maf.pl](./scripts/exons_maf.pl)* script. It will create a MAF file with *.exonic.maf* extension, which will have the following variants included/excluded based on the input MAF's *Variant_Classification* field:
+To extract variants detected within exonic regions run the *[exons_maf.pl](./scripts/exons_maf.pl)* script. It will create a MAF file with *.exonic.maf* extension, which will have the following variants included/excluded based on the input [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Variant_Classification* field:
 
 Variants **included** | Variants **excluded**
 ------------ | ------------
@@ -134,7 +135,7 @@ perl exons_maf.pl --maf /data/simple_somatic_mutation.open.PACA-AU.maf
 <br>
 
 
->This will extract variants within exonic regions reported in ***/data/simple_somatic_mutation.open.PACA-AU.maf*** [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file and will save them in ***/data/simple_somatic_mutation.open.PACA-AU.exonic.maf*** file.
+>This will extract variants within exonic regions reported in ***/data/simple_somatic_mutation.open.PACA-AU.maf*** file and will save them in ***/data/simple_somatic_mutation.open.PACA-AU.exonic.maf***.
 
 <br>
 
