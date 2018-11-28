@@ -17,7 +17,7 @@
 #	  Command line use example: Rscript icgcMutationToMAF.R --icgc_file PACA-AU.icgc.simple_somatic_mutation.tsv --output PACA-AU.icgc.simple_somatic_mutation.maf
 #
 #	  icgc_file:		ICGC Simple Somatic Mutation Format file to be converted
-#	  output:				The output file name. If no output file name is specified the file extension will be changed to ".maf"
+#	  output:		The output file name. If no output file name is specified the file extension will be changed to ".maf"
 #
 ################################################################################
 
