@@ -12,6 +12,7 @@ Set of scripts to summarise, analyse and visualise [Mutation Annotation Format](
 * [Converting ICGC mutation format to MAF](#converting-icgc-mutation-format-to-maf)
 * [Extracting variants within exonic regions](#extracting-variants-within-exonic-regions)
 * [Changing sample names](#changing-sample-names)
+* [Subsetting MAF](#subsetting-maf)
 * [Summarising and visualising MAF file(s)](#summarising-and-visualising-maf-files)
   * [Example output](#example-output)
 * [Summarising and visualising MAF file(s) for selected genes](#summarising-and-visualising-maf-files-for-selected-genes)
@@ -45,10 +46,11 @@ Script | Description
 ------------ | ------------
 *[multi_vcf2maf.pl](./scripts/multi_vcf2maf.pl)* | Converts multiple [VCF](http://www.internationalgenome.org/wiki/Analysis/vcf4.0/) (Variant Call Format) file to [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file 
 *[icgcMutationToMAF.R](./scripts/icgcMutationToMAF.R)* | Converts ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file to [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file 
-*[summariseMAFs.R](./scripts/summariseMAFs.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s)
-*[summariseMAFsGenes.R](./scripts/summariseMAFsGenes.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s) for selected genes
 *[exons_maf.pl](./scripts/exons_maf.pl)* | Extracts variants detected within exonic regions
 *[MAFsamplesRename.R](./scripts/MAFsamplesRename.R)* | Changes sample names in [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Tumor_Sample_Barcode* field
+*[subsetMAF.R](./scripts/subsetMAF.R)* | Subsets MAF based on defined list of samples and/or genes
+*[summariseMAFs.R](./scripts/summariseMAFs.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s)
+*[summariseMAFsGenes.R](./scripts/summariseMAFsGenes.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s) for selected genes
 
 <br />
 
@@ -147,7 +149,7 @@ To change sample names (as shown in [MAF's](https://software.broadinstitute.org/
 
 <br />
 
-**Script**: *[MAFsamplesRename.R](./scripts/MAFsamplesRename.R)
+**Script**: *[MAFsamplesRename.R](./scripts/MAFsamplesRename.R)*
 
 Argument | Description
 ------------ | ------------
@@ -165,14 +167,50 @@ Argument | Description
 Rscript MAFsamplesRename.R --maf_file /data/simple_somatic_mutation.open.PACA-AU.maf --names_file /examples/example_samples_to_rename.txt --output /data/simple_somatic_mutation.open.PACA-AU_samples_renamed.maf
 ```
 
-NOTE: If no output file name is specified the output will have the same name as the input *maf_file* with suffix *_samples_renamed.maf*.
-
 <br>
 
 >This will create a ***/data/simple_somatic_mutation.open.PACA-AU_samples_renamed.maf*** with sample names changed according to ***/examples/example_samples_to_rename.txt*** file.
 
+NOTE: If no output file name is specified the output will have the same name as the input *maf_file* with suffix *_samples_renamed.maf*.
+
 <br>
 
+## Subsetting MAF
+
+To subset MAF based on a list of samples and/or genes run the *[subsetMAF.R](./scripts/subsetMAF.R)* script. It also allows to subset MAF based on variants classifiaction as defined in [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Variant_Classification* field. The script expects file(s) listing samples (as shown [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Tumor_Sample_Barcode* field) and/or genes to include in the new MAF file (see example files [example_samples_to_subset.txt](./examples/example_samples_to_subset.txt) and [example_genes_to_subset.txt](./examples/example_genes_to_subset.txt)).
+
+<br />
+
+**Script**: *[subsetMAF.R](./scripts/subsetMAF.R)*
+
+Argument | Description
+------------ | ------------
+--maf_file | MAF file to be subsetted
+--samples | Name and path to a file listing samples to be kept in the subsetted MAF. Sample names are expected to be separated by comma. Use *all* to keep all samples
+--genes | Name and path to a file listing genes to be kept in the subsetted MAF. Gene symbols are expected to be separated by comma. Use *all* to keep all genes
+--var_class | Classification of variants to be kept in the subsetted MAF
+--output | Name for the output MAF file
+
+NOTE: the *samples*, *genes* and *var_class* parameters are optional.
+The available variants types for *var_class* parameter are listed in *Variant_Classification* row in the [MAF field requirements](https://github.com/umccr/MAF-summary#maf-field-requirements) section. 
+
+<br />
+
+**Packages**: *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*, *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)*
+
+**Command line use example**:
+
+```
+Rscript subsetMAF.R --maf_file /data/simple_somatic_mutation.open.PACA-AU.maf --samples /examples/example_samples_to_subset.txt --genes /examples/example_ genes_to_subset.txt --var_class Missense_Mutation --output /data/simple_somatic_mutation.open.PACA-AU_subset.maf
+```
+
+<br>
+
+>This will create a ***/data/simple_somatic_mutation.open.PACA-AU_subset.maf*** restricted to samples and genes listed in ***/examples/example_samples_to_subset.txt*** and **/examples/example_ genes_to_subset.txt***, respectively, and containing missense mutations.
+
+NOTE: If no output file name is specified the output will have the same name as the input *maf_file* with suffix *_subset.maf*.
+
+<br>
 
 ## Summarising and visualising MAF file(s)
 

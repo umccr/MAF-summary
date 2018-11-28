@@ -19,7 +19,7 @@
 #   maf_file:     MAF file to be subsetted
 #   samples (optional): Name and path to a file listing samples to be kept in the subsetted MAF. Sample names (as shown MAF "Tumor_Sample_Barcode" field) are expected to be separated by comma. Use "all" to keep all samples
 #   genes (optional): Name and path to a file listing genes to be kept in the subsetted MAF. Gene symbols are expected to be separated by comma. Use "all" to keep all genes
-#   var_class (optional): Classificiation of variants to be kept in the subsetted MAF. Available variants types are: Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region, Unknown
+#   var_class (optional): Classification of variants to be kept in the subsetted MAF. Available variants types are: Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Missense_Mutation, Nonsense_Mutation, Silent, Splice_Site, Translation_Start_Site, Nonstop_Mutation, 3'UTR, 3'Flank, 5'UTR, 5'Flank, IGR, Intron, RNA, Targeted_Region, De_novo_Start_InFrame, De_novo_Start_OutOfFrame, Splice_Region
 #   output:       Name for the output subsetted MAF. If no output file name is specified the output will have the same name as the input maf_file with suffix "_subset.maf"
 #
 ################################################################################
