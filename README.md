@@ -13,6 +13,7 @@ Set of scripts to summarise, analyse and visualise [Mutation Annotation Format](
 * [Extracting variants within exonic regions](#extracting-variants-within-exonic-regions)
 * [Changing sample names](#changing-sample-names)
 * [Subsetting MAF](#subsetting-maf)
+* [Merging MAFs](#merging-maf)
 * [Summarising and visualising MAF file(s)](#summarising-and-visualising-maf-files)
   * [Example output](#example-output)
 * [Summarising and visualising MAF file(s) for selected genes](#summarising-and-visualising-maf-files-for-selected-genes)
@@ -49,6 +50,7 @@ Script | Description
 *[exons_maf.pl](./scripts/exons_maf.pl)* | Extracts variants detected within exonic regions
 *[MAFsamplesRename.R](./scripts/MAFsamplesRename.R)* | Changes sample names in [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Tumor_Sample_Barcode* field
 *[subsetMAF.R](./scripts/subsetMAF.R)* | Subsets MAF based on defined list of samples and/or genes
+*[mergeMAFs.R](./scripts/mergeMAFs.R)* | Merges multiple MAFs
 *[summariseMAFs.R](./scripts/summariseMAFs.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s)
 *[summariseMAFsGenes.R](./scripts/summariseMAFsGenes.R)* | Summarises and visualises [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file(s) for selected genes
 
@@ -186,10 +188,10 @@ To subset MAF based on a list of samples and/or genes run the *[subsetMAF.R](./s
 Argument | Description
 ------------ | ------------
 --maf_file | MAF file to be subsetted
---samples | Name and path to a file listing samples to be kept in the subsetted MAF. Sample names are expected to be separated by comma. Use *all* to keep all samples
---genes | Name and path to a file listing genes to be kept in the subsetted MAF. Gene symbols are expected to be separated by comma. Use *all* to keep all genes
+--samples | Name and path to a file listing samples to be kept in the subsetted MAF. Sample names are expected to be separated by comma. Use ***all*** to keep all samples
+--genes | Name and path to a file listing genes to be kept in the subsetted MAF. Gene symbols are expected to be separated by comma. Use ***all*** to keep all genes
 --var_class | Classification of variants to be kept in the subsetted MAF
---output | Name for the output MAF file
+--output | Name for the subsetted MAF
 
 NOTE: the *samples*, *genes* and *var_class* parameters are optional.
 The available variants types for *var_class* parameter are listed in *Variant_Classification* row in the [MAF field requirements](https://github.com/umccr/MAF-summary#maf-field-requirements) section. 
@@ -206,9 +208,41 @@ Rscript subsetMAF.R --maf_file /data/simple_somatic_mutation.open.PACA-AU.maf --
 
 <br>
 
->This will create a ***/data/simple_somatic_mutation.open.PACA-AU_subset.maf*** restricted to samples and genes listed in ***/examples/example_samples_to_subset.txt*** and **/examples/example_ genes_to_subset.txt***, respectively, and containing missense mutations.
+>This will create a ***/data/simple_somatic_mutation.open.PACA-AU_subset.maf*** restricted to samples and genes listed in ***/examples/example_samples_to_subset.txt*** and ***/examples/example_ genes_to_subset.txt***, respectively, and containing missense mutations.
 
 NOTE: If no output file name is specified the output will have the same name as the input *maf_file* with suffix *_subset.maf*.
+
+<br>
+
+## Merging MAFs
+
+To merge multiple MAFs run the *[mergeMAFs.R](./scripts/mergeMAFs.R)* script. It uses [merge_mafs](https://rdrr.io/github/PoisonAlien/maftools/man/merge_mafs.html) function in [maftools R package](https://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html), which merges MAFs based on [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Tumor_Sample_Barcode* field in each MAF file.
+
+<br />
+
+**Script**: *[mergeMAFs.R](./scripts/mergeMAFs.R)*
+
+Argument | Description
+------------ | ------------
+--maf_dir | Directory with MAF files to be merged
+--maf_files | List of MAF files to be merged. Each file name is expected to be separated by comma
+--output | Name for the output merged MAF file
+
+<br />
+
+**Packages**: *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*, *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)*
+
+**Command line use example**:
+
+```
+Rscript mergeMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --output icgc.simple_somatic_mutation.merged.maf
+```
+
+<br>
+
+>This will create merged ***/data/icgc.simple_somatic_mutation.merged.maf*** MAF with variants data from  ***/data/simple_somatic_mutation.open.PACA-AU.maf*** and ***/data/simple_somatic_mutation.open.PACA-CA.maf***.
+
+NOTE: If no output file name is specified the output will be saved as *merged.maf*.
 
 <br>
 
@@ -284,10 +318,3 @@ This will generate *[summariseMAFsGenes.html](https://rawgit.com/umccr/MAF-summa
 Some example MAF files are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/) cluster and are described in [Pancreatic-data-harmonization](https://github.com/umccr/Pancreatic-data-harmonization) repository.<br>
 
 * [HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html) - R html report for all datasets
-
-
-### Pipeline for processing in-house data
-
-... to be completed
-
-
