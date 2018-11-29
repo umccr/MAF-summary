@@ -124,6 +124,9 @@ cat("\nReading MAF files...\n\n")
 mafInfo <- vector("list", length(mafFiles))
 
 for ( i in 1:length(mafFiles) ) {
+  
+  cat(paste0("\nProcessing MAF: ", mafFiles[i],"...\n\n"))
+  
   mafInfo[[i]] = maftools::read.maf(maf = mafFiles[i], verbose = FALSE)
 }
 
