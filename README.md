@@ -58,10 +58,10 @@ Script | Description
 
 ## Converting VCF files to MAF files
 
-To convert multiple VCF files into one collective MAF file use *[multi_vcf2maf.pl](./multi_vcf2maf.pl)* script. It requires a file with listed [VCF](http://www.internationalgenome.org/wiki/Analysis/vcf4.0/) files to be converted into corresponding MAF files (see an example [here](./examples/example_vcf_list.txt)). The individual MAF files are then merged into one collective MAF file, which is saved in the same directory as the files listing VCF files.
+To convert multiple VCF files into one collective MAF file use *[multi_vcf2maf.pl](./scripts/multi_vcf2maf.pl)* script. It requires a file with listed [VCF](http://www.internationalgenome.org/wiki/Analysis/vcf4.0/) files to be converted into corresponding MAF files (see an example [here](./examples/example_vcf_list.txt)). The individual MAF files are then merged into one collective MAF file, which is saved in the same directory as the files listing VCF files.
 
 
-**Script**: *[multi_vcf2maf.pl](./multi_vcf2maf.pl)*
+**Script**: *[multi_vcf2maf.pl](./scripts/multi_vcf2maf.pl)*
 
 
 Argument | Description
