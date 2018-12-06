@@ -553,6 +553,8 @@ for ( i in 1:length(mafFiles) ) {
 saveWorkbook(wb, paste(outDir, "MAF_fields.xlsx", sep="/"), overwrite = TRUE)
 ```
 
+***
+
 ### Samples summary
 
 Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file.
@@ -597,6 +599,8 @@ if ( !is.null(MAF_samples.silent.df) ) {
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
+
+***
 
 ### Genes summary
 
@@ -692,7 +696,7 @@ cat("\n\n\n")
 
 ### Oncoplot {.tabset .tabset-fade}
 
-#### `r params$genes_no` most frequently mutated genes
+#### Recurrently mutated genes
 
 Oncoplot(s) illustrating different types of mutations observed across samples for the **`r params$genes_no` most frequently mutated genes**. The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
@@ -715,6 +719,8 @@ for ( i in 1:length(mafFiles) ) {
   }
 }
 ```
+
+***
 
 #### Additional genes of interest
 
@@ -752,6 +758,8 @@ if ( !is.null(params$genes_list) && length(goi) > 1 ) {
 }
 ```
 
+***
+
 ### MAF summary
 
 A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r params$genes_no` most frequently mutated genes** (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
@@ -768,6 +776,8 @@ for ( i in 1:length(mafFiles) ) {
   mtext("MAF summary", outer=TRUE,  cex=1, line=-0.5)
 }
 ```
+
+***
 
 ### Driver genes detection
 
@@ -842,6 +852,8 @@ for ( i in 1:length(mafFiles) ) {
 saveWorkbook(wb, paste(outDir, "MAF_oncodriveCLUST.xlsx", sep="/"), overwrite = TRUE)
 ```
 
+***
+
 ### Transitions/transversions
 
 Plots presenting the transitions and transversions distribution in individual dataset(s). In each panel, the box-plots show the *overall distribution* of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*)(top-left), and the transitions and transversions *frequency* (top-right). The stacked bar-plot (bottom) displays the *fraction* of the six different conversions in each sample.
@@ -883,6 +895,8 @@ for ( i in 1:length(mafFiles) ) {
 
 saveWorkbook(wb, paste(outDir, "MAF_summary_titv.xlsx", sep="/"), overwrite = TRUE)
 ```
+
+***
 
 ### Cross-cancers comparison
 
@@ -954,6 +968,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[1]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[2]`
 
 ```{r lollipop_plot_2, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -964,6 +980,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[2]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[2], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[3]`
 
@@ -976,6 +994,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[3]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[4]`
 
 ```{r lollipop_plot_4, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -986,6 +1006,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[4]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[4], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[5]`
 
@@ -998,6 +1020,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[5]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[6]`
 
 ```{r lollipop_plot_6, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -1008,6 +1032,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[6]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[6], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[7]`
 
@@ -1020,6 +1046,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[7]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[8]`
 
 ```{r lollipop_plot_8, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -1030,6 +1058,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[8]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[8], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[9]`
 
@@ -1042,6 +1072,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[9]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[10]`
 
 ```{r lollipop_plot_10, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -1052,6 +1084,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[10]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[10], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[11]`
 
@@ -1064,6 +1098,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[11]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[12]`
 
 ```{r lollipop_plot_12, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -1074,6 +1110,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[12]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[12], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[13]`
 
@@ -1086,6 +1124,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[13]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[14]`
 
 ```{r lollipop_plot_14, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -1096,6 +1136,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[14]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[14], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[15]`
 
@@ -1108,6 +1150,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[15]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[16]`
 
 ```{r lollipop_plot_16, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -1118,6 +1162,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[16]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[16], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[17]`
 
@@ -1130,6 +1176,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[17]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[18]`
 
 ```{r lollipop_plot_18, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -1140,6 +1188,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[18]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[18], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[19]`
 
@@ -1152,6 +1202,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[19]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[20]`
 
 ```{r lollipop_plot_20, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -1162,6 +1214,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[20]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[20], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[21]`
 
@@ -1174,6 +1228,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[21]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[22]`
 
 ```{r lollipop_plot_22, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -1184,6 +1240,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[22]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[22], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[23]`
 
@@ -1196,6 +1254,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[23]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[24]`
 
 ```{r lollipop_plot_24, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -1206,6 +1266,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[24]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[24], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[25]`
 
@@ -1218,6 +1280,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[25]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[26]`
 
 ```{r lollipop_plot_26, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -1228,6 +1292,9 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[26]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[26], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
+
 ### `r names(mutRate.top.datasets)[27]`
 
 ```{r lollipop_plot_27, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -1238,6 +1305,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[27]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[27], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[28]`
 
@@ -1250,6 +1319,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[28]]) != 0 ) {
 }
 ```
 
+***
+
 ### `r names(mutRate.top.datasets)[29]`
 
 ```{r lollipop_plot_29, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
@@ -1260,6 +1331,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[29]]) != 0 ) {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[29], "is not available\n\n\n\n", sep=" "))
 }
 ```
+
+***
 
 ### `r names(mutRate.top.datasets)[30]`
 
@@ -1296,7 +1369,7 @@ for ( i in 1:length(mafFiles) ) {
 saveWorkbook(wb, paste(outDir, "MAF_top_mutations_details.xlsx", sep="/"), overwrite = TRUE)
 ```
 
-### `r params$genes_no` most frequently mutated genes
+### Recurrently most frequently mutated genes
 
 ```{r details_mut, comment = NA}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
@@ -1304,6 +1377,8 @@ mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[c(1:par
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
+
+***
 
 ### Additional genes of interest
 
@@ -1369,6 +1444,8 @@ detach("package:plotly", unload=FALSE)
 widges.list
 ```
 
+***
+
 ### Genes
 
 Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. Note, for transparency only the **top `r params$genes_no` mutated genes** are presented.
@@ -1411,6 +1488,8 @@ detach("package:plotly", unload=FALSE)
 ##### Print a list of htmlwidgets
 widges.list
 ```
+
+***
 
 <!--This step is skipped for the moment as it is too computationally intensive.
 
