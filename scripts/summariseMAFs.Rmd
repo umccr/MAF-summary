@@ -497,6 +497,8 @@ for ( i in 1:length(mafFiles) ) {
 }
 ```
 
+***
+
 ## Summary tables {.tabset}
 
 ### Overall summary
@@ -684,6 +686,8 @@ if ( !is.null(params$genes_list) ) {
 cat("\n\n\n")
 ```
 
+***
+
 ## Summary plots {.tabset .tabset-fade}
 
 ### Oncoplot {.tabset .tabset-fade}
@@ -692,7 +696,7 @@ cat("\n\n\n")
 
 Oncoplot(s) illustrating different types of mutations observed across samples for the **`r params$genes_no` most frequently mutated genes**. The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
-```{r maf_oncoplot, comment = NA, fig.width = 9, fig.height = 12}
+```{r maf_oncoplot, comment = NA, fig.width = 9, fig.height = nrow(maftools::getSampleSummary(mafInfo[[i]]))/5}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
 
@@ -716,7 +720,7 @@ for ( i in 1:length(mafFiles) ) {
 
 Oncoplot(s) illustrating different types of mutations observed across samples for the **genes of interest** (if specified). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
-```{r maf_oncoplot_goi, comment = NA, fig.width = 9, fig.height = 12}
+```{r maf_oncoplot_goi, comment = NA, fig.width = 9, fig.height = 10}
 ##### Draw additional oncoplot if a list of genes of intereset was specified by user 
 ###### Generate separate plot for each dataset
 if ( !is.null(params$genes_list) && length(goi) > 1 ) {
@@ -894,6 +898,8 @@ for ( i in 1:length(mafFiles) ) {
   tcgaCompare_mod(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
 }
 ```
+
+***
 
 ## Mutation maps {.tabset .tabset-fade}
 
@@ -1266,6 +1272,8 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[30]]) != 0 ) {
 }
 ```
 
+***
+
 ## Mutation details {.tabset .tabset-fade}
 
 Tables with detailed information, as as provided in corresponding MAF file(s), for the **`r params$genes_no` most frequently mutated genes** across all datasets, as well as for the **genes of interest** (if specified).
@@ -1313,6 +1321,8 @@ if ( !is.null(params$genes_list) ) {
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
+
+***
 
 ## Heatmaps {.tabset .tabset-fade}
 
@@ -1537,6 +1547,8 @@ for ( i in 1:length(mafFiles) ) {
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 ```
 
+***
+
 ## Parameters
 
 ```{r params_info, comment = NA}
@@ -1545,6 +1557,8 @@ for ( i in 1:length(params) ) {
   cat(paste("Parameter: ", names(params)[i], "\nValue: ", paste(unlist(params[i]), collapse = ","), "\n\n", sep=""))
 }
 ```
+
+***
 
 ## Addendum
 
