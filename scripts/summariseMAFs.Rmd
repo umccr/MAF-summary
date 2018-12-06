@@ -7,6 +7,7 @@ params:
   maf_files: 
   datasets: 
   genes_no: 
+  genes_list: 
   out_dir: 
 output:
   html_document:
@@ -453,7 +454,7 @@ names(mafInfo) <- datasets.list
 
 ##### NOTE: maftools by default summarises only non-synonymous variants with high/moderate variant consequences and ignores silent variants (https://github.com/PoisonAlien/maftools/issues/63), which are stored in "maf.silent" slot of the class MAF object (mafInfo[[i]]@maf.silent)
 for ( i in 1:length(mafFiles) ) {
-  mafInfo[[i]] = maftools::read.maf(maf = mafFiles[i], verbose = FALSE)
+  mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], verbose = FALSE)
 }
 
 ##### Create directory for output files
@@ -462,6 +463,13 @@ if ( !file.exists(params$out_dir) ){
 
   dir.create(outDir, recursive=TRUE)
 }
+
+##### Read in list of genes of interest of specified
+if ( !is.null(params$genes_list) ){
+  
+  genes_list <- unique(read.table(params$genes_list, sep="\t", as.is=TRUE, header=FALSE, row.names=NULL)[,1])
+}
+
 ```
 
 ```{r silent_variants, comment = NA, message=FALSE, warning=FALSE}
@@ -659,6 +667,15 @@ for ( i in 1:length(mafFiles) ) {
     par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
     maftools::oncoplot(maf = mafInfo[[i]], top = params$genes_no, fontSize = 12)
   
+    ##### Draw additional oncoplot if a list of genes of intereset was specified by user 
+    if ( !is.null(params$genes_list) && length(genes_list) > 1 ) {
+      
+      cat("Additional genes of interest\n")
+      
+      plot.new()
+      par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
+      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list, fontSize = 12)
+    }
   } else {
     cat(paste0("Dataset ", datasets.list[i], " has ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample with non-synonymous variants. Cannot create oncoplot for ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample.\n\n\n"))
   }
@@ -865,7 +882,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[1]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[2]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[2]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[2], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -876,7 +893,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[2]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[3]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[3]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[3], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -887,7 +904,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[3]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[4]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[4]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[4], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -898,7 +915,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[4]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[5]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[5]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[5], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -909,7 +926,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[5]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[6]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[6]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[6], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -920,7 +937,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[6]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[7]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[7]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[7], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -931,7 +948,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[7]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[8]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[8]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[8], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -942,7 +959,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[8]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[9]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[9]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[9], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -953,7 +970,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[9]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[10]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[10]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[10], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -964,7 +981,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[10]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[11]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[11]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[11], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -975,7 +992,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[11]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[12]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[12]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[12], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -986,7 +1003,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[12]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[13]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[13]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[13], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -997,7 +1014,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[13]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[14]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[14]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[14], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1008,7 +1025,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[14]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[15]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[15]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[15], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1019,7 +1036,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[15]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[16]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[16]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[16], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1030,7 +1047,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[16]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[17]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[17]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[17], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1041,7 +1058,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[17]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[18]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[18]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[18], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1052,7 +1069,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[18]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[19]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[19]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[19], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1063,7 +1080,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[19]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[20]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[20]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[20], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1074,7 +1091,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[20]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[21]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[21]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[21], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1085,7 +1102,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[21]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[22]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[22]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[22], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1096,7 +1113,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[22]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[23]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[23]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[23], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1107,7 +1124,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[23]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[24]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[24]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[24], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1118,7 +1135,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[24]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[25]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[25]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[25], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1129,7 +1146,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[25]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[26]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[26]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[26], "is not available\n\n\n\n", sep=" "))
 }
 ```
 ### `r names(mutRate.top.datasets)[27]`
@@ -1139,7 +1156,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[26]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[27]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[27]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[27], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1150,7 +1167,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[27]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[28]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[28]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[28], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1161,7 +1178,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[28]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[29]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[29]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[29], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1172,7 +1189,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[29]]) != 0 ) {
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[30]]) != 0 ) {
   try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[30]), silent = TRUE)
 } else {
-   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
+   cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[30], "is not available\n\n\n\n", sep=" "))
 }
 ```
 
@@ -1203,6 +1220,23 @@ saveWorkbook(wb, paste(outDir, "MAF_top_mutations_details.xlsx", sep="/"), overw
 ```{r details_mut, comment = NA}
 ##### Provide detiles information for each dataset for 1st top mutated gene
 mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[c(1:params$genes_no)])
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+### Additional genes of interest
+
+```{r details_mut_goi, comment = NA}
+##### Provide detiles information for each dataset for user-defined list of genes of interest
+
+if ( !is.null(params$genes_list) ) {
+  
+  mut.details.datasets(mafInfo, datasets.list, genes_list)
+  
+} else {
+  cat("No list with genes of interest was provided.\n\n\n\n")
+}
+
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
@@ -1390,7 +1424,7 @@ for ( i in 1:length(mafFiles) ) {
   ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
   if ( nrow(maftools::getSampleSummary(mafInfo[[i]])) > 1 ) {
     
-    ##### Drawing oncoplots for the top 10 genes in each dataset
+    ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
     oncoplot(maf = mafInfo[[i]], top = params$genes_no, fontSize = 12)
