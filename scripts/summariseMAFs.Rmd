@@ -730,7 +730,7 @@ for ( i in 1:length(mafFiles) ) {
     
   if ( !is.null(oncodrive.res[[datasets.list[i]]]) ) {
       
-      plot(oncodrive.res[[datasets.list[i]]][[2]])
+      try(plot(oncodrive.res[[datasets.list[i]]][[2]]), silent = TRUE)
       
       sheetNo <- sheetNo+1
       
@@ -1689,7 +1689,7 @@ for ( i in 1:length(mafFiles) ) {
   ##### Drawing oncodrive plot for each dataset
   if ( !is.null(oncodrive.res[[datasets.list[i]]]) ) {
       
-      plot(oncodrive.res[[datasets.list[i]]][[2]])
+      try(plot(oncodrive.res[[datasets.list[i]]][[2]]), silent = TRUE)
   }
   
   ##### Drawing distribution plots of the transitions and transversions
