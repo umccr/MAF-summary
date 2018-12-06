@@ -636,6 +636,7 @@ for ( i in 1:length(mafFiles) ) {
   if ( nrow(getGeneSummary(mafInfo[[i]])) < as.numeric(params$genes_no)  ) {
     
     top_genes_no[[i]] <- nrow(getGeneSummary(mafInfo[[i]]))
+    params$genes_no <- nrow(getGeneSummary(mafInfo[[i]]))
     
   } else {
     top_genes_no[[i]] <- as.numeric(params$genes_no)
@@ -649,7 +650,9 @@ cat("\n\n\n")
 
 ## Summary plots {.tabset .tabset-fade}
 
-### Oncoplot
+### Oncoplot {.tabset .tabset-fade}
+
+#### `r params$genes_no` most frequently mutated genes
 
 Oncoplot(s) illustrating different types of mutations observed across samples for the **`r params$genes_no` most frequently mutated genes**. The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
@@ -667,17 +670,34 @@ for ( i in 1:length(mafFiles) ) {
     par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
     maftools::oncoplot(maf = mafInfo[[i]], top = params$genes_no, fontSize = 12)
   
-    ##### Draw additional oncoplot if a list of genes of intereset was specified by user 
-    if ( !is.null(params$genes_list) && length(genes_list) > 1 ) {
-      
-      cat("Additional genes of interest\n")
-      
-      plot.new()
-      par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list, fontSize = 12)
-    }
   } else {
     cat(paste0("Dataset ", datasets.list[i], " has ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample with non-synonymous variants. Cannot create oncoplot for ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample.\n\n\n"))
+  }
+}
+```
+
+#### Additional genes of interest
+
+Oncoplot(s) illustrating different types of mutations observed across samples for the **genes of interest** (if specified). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
+
+```{r maf_oncoplot_goi, comment = NA, fig.width = 9, fig.height = 12}
+##### Draw additional oncoplot if a list of genes of intereset was specified by user 
+###### Generate separate plot for each dataset
+if ( !is.null(params$genes_list) && length(genes_list) > 1 ) {
+  
+  for ( i in 1:length(mafFiles) ) {
+  
+    cat(paste(datasets.list[i], "\n\n", sep=" "))
+    
+    ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
+  if ( nrow(maftools::getSampleSummary(mafInfo[[i]])) > 1 ) {
+    plot.new()
+    par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
+    maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list, fontSize = 12)
+
+    } else {
+      cat(paste0("Dataset ", datasets.list[i], " has ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample with non-synonymous variants. Cannot create oncoplot for ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample.\n\n\n"))
+    }
   }
 }
 ```
@@ -1195,10 +1215,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[30]]) != 0 ) {
 
 ## Mutation details {.tabset .tabset-fade}
 
-Tables with detailed information, as as provided in corresponding MAF file(s), for the **`r params$genes_no` most frequently mutated genes** across all datasets.
+Tables with detailed information, as as provided in corresponding MAF file(s), for the **`r params$genes_no` most frequently mutated genes** across all datasets, as well as for the **genes of interest** (if specified).
 
 ```{r details_mut_table}
-##### Provide detiles information for each dataset for user-defined top mutated genes
+##### Provide detiles information for each dataset for user-defined number of top mutated genes
 ##### Create a new workbook
 wb <- createWorkbook("MAF_top_mutations_details.xlsx")
 
@@ -1218,7 +1238,7 @@ saveWorkbook(wb, paste(outDir, "MAF_top_mutations_details.xlsx", sep="/"), overw
 ### `r params$genes_no` most frequently mutated genes
 
 ```{r details_mut, comment = NA}
-##### Provide detiles information for each dataset for 1st top mutated gene
+##### Provide detiles information for each dataset for user-defined number of top mutated genes
 mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[c(1:params$genes_no)])
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
@@ -1227,7 +1247,7 @@ cat("\n\n\n")
 ### Additional genes of interest
 
 ```{r details_mut_goi, comment = NA}
-##### Provide detiles information for each dataset for user-defined list of genes of interest
+##### Provide detiles information for each dataset for user-defined number of top mutated genes
 
 if ( !is.null(params$genes_list) ) {
   
