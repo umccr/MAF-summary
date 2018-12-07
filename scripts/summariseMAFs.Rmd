@@ -703,14 +703,14 @@ cat("\n\n\n")
 
 Oncoplot(s) illustrating different types of mutations observed across samples for the **`r top_genes_no[[i]]` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
-```{r maf_oncoplot, comment = NA, fig.width = 9, fig.height = nrow(maftools::getSampleSummary(mafInfo[[i]]))/5}
+```{r maf_oncoplot, comment = NA, fig.width = 9, fig.height = top_genes_no[[i]]/5}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
 
   cat(paste(datasets.list[i], "\n\n", sep=" "))
   
   ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
-  if ( nrow(maftools::getSampleSummary(mafInfo[[i]])) > 1 ) {
+  if ( top_genes_no[[i]] > 1 ) {
     
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
@@ -739,7 +739,7 @@ if ( !is.null(params$genes_list) && length(goi) > 1 ) {
     cat(paste(datasets.list[i], "\n\n", sep=" "))
     
     ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
-  if ( nrow(maftools::getSampleSummary(mafInfo[[i]])) > 1 ) {
+  if ( top_genes_no[[i]] > 1 ) {
     
     ##### Report genes missing in individual MAFs, as well as those which are within the list of genes of interest and are also among the most frequently mutated genes
     cat(paste("The following genes from provided gene list are missing from", datasets.list[i], "MAF:\n\n", sep=" "))
@@ -1586,7 +1586,7 @@ for ( i in 1:length(mafFiles) ) {
   mtext("MAF summary", outer=TRUE,  cex=1, line=-0.5)
 
   ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
-  if ( nrow(maftools::getSampleSummary(mafInfo[[i]])) > 1 ) {
+  if ( top_genes_no[[i]] > 1 ) {
     
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
@@ -1600,7 +1600,7 @@ for ( i in 1:length(mafFiles) ) {
     for ( i in 1:length(mafFiles) ) {
 
       ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
-    if ( nrow(maftools::getSampleSummary(mafInfo[[i]])) > 1 ) {
+    if ( top_genes_no[[i]] > 1 ) {
       
       plot.new()
       par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
