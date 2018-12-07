@@ -6,7 +6,7 @@ params:
   maf_dir: 
   maf_files: 
   datasets: 
-  genes_no: 
+  genes_min: 
   genes_list: 
   out_dir: 
 output:
@@ -631,21 +631,24 @@ for ( i in 1:length(mafFiles) ) {
 
 ##### Print a list of htmlwidgets
 widges.list
+```
 
+```{r top_genes_threshold, warning=FALSE}
 ##### Check if the use-defined number of genes to present is not higher than the number of genes with non-synonymous mutations reported in individual MAFs
 top_genes_no <- vector("list", length(mafFiles))
 names(top_genes_no) <- datasets.list
 
+mut_freq <- vector("list", length(mafFiles))
+names(mut_freq) <- datasets.list
+
 for ( i in 1:length(mafFiles) ) {
   
-  if ( nrow(getGeneSummary(mafInfo[[i]])) < as.numeric(params$genes_no)  ) {
-    
-    top_genes_no[[i]] <- nrow(getGeneSummary(mafInfo[[i]]))
-    params$genes_no <- nrow(getGeneSummary(mafInfo[[i]]))
-    
-  } else {
-    top_genes_no[[i]] <- as.numeric(params$genes_no)
-  }
+  ##### Get mutation frequency for each gene
+  mut_freq[[i]] <- round(getGeneSummary(mafInfo[[i]])$AlteredSamples/as.numeric(mafInfo[[i]]@summary[3,"summary"])*100, digits=0)
+  names(mut_freq[[i]]) <- getGeneSummary(mafInfo[[i]])$Hugo_Symbol
+  
+  ##### Get the number of genes that have mutations in the defined minimal percentage of samples (4% as default)
+  top_genes_no[[i]] <- length( mut_freq[[i]][ mut_freq[[i]] >= as.numeric(params$genes_min) ] )
 }
 
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
@@ -672,7 +675,7 @@ if ( !is.null(params$genes_list) ) {
   for ( i in 1:length(mafFiles) ) {
     
     ##### Extract the user-defined number of top mutated genes
-    top_genes[[i]] <- maftools::getGeneSummary(mafInfo[[i]])$Hugo_Symbol[1:params$genes_no]
+    top_genes[[i]] <- maftools::getGeneSummary(mafInfo[[i]])$Hugo_Symbol[1:top_genes_no[[i]]]
     
     ##### Record genes of interest that are not present in the MAF file
     goi_absent[[i]] <- goi[ goi %!in% maftools::getGeneSummary(mafInfo[[i]])$Hugo_Symbol ]
@@ -698,7 +701,7 @@ cat("\n\n\n")
 
 #### Recurrently mutated genes
 
-Oncoplot(s) illustrating different types of mutations observed across samples for the **`r params$genes_no` most frequently mutated genes**. The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
+Oncoplot(s) illustrating different types of mutations observed across samples for the **`r top_genes_no[[i]]` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
 ```{r maf_oncoplot, comment = NA, fig.width = 9, fig.height = nrow(maftools::getSampleSummary(mafInfo[[i]]))/5}
 ###### Generate separate plot for each dataset
@@ -743,7 +746,7 @@ if ( !is.null(params$genes_list) && length(goi) > 1 ) {
     
     print(goi_absent[[i]])
     
-    cat(paste("\n\nThe following genes from provided gene list are also among the top", top_genes_no, "most frequently mutated genes and are ignored:\n\n", sep=" "))
+    cat(paste("\n\nThe following genes from provided gene list are also among the top", top_genes_no[[i]], "most frequently mutated genes and are ignored:\n\n", sep=" "))
     
     print(top_genes_goi[[i]])
     
@@ -762,7 +765,7 @@ if ( !is.null(params$genes_list) && length(goi) > 1 ) {
 
 ### MAF summary
 
-A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r params$genes_no` most frequently mutated genes** (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
+A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r top_genes_no[[i]]` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
 
 ```{r maf_summary_plot, comment = NA, fig.width = 9, fig.height = 10}
 ###### Generate separate plot for each dataset
@@ -772,7 +775,7 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Plotting MAF summary
   par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-  maftools::plotmafSummary(maf = mafInfo[[i]], top = params$genes_no, rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
+  maftools::plotmafSummary(maf = mafInfo[[i]], top = top_genes_no[[i]], rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
   mtext("MAF summary", outer=TRUE,  cex=1, line=-0.5)
 }
 ```
@@ -925,7 +928,7 @@ mutRate.top.datasets <- NULL
 
 for ( i in 1:length(mafFiles) ) {
   
-  genes.top <- maftools::getGeneSummary(mafInfo[[i]])[c(1:params$genes_no), Hugo_Symbol]
+  genes.top <- maftools::getGeneSummary(mafInfo[[i]])[c(1:top_genes_no[[i]]), Hugo_Symbol]
   
   ##### Add genes of interest to the list (if specified)
   if ( !is.null(params$genes_list) ){
@@ -941,7 +944,7 @@ for ( i in 1:length(mafFiles) ) {
   mutRate.top.datasets <- c( mutRate.top.datasets, mutRate.top)
 }
 
-mutRate.top.datasets <- sort(sort(mutRate.top.datasets, decreasing = TRUE)[unique(names(mutRate.top.datasets))], decreasing = TRUE)[c(1:params$genes_no)]
+mutRate.top.datasets <- sort(sort(mutRate.top.datasets, decreasing = TRUE)[unique(names(mutRate.top.datasets))], decreasing = TRUE)[c(1:top_genes_no[[i]])]
 
 ##### Create directory for pdf files
 mutationMapsDir <- paste0(normalizePath(outDir), "/", "MAF_mutation_maps")
@@ -1349,7 +1352,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[30]]) != 0 ) {
 
 ## Mutation details {.tabset .tabset-fade}
 
-Tables with detailed information, as as provided in corresponding MAF file(s), for the **`r params$genes_no` most frequently mutated genes** across all datasets, as well as for the **genes of interest** (if specified).
+Tables with detailed information, as as provided in corresponding MAF file(s), for the **`r top_genes_no[[i]]` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) across all datasets, as well as for the **genes of interest** (if specified).
 
 ```{r details_mut_table}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
@@ -1373,7 +1376,7 @@ saveWorkbook(wb, paste(outDir, "MAF_top_mutations_details.xlsx", sep="/"), overw
 
 ```{r details_mut, comment = NA}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
-mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[c(1:params$genes_no)])
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[c(1:max(unlist(top_genes_no[[i]])))])
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
@@ -1448,7 +1451,7 @@ widges.list
 
 ### Genes
 
-Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. Note, for transparency only the **top `r params$genes_no` mutated genes** are presented.
+Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. Note, for transparency only the **`r top_genes_no[[i]]` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) are presented.
 
 ```{r gene_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 8}
 suppressMessages(library(plotly))
