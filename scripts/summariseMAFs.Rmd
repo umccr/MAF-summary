@@ -503,7 +503,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ### Overall summary
 
-Table(s) with basic information about each dataset, including *NCBI build*, *number fo samples* and *mutated genes*, *number of different mutation types*, as well as the *total number of mutations*, as reported in corresponding MAF file(s).
+Table(s) with basic information about each dataset based on data in corresponding MAF file(s).
 
 ```{r overll_summary, warning=FALSE}
 ##### Write overall summary into a file
@@ -555,9 +555,11 @@ saveWorkbook(wb, paste(outDir, "MAF_fields.xlsx", sep="/"), overwrite = TRUE)
 
 ***
 
-### Samples summary
+### Samples summary {.tabset}
 
-Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file.
+#### Samples with non-synonymous variant(s)
+
+Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file. Note, only **samples with detected non-synonymous variant(s)** are reported in the table below.
 
 ```{r sample_summary, comment = NA, warning=FALSE}
 ##### Write samples summary into a file
@@ -587,13 +589,21 @@ widges.list
 
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
+```
 
-##### Note samples with no non-synonymours variants according to corresponding MAF file
+#### Samples with no non-synonymous variants
+
+The table below lists sample(s) in which **no non-synonymous variants** were detected and hence will not be included in the summary tables/plots.
+
+```{r sample_no_nonsynonymous, comment = NA, warning=FALSE}
+##### report samples with no non-synonymous variants according to corresponding MAF file
 if ( !is.null(MAF_samples.silent.df) ) {
-  cat("The samples listed below will not be included in the summary tables above, nor will be included in the summary plots\n\n\n")
 
   DT::datatable( data = MAF_samples.silent.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong("Samples with no non-synonymours variants detected")), filter = "top", options = list(pageLength = 5) ) %>%
         DT::formatStyle( columns = names(MAF_samples.silent.df), 'text-align' = 'center' )
+  
+} else {
+  cat("Non-synonymous variants were detected in all samples.\n\n\n")
 }
 
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
@@ -1372,7 +1382,7 @@ for ( i in 1:length(mafFiles) ) {
 saveWorkbook(wb, paste(outDir, "MAF_top_mutations_details.xlsx", sep="/"), overwrite = TRUE)
 ```
 
-### Recurrently most frequently mutated genes
+### Recurrently mutated genes
 
 ```{r details_mut, comment = NA}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
@@ -1408,7 +1418,7 @@ cat("\n\n\n")
 
 Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *samples* (rows). Samples are ordered by the number of mutations to facilitate identification of individuals with extreme mutation burden. 
 
-```{r sample_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 9}
+```{r sample_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 18}
 suppressMessages(library(plotly))
 suppressMessages(library(heatmaply))
 
@@ -1424,7 +1434,7 @@ for ( i in 1:length(mafFiles) ) {
 
   ##### Generate interactive heatmap
   p <- heatmaply(sampleSummary, main = datasets.list[i], Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Sample","Mutation_type","Count")) %>%
-  layout(width  = 900, height = 420, margin = list(l=150, r=10, b=80, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+  layout(width  = 900, height = 620, margin = list(l=150, r=10, b=80, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
 
   ##### Add plot to the list for htmlwidgets
   widges.list[[i]] <- as_widget(ggplotly(p))
@@ -1453,7 +1463,7 @@ widges.list
 
 Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. Note, for transparency only the **`r top_genes_no[[i]]` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) are presented.
 
-```{r gene_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 8}
+```{r gene_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 18}
 suppressMessages(library(plotly))
 suppressMessages(library(heatmaply))
 
@@ -1469,7 +1479,7 @@ for ( i in 1:length(mafFiles) ) {
 
   ##### Generate interactive heatmap
   p <- heatmaply(geneSummary, main = datasets.list[i], Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Mutation_type","Count")) %>%
-  layout(width  = 900, height = 420, margin = list(l=150, r=10, b=80, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+  layout(width  = 900, height = 620, margin = list(l=150, r=10, b=80, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
   
   ##### Add plot to the list for htmlwidgets
   widges.list[[i]] <- as_widget(ggplotly(p))
