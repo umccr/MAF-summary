@@ -789,9 +789,11 @@ for ( i in 1:length(mafFiles) ) {
 
 ***
 
-### Driver genes detection
+### Driver genes detection {.tabset .tabset-fade}
 
 Cancer driver genes detection based on positional clustering using [oncodriveCLUST](http://bg.upf.edu/group/projects/oncodrive-clust.php) algorithm is based on the fact that most of the variants in cancer causing genes are enriched at few specific loci (hot-spots). According to this concept mutations in these regions potentially change the function of these proteins in a manner that provides an adaptive advantage to cancer cells and consequently are positively selected during clonal evolution of tumours. This property can thus be used to nominate novel candidate driver genes, as described in the paper [OncodriveCLUST](https://www.ncbi.nlm.nih.gov/pubmed/23884480) by Tamborero *et al*.
+
+#### Plots
 
 The size of the points on the scatter-plot(s) is proportional to the number of clusters found in the gene. X-axis shows the number of variants observed in these clusters. Y-axis illustrates false discovery rate (FDR) values transformed into -log10. Labels indicate gene name with the number of observed clusters.
 
@@ -820,6 +822,7 @@ for ( i in 1:length(mafFiles) ) {
     cat(paste("This section was skipped for dataset", datasets.list[i], "since the corresponding MAF does not contain field with amino acid changes details!\n\n\n\n", sep=" "))
   }
 }
+
 ```
 
 ```{r maf_oncodrive_results, comment=NA, warning=FALSE, fig.width = 9, fig.height = 4 }
@@ -856,6 +859,36 @@ for ( i in 1:length(mafFiles) ) {
 
 ##### Write results into a file
 saveWorkbook(wb, paste(outDir, "MAF_oncodriveCLUST.xlsx", sep="/"), overwrite = TRUE)
+```
+
+***
+
+#### Tables
+
+Table(s) presenting per-dataset oncodriveCLUST results, including *cluster scores*, *p-values*, *false discovery rate (FDR) values*, *number of mutations in clusters*, as well as the *fraction of mutations in clusters*. **Cluster score** of 1 means that a single hotspot hosts all observed variants. The genes are ordered according to p-values.
+
+```{r maf_oncodrive_table}
+##### Generate tables with oncodriveCLUST results
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  
+  if ( !is.null(oncodrive.res[[datasets.list[i]]]) ) {
+      
+    widges.list[[i]] <- DT::datatable(data = oncodrive.res[[datasets.list[i]]][[1]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = 'Buttons', options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')) ) %>%
+      DT::formatStyle( columns = names(oncodrive.res[[datasets.list[i]]][[1]]), 'text-align' = 'center' )
+  
+  } else {
+    cat(paste("It was not possible to calculate cluster scores for dataset", datasets.list[i], "\n\n\n\n", sep=" "))
+  }
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
 ```
 
 ***
