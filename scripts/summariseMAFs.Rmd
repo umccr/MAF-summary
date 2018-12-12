@@ -77,7 +77,7 @@ mut.details.datasets <- function(mafInfo, datasets, genes) {
       ##### Sort table by gene symbol and then by sample ID
       mut.details.genes <- mut.details.genes[ order(mut.details.genes$Hugo_Symbol, mut.details.genes$Tumor_Sample_Barcode), ]
       
-      widges.list[[i]] <- DT::datatable( data = mut.details.genes, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets[i])), filter = "top", extensions = 'Buttons', options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('copy', 'excel', 'csv', 'pdf')) ) %>%
+      widges.list[[i]] <- DT::datatable( data = mut.details.genes, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets[i])), filter = "top", extensions = 'Buttons', options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')) ) %>%
         DT::formatStyle( columns = names(mut.details.genes), 'text-align' = 'center' )
       
     } else {
@@ -442,7 +442,7 @@ datasets.list <- unlist(strsplit(params$datasets, split=',', fixed=TRUE))
 datasets.df <- as.data.frame( cbind(datasets.list, unlist(strsplit(params$maf_files, split=',', fixed=TRUE))) )
 names(datasets.df) <- c("Dataset", "MAF file")
 
-DT::datatable( data = datasets.df, filter = "none", extensions = 'Buttons', options = list(pageLength = length(mafFiles), dom = 'Bfrtip', buttons = c('copy', 'excel', 'csv', 'pdf')) ) %>%
+DT::datatable( data = datasets.df, filter = "none", extensions = 'Buttons', options = list(pageLength = length(mafFiles), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')) ) %>%
         DT::formatStyle( columns = names(datasets.df), 'text-align' = 'center' )
 ```
 
@@ -527,7 +527,7 @@ saveWorkbook(wb, paste(outDir, "MAF_summary.xlsx", sep="/"), overwrite = TRUE)
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable( data = mafInfo[[i]]@summary, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "none", extensions = 'Buttons', options = list(pageLength = nrow(mafInfo[[i]]@summary), dom = 'Bfrtip', buttons = c('copy', 'excel', 'csv', 'pdf')) ) %>%
+  widges.list[[i]] <- DT::datatable( data = mafInfo[[i]]@summary, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "none", extensions = 'Buttons', options = list(pageLength = nrow(mafInfo[[i]]@summary), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')) ) %>%
         DT::formatStyle( columns = names(mafInfo[[i]]@summary), 'text-align' = 'center' )
 }
 
@@ -580,7 +580,7 @@ saveWorkbook(wb, paste(outDir, "MAF_sample_summary.xlsx", sep="/"), overwrite = 
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable( data = maftools::getSampleSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = 'Buttons', options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('copy', 'excel', 'csv', 'pdf')) ) %>%
+  widges.list[[i]] <- DT::datatable( data = maftools::getSampleSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = 'Buttons', options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')) ) %>%
         DT::formatStyle( columns = names(maftools::getSampleSummary(mafInfo[[i]])), 'text-align' = 'center' )
 }
 
@@ -599,7 +599,7 @@ The table below lists sample(s) in which **no non-synonymous variants** were det
 ##### report samples with no non-synonymous variants according to corresponding MAF file
 if ( !is.null(MAF_samples.silent.df) ) {
 
-  DT::datatable( data = MAF_samples.silent.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong("Samples with no non-synonymours variants detected")), filter = "top", extensions = 'Buttons', options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('copy', 'excel', 'csv', 'pdf')) ) %>%
+  DT::datatable( data = MAF_samples.silent.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong("Samples with no non-synonymours variants detected")), filter = "top", extensions = 'Buttons', options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')) ) %>%
         DT::formatStyle( columns = names(MAF_samples.silent.df), 'text-align' = 'center' )
   
 } else {
@@ -635,7 +635,7 @@ saveWorkbook(wb, paste(outDir, "MAF_gene_summary.xlsx", sep="/"), overwrite = TR
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable(data = maftools::getGeneSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = 'Buttons', options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('copy', 'excel', 'csv', 'pdf')) ) %>%
+  widges.list[[i]] <- DT::datatable(data = maftools::getGeneSummary(mafInfo[[i]]), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = 'Buttons', options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')) ) %>%
         DT::formatStyle( columns = names(maftools::getGeneSummary(mafInfo[[i]])), 'text-align' = 'center' )
 }
 
@@ -660,9 +660,6 @@ for ( i in 1:length(mafFiles) ) {
   ##### Get the number of genes that have mutations in the defined minimal percentage of samples (4% as default)
   top_genes_no[[i]] <- length( mut_freq[[i]][ mut_freq[[i]] >= as.numeric(params$genes_min) ] )
 }
-
-##### Add extra lines to make sure that this section doesn't overlap with the next one
-cat("\n\n\n")
 ```
 
 ```{r goi, warning=FALSE}
@@ -863,7 +860,9 @@ saveWorkbook(wb, paste(outDir, "MAF_oncodriveCLUST.xlsx", sep="/"), overwrite = 
 
 ***
 
-### Transitions/transversions
+### Transitions/transversions {.tabset .tabset-fade}
+
+#### Plots {.tabset .tabset-fade}
 
 Plots presenting the transitions and transversions distribution in individual dataset(s). In each panel, the box-plots show the *overall distribution* of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*)(top-left), and the transitions and transversions *frequency* (top-right). The stacked bar-plot (bottom) displays the *fraction* of the six different conversions in each sample.
 
@@ -884,7 +883,15 @@ for ( i in 1:length(mafFiles) ) {
 }
 ```
 
-```{r maf_TiTv_table}
+***
+
+#### Tables {.tabset .tabset-fade}
+
+##### Overall distribution
+
+Table(s) presenting the *overall distribution* of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*) across all samples in each dataset.
+
+```{r maf_TiTv_tables_xlsx}
 ##### Write per-sample transitions and transversions distribution into a file
 ##### Create a new workbook
 wb <- createWorkbook("MAF_summary_titv.xlsx")
@@ -903,6 +910,69 @@ for ( i in 1:length(mafFiles) ) {
 }
 
 saveWorkbook(wb, paste(outDir, "MAF_summary_titv.xlsx", sep="/"), overwrite = TRUE)
+```
+
+```{r maf_TiTv_table_overall_dist}
+##### Generate tables with the overall distribution of the six different conversions (C>A, C>G, C>T, T>C, T>A and T>G)
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- DT::datatable(data = titv.info[[datasets.list[i]]]$raw.counts, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = 'Buttons', options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')) ) %>%
+        DT::formatStyle( columns = names(titv.info[[datasets.list[i]]]$raw.counts), 'text-align' = 'center' )
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+***
+
+##### Transitions/transversions frequency
+
+Table(s) presenting the transitions and transversions *frequency* across all samples in each dataset.
+
+```{r maf_TiTv_table_frequency}
+##### Generate tables with transitions and transversions frequency in individual datasets
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- DT::datatable(data = titv.info[[datasets.list[i]]]$TiTv.fractions, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = 'Buttons', options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')) ) %>%
+        DT::formatStyle( columns = names(titv.info[[datasets.list[i]]]$TiTv.fractions), 'text-align' = 'center' )
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+***
+
+##### Transitions/transversions fraction
+
+Table(s) presenting the *fraction* of the six different conversions in each sample in individual dataset(s).
+
+```{r maf_TiTv_table_fraction}
+##### Generate tables with transitions and transversions frequency in individual datasets
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- DT::datatable(data = titv.info[[datasets.list[i]]]$fraction.contribution, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = 'Buttons', options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')) ) %>%
+        DT::formatStyle( columns = names(titv.info[[datasets.list[i]]]$fraction.contribution), 'text-align' = 'center' )
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
 ```
 
 ***
