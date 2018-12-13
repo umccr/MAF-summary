@@ -877,7 +877,9 @@ for ( i in 1:length(mafFiles) ) {
   if ( !is.null(oncodrive.res[[datasets.list[i]]]) ) {
       
     widges.list[[i]] <- DT::datatable(data = oncodrive.res[[datasets.list[i]]][[1]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
-      DT::formatStyle( columns = names(oncodrive.res[[datasets.list[i]]][[1]]), 'text-align' = 'center' )
+      DT::formatStyle( columns = names(oncodrive.res[[datasets.list[i]]][[1]]), 'text-align' = 'center' ) %>%
+  formatRound(columns = c("zscore", "fract_muts_in_clusters"), 1) %>%
+  formatRound(columns = c("pval", "fdr"), 6)
   
   } else {
     cat(paste("It was not possible to calculate cluster scores for dataset", datasets.list[i], "\n\n\n\n", sep=" "))
@@ -951,7 +953,7 @@ saveWorkbook(wb, paste(outDir, "MAF_summary_titv.xlsx", sep="/"), overwrite = TR
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable(data = titv.info[[datasets.list[i]]]$raw.counts, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+  widges.list[[i]] <- DT::datatable(data = titv.info[[datasets.list[i]]]$raw.counts, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
         DT::formatStyle( columns = names(titv.info[[datasets.list[i]]]$raw.counts), 'text-align' = 'center' )
 }
 
@@ -974,8 +976,9 @@ Table(s) presenting the transitions and transversions *frequency* across all sam
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable(data = titv.info[[datasets.list[i]]]$TiTv.fractions, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
-        DT::formatStyle( columns = names(titv.info[[datasets.list[i]]]$TiTv.fractions), 'text-align' = 'center' )
+  widges.list[[i]] <- DT::datatable(data = titv.info[[datasets.list[i]]]$TiTv.fractions, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+        DT::formatStyle( columns = names(titv.info[[datasets.list[i]]]$TiTv.fractions), 'text-align' = 'center' ) %>%
+  formatRound(columns = c("Ti", "Tv"), 1)
 }
 
 ##### Print a list of htmlwidgets
@@ -997,8 +1000,9 @@ Table(s) presenting the *fraction* of the six different conversions in each samp
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable(data = titv.info[[datasets.list[i]]]$fraction.contribution, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
-        DT::formatStyle( columns = names(titv.info[[datasets.list[i]]]$fraction.contribution), 'text-align' = 'center' )
+  widges.list[[i]] <- DT::datatable(data = titv.info[[datasets.list[i]]]$fraction.contribution, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+        DT::formatStyle( columns = names(titv.info[[datasets.list[i]]]$fraction.contribution), 'text-align' = 'center' ) %>%
+  formatRound(columns = names(titv.info[[datasets.list[i]]]$fraction.contribution)[2:7], 1)
 }
 
 ##### Print a list of htmlwidgets
