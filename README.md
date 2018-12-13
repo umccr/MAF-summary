@@ -188,13 +188,12 @@ To subset MAF based on a list of samples and/or genes run the *[subsetMAF.R](./s
 Argument | Description
 ------------ | ------------
 --maf_file | MAF file to be subsetted
---samples | Name and path to a file listing samples to be kept in the subsetted MAF. Sample names are expected to be separated by comma. Use ***all*** to keep all samples
---genes | Name and path to a file listing genes to be kept in the subsetted MAF. Gene symbols are expected to be separated by comma. Use ***all*** to keep all genes
---var_class | Classification of variants to be kept in the subsetted MAF
+--samples | Name and path to a file listing samples to be kept in the subsetted MAF. Sample names are expected to be separated by comma. Use ***all*** to keep all samples (OPTIONAL)
+--genes | Name and path to a file listing genes to be kept in the subsetted MAF. Gene symbols are expected to be separated by comma. Use ***all*** to keep all genes (OPTIONAL)
+--var_class | Classification of variants to be kept in the subsetted MAF (OPTIONAL)
 --output | Name for the subsetted MAF
 
-NOTE: the *samples*, *genes* and *var_class* parameters are optional.
-The available variants types for *var_class* parameter are listed in *Variant_Classification* row in the [MAF field requirements](https://github.com/umccr/MAF-summary#maf-field-requirements) section. 
+NOTE: The available variants types for *var_class* parameter are listed in *Variant_Classification* row in the [MAF field requirements](https://github.com/umccr/MAF-summary#maf-field-requirements) section. 
 
 <br />
 
