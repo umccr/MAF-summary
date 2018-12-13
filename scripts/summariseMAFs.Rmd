@@ -3,12 +3,12 @@ title: "MAF files summary"
 author: "UMCCR"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 params:
-  maf_dir: 
-  maf_files: 
-  datasets: 
-  genes_min: 
-  genes_list: 
-  out_dir: 
+  maf_dir: '/Users/jmarzec/Documents/GitHub/UMCCR/Cohort-analyses/mutation/projects/KRAS-wt_PAAD/data'
+  maf_files: 'KRAS-wt_merged.exonic.maf,KRAS-wt_germline_merged.exonic.maf'
+  datasets: 'KRAS-wt-merged-somatic,UMCCR_KRAS-wt-merged-germline'
+  genes_min: '4'
+  genes_list: '/Users/jmarzec/Documents/GitHub/UMCCR/Cohort-analyses/mutation/projects/KRAS-wt_PAAD/data/KRAS-wt_genes_of_interest.txt'
+  out_dir: 'KRAS-wt_merged_somatic_germline_exonic_MAF_report'
 output:
   html_document:
     theme: readable
@@ -101,8 +101,6 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
   ##### Create a list to store MAF info for individual datasets
   for ( dataset in datasets ) {
     
-    cat(paste(dataset, "\n\n", sep=" "))
-    
     ##### Check if the gene has any mutations in correspoding dataset
     if ( nrow(subsetMaf(maf = mafInfo[[dataset]], includeSyn = FALSE, genes = gene, 
         query = "Variant_Type != 'CNV'")) != 0 ) {
@@ -111,11 +109,15 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
       ##### Check if the amino acid changes information is available in MAF provided files. The script expects column called "HGVSp_Short", which is produced with vcf2maf (https://github.com/mskcc/vcf2maf) when converting VCFs to MAFs (https://github.com/cBioPortal/cbioportal/issues/2996) and describes a mutation's amino acid change. The "aa_mutation" field used for annotation in ICGC samples is also acceptable. NOTE: other possibilities are: "Protein_Change", "AAChange""
       if ( "HGVSp_Short" %in% maftools::getFields(mafInfo[[dataset]]) ) {
         
-        plot(lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "HGVSp_Short",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, fn = paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"))), add=TRUE )
-
+        plot.new()
+        cat(paste(dataset, "\n\n", sep=" "))
+        plot( maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "HGVSp_Short",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, fn = paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"))) )
+        
       } else if ( "aa_mutation" %in% maftools::getFields(mafInfo[[dataset]]) ) {
         
-        plot( lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "aa_mutation",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, fn = paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"))) )
+        plot.new()
+        cat(paste(dataset, "\n\n", sep=" "))
+        plot( maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "aa_mutation",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, fn = paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"))) )
       
       ##### ...otherwise leave a message
       } else {
@@ -708,13 +710,14 @@ cat("\n\n\n")
 
 #### Recurrently mutated genes
 
-Oncoplot(s) illustrating different types of mutations observed across samples for the **`r top_genes_no[[i]]` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
+Oncoplot(s) illustrating different types of mutations observed across samples for the **most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
-```{r maf_oncoplot, comment = NA, fig.width = 9, fig.height = top_genes_no[[i]]/5}
+```{r maf_oncoplot, comment = NA, fig.width = 9, fig.height = top_genes_no[[i]]/4}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
 
   cat(paste(datasets.list[i], "\n\n", sep=" "))
+  cat(paste(top_genes_no[[i]], "genes mutated in at least", params$genes_min, "% of patients\n\n", sep=" "))
   
   ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
   if ( top_genes_no[[i]] > 1 ) {
@@ -753,7 +756,7 @@ if ( !is.null(params$genes_list) && length(goi) > 1 ) {
     
     print(goi_absent[[i]])
     
-    cat(paste("\n\nThe following genes from provided gene list are also among the top", top_genes_no[[i]], "most frequently mutated genes and are ignored:\n\n", sep=" "))
+    cat(paste("\n\nThe following genes from provided gene list are also among the top", top_genes_no[[i]], "most frequently mutated genes and are ignored in this oncoplot:\n\n", sep=" "))
     
     print(top_genes_goi[[i]])
     
@@ -765,6 +768,8 @@ if ( !is.null(params$genes_list) && length(goi) > 1 ) {
       cat(paste0("Dataset ", datasets.list[i], " has ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample with non-synonymous variants. Cannot create oncoplot for ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample.\n\n\n"))
     }
   }
+} else {
+  cat("No list with genes of interest was provided\n\n\n\n")
 }
 ```
 
@@ -867,18 +872,20 @@ saveWorkbook(wb, paste(outDir, "MAF_oncodriveCLUST.xlsx", sep="/"), overwrite = 
 
 Table(s) presenting per-dataset oncodriveCLUST results, including *cluster scores*, *p-values*, *false discovery rate (FDR) values*, *number of mutations in clusters*, as well as the *fraction of mutations in clusters*. **Cluster score** of 1 means that a single hotspot hosts all observed variants. The genes are ordered according to p-values.
 
-```{r maf_oncodrive_table}
+```{r maf_oncodrive_table, comment=NA, warning=FALSE}
 ##### Generate tables with oncodriveCLUST results
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
   
+  cat(paste(datasets.list[i], "\n\n", sep=" "))
+  
   if ( !is.null(oncodrive.res[[datasets.list[i]]]) ) {
       
     widges.list[[i]] <- DT::datatable(data = oncodrive.res[[datasets.list[i]]][[1]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
       DT::formatStyle( columns = names(oncodrive.res[[datasets.list[i]]][[1]]), 'text-align' = 'center' ) %>%
-  formatRound(columns = c("zscore", "fract_muts_in_clusters"), 1) %>%
+  formatRound(columns = c("clusterScores", "zscore", "fract_muts_in_clusters"), 1) %>%
   formatRound(columns = c("pval", "fdr"), 6)
   
   } else {
@@ -1506,7 +1513,7 @@ if ( !is.null(params$genes_list) ) {
   mut.details.datasets(mafInfo, datasets.list, unlist(genes_list))
   
 } else {
-  cat("No list with genes of interest was provided.\n\n\n\n")
+  cat("No list with genes of interest was provided\n\n\n\n")
 }
 
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
