@@ -21,7 +21,7 @@
 #   maf_files:    List of MAF files to be processed. Each file name is expected to be separated by comma
 #   datasets:     Desired names of each dataset. The names are expected to be in the same order as provided MAF files and should be separated by comma
 #   genes_min (optional):  Minimal percentage of patients carrying mutations in individual genes to be included in the report
-#   genes_list (optional):  Location and name of a file listing genes of interest to be included. The genes are expected to be listed in first column
+#   genes_list (optional):  Location and name of a file listing genes of interest to be considered in the report. The genes are expected to be listed in first column
 #   out_dir:      Name for the output directory that will be created within the directory with MAF files. If no output directory is specified the results will be saved in folder "MAF_summary"
 #
 ################################################################################
@@ -52,7 +52,7 @@ option_list <- list(
   make_option(c("-g", "--genes_min"), action="store", default=NA, type='character',
               help="Minimal percentage of patients carrying mutations in individual genes to be included in the report"),
   make_option(c("-l", "--genes_list"), action="store", default=NA, type='character',
-              help="Location and name of a file listing genes of interest to be included in additional oncoplot"),
+              help="Location and name of a file listing genes of interest to be considered in the report"),
   make_option(c("-o", "--out_dir"), action="store", default=NA, type='character',
               help="Output directory")
 )
