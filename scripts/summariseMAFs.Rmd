@@ -24,9 +24,9 @@ Mutation data summary for dataset(s) **`r gsub(",", ", ", params$datasets) `**
 ***
 NOTE: this report summarises only non-synonymous variants with high/moderate variant consequences, including *frame shift deletions*, *frame shift deletions*, *splice site mutations*, *translation start site mutations*, *nonsense mutation*, *nonstop mutations*, *in-frame deletion*, *in-frame insertions* and *missense mutation*, and ignores silent variants.
 
-[*High impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535) -	the variant is assumed to have high (disruptive) impact in the protein, probably causing protein truncation, loss of function or triggering nonsense mediated decay.
+[*High impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535){target="_blank"} -	the variant is assumed to have high (disruptive) impact in the protein, probably causing protein truncation, loss of function or triggering nonsense mediated decay.
 
-[*Moderate impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535) -	a non-disruptive variant that might change protein effectiveness.
+[*Moderate impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535){target="_blank"} -	a non-disruptive variant that might change protein effectiveness.
 
 ***
 
@@ -430,7 +430,7 @@ suppressMessages(library(DT))
 
 ## Datasets
 
-This report summarises and visualises mutation data in [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) (MAF) files for the following dataset(s):
+This report summarises and visualises mutation data in [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat){target="_blank"} (MAF) files for the following dataset(s):
 
 ```{r datasets, comment = NA}
 ##### Present patient cohorts to be summarised
@@ -796,7 +796,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ### Driver genes detection {.tabset .tabset-fade}
 
-Cancer driver genes detection based on positional clustering using [oncodriveCLUST](http://bg.upf.edu/group/projects/oncodrive-clust.php) algorithm is based on the fact that most of the variants in cancer causing genes are enriched at few specific loci (hot-spots). According to this concept mutations in these regions potentially change the function of these proteins in a manner that provides an adaptive advantage to cancer cells and consequently are positively selected during clonal evolution of tumours. This property can thus be used to nominate novel candidate driver genes, as described in the paper [OncodriveCLUST](https://www.ncbi.nlm.nih.gov/pubmed/23884480) by Tamborero *et al*.
+Cancer driver genes detection based on positional clustering using [oncodriveCLUST](http://bg.upf.edu/group/projects/oncodrive-clust.php){target="_blank"} algorithm is based on the fact that most of the variants in cancer causing genes are enriched at few specific loci (hot-spots). According to this concept mutations in these regions potentially change the function of these proteins in a manner that provides an adaptive advantage to cancer cells and consequently are positively selected during clonal evolution of tumours. This property can thus be used to nominate novel candidate driver genes, as described in the paper [OncodriveCLUST](https://www.ncbi.nlm.nih.gov/pubmed/23884480){target="_blank"} by Tamborero *et al*.
 
 #### Plots
 
@@ -1023,7 +1023,7 @@ cat("\n\n\n")
 
 ### Cross-cancers comparison
 
-Plot(s) illustrating the mutation load in investigated dataset(s) along with distribution of variants compiled from over 10,000 whole-exome sequencing samples across 33 [TCGA](https://cancergenome.nih.gov/) landmark cohorts. Every dot represents a sample whereas the red horizontal lines are the median numbers of mutations in the respective cancer types. The vertical axis (log scaled) shows the number of mutations per megabase whereas the different cancer types are ordered on the horizontal axis based on their median numbers of somatic mutations. This plot is similar to the one described in the paper [Signatures of mutational processes in human cancer](https://www.ncbi.nlm.nih.gov/pubmed/23945592) by Alexandrov *et al*.
+Plot(s) illustrating the mutation load in investigated dataset(s) along with distribution of variants compiled from over 10,000 whole-exome sequencing samples across 33 [TCGA](https://cancergenome.nih.gov/){target="_blank"} landmark cohorts. Every dot represents a sample whereas the red horizontal lines are the median numbers of mutations in the respective cancer types. The vertical axis (log scaled) shows the number of mutations per megabase whereas the different cancer types are ordered on the horizontal axis based on their median numbers of somatic mutations. This plot is similar to the one described in the paper [Signatures of mutational processes in human cancer](https://www.ncbi.nlm.nih.gov/pubmed/23945592){target="_blank"} by Alexandrov *et al*.
 
 ```{r maf_tcga_cohorts, comment = NA, message=FALSE, warning=FALSE}
 ###### Generate separate plot for each dataset
