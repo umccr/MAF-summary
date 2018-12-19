@@ -717,7 +717,7 @@ Oncoplot(s) illustrating different types of mutations observed across samples fo
 for ( i in 1:length(mafFiles) ) {
 
   cat(paste(datasets.list[i], "\n\n", sep=" "))
-  cat(paste(top_genes_no[[i]], "genes mutated in at least", params$genes_min, "% of patients\n\n", sep=" "))
+  cat(paste(top_genes_no[[i]], "genes mutated are in at least", params$genes_min, "% of patients\n\n", sep=" "))
   
   ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
   if ( top_genes_no[[i]] > 1 ) {
@@ -737,7 +737,7 @@ for ( i in 1:length(mafFiles) ) {
 
 #### Additional genes of interest
 
-Oncoplot(s) illustrating different types of mutations observed across samples for the **genes of interest** (if specified). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
+Oncoplot(s) illustrating different types of mutations observed across samples for the **genes of interest** (if specified). The side and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
 ```{r maf_oncoplot_goi, comment = NA, fig.width = 9, fig.height = 10}
 ##### Draw additional oncoplot if a list of genes of intereset was specified by user 
