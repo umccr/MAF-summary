@@ -15,14 +15,14 @@
 #   Description: Script summarising and visualising multiple MAF files using maftools R package ( https://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html ). This script catches the arguments from the command line and passes them to the summariseMAFs.Rmd script to produce the report, generate set of plots and excel spreadsheets summarising each MAF file.
 #   NOTE: Each MAF file needs to contain the "Tumor_Sample_Barcode" column.
 #
-#   Command line use example: Rscript summariseMAFs.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --genes_list genes_of_interest.txt --out_dir MAF_summary
+#   Command line use example: Rscript summariseMAFs.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --genes_list genes_of_interest.txt --out_folder MAF_summary
 #
 #   maf_dir:      Directory with MAF files
 #   maf_files:    List of MAF files to be processed. Each file name is expected to be separated by comma
 #   datasets:     Desired names of each dataset. The names are expected to be in the same order as provided MAF files and should be separated by comma
 #   genes_min (optional):  Minimal percentage of patients carrying mutations in individual genes to be included in the report
 #   genes_list (optional):  Location and name of a file listing genes of interest to be considered in the report. The genes are expected to be listed in first column
-#   out_dir:      Name for the output directory that will be created within the directory with MAF files. If no output directory is specified the results will be saved in folder "MAF_summary"
+#   out_folder:      Name for the output folder that will be created within the directory with MAF files. If no output folder is specified the results will be saved in folder "MAF_summary"
 #
 ################################################################################
 
@@ -53,7 +53,7 @@ option_list <- list(
               help="Minimal percentage of patients carrying mutations in individual genes to be included in the report"),
   make_option(c("-l", "--genes_list"), action="store", default=NA, type='character',
               help="Location and name of a file listing genes of interest to be considered in the report"),
-  make_option(c("-o", "--out_dir"), action="store", default=NA, type='character',
+  make_option(c("-o", "--out_folder"), action="store", default=NA, type='character',
               help="Output directory")
 )
 
@@ -67,7 +67,7 @@ opt$datasets <- gsub("\\s","", opt$datasets)
 if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$datasets) ) {
 
   cat("\nPlease type in required arguments!\n\n")
-  cat("\ncommand example:\n\nRscript summariseMAFs.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --genes_list genes_of_interest.txt --out_dir MAF_summary\n\n")
+  cat("\ncommand example:\n\nRscript summariseMAFs.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --genes_list genes_of_interest.txt --out_folder MAF_summary\n\n")
 
   q()
 } else if ( length(unlist(strsplit(opt$maf_files, split=',', fixed=TRUE))) != length(unlist(strsplit(opt$datasets, split=',', fixed=TRUE))) ) {
@@ -78,8 +78,8 @@ if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$datasets) ) {
 }
 
 ##### Write the results into folder "MAF_summary" if no output directory is specified
-if ( is.na(opt$out_dir) ) {
-	opt$out_dir<- "MAF_summary"
+if ( is.na(opt$out_folder) ) {
+	opt$out_folder<- "MAF_summary"
 }
 
 ##### Present genes with mutations present in >= 4% patients, if not specified differently
@@ -93,4 +93,4 @@ if ( is.na(opt$genes_list) ) {
 }
 
 ##### Pass the user-defined argumentas to the summariseMAFs.R markdown script and run the analysis
-rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_dir, "Report", sep = "/"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, genes_min = opt$genes_min, genes_list = opt$genes_list, out_dir = opt$out_dir))
+rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, genes_min = opt$genes_min, genes_list = opt$genes_list, out_folder = opt$out_folder))
