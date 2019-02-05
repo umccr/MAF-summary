@@ -258,7 +258,7 @@ Argument | Description
 --maf_dir | Directory with *MAF* file(s)
 --maf_files | List of *MAF* file(s) to be processed. Each file name is expected to be separated by comma
 --datasets | Desired names of each dataset. The names are expected to be in the same order as provided *MAF* files
---genes_min | Minimal percentage of patients carrying mutations in individual genes to be included in the report (OPTIONAL)
+--genes_min | Minimal percentage of patients carrying mutations in individual genes to be included in the report (OPTIONAL; default is 4)
 --genes_list | Location and name of a file listing genes of interest to be considered in the report (OPTIONAL)
 --out_folder | Output folder
 
@@ -269,7 +269,7 @@ Argument | Description
 **Command line use example**:
 
 ```
-Rscript summariseMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --out_folder MAF_summary
+Rscript summariseMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --out_folder MAF_summary
 ```
 <br>
 
