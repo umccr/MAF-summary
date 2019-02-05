@@ -41,11 +41,12 @@ my $arg;
 my $maf;
 my $exonicMaf;
 my $mafHeader;
+my $mafHeader_no;
 my $exon_col;
 my @varInfo;
 
 while ($arg = shift) {
-    if ($arg =~ /^-m$/ || $arg =~ /^--vcf_list/) {
+    if ($arg =~ /^-m$/ || $arg =~ /^--maf/) {
         $maf = shift;
     } elsif ($arg =~ /-h/ || $arg =~ /--help/) {
         usage ();
@@ -59,10 +60,34 @@ if ( $maf ) {
     $exonicMaf = $maf;
     $exonicMaf =~ s/\.maf/\.exonic.maf/g;
     
-    ##### Open the file listing input VCFs
+    ##### Open MAF file
     open (MAF, '<', $maf) or die "Could not open file '$maf' $!";
-    $mafHeader = <MAF>;
+    
+    ##### Search for line with MAF header (the one containing "Variant_Classification" column)
+    my $count = 0;
+    
+    while ( my $line = <MAF> ){
+        
+        $count ++;
+        
+        if ( $line =~ /Variant_Classification/ ){
+            
+           $mafHeader = $line;
+           $mafHeader_no = $count;
+        }
+    }
+    
     $mafHeader =~ s/"//g;
+    close (MAF);
+    
+    ##### Open MAF file
+    open (MAF, '<', $maf) or die "Could not open file '$maf' $!";
+    
+    ##### Skip lines before the header (containing "Variant_Classification" column)
+    for ( my $i=0; $i < $mafHeader_no; $i++ ) {
+        
+        my $record = <MAF>;
+    }
     
     ##### Open new MAF file to keep the exonic regions info
     open( MAF_EXONIC, '>', $exonicMaf) or die "Could not open file '$exonicMaf' $!";
