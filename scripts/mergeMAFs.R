@@ -132,6 +132,8 @@ for ( i in 1:length(mafFiles) ) {
 
 mafs.merged <- merge_mafs(mafFiles, MAFobj = FALSE)
 
+##### Make sure that only the Build number is passed to the "
+mafs.merged$NCBI_Build <- gsub("[^0-9.]", "", mafs.merged$NCBI_Build) 
 
 ##### Write subsetted MAF into a file
 write.table(prepare2write(mafs.merged), file=opt$output, sep="\t", row.names=FALSE, quote = FALSE)
