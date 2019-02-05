@@ -712,7 +712,7 @@ cat("\n\n\n")
 
 Oncoplot(s) illustrating different types of mutations observed across samples for the **most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
-```{r maf_oncoplot, comment = NA, fig.width = 9, fig.height = top_genes_no[[i]]/5}
+```{r maf_oncoplot, comment = NA, fig.width = 9, fig.height = top_genes_no[[i]]/4}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
 
