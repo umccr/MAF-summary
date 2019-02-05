@@ -241,7 +241,7 @@ Rscript mergeMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PAC
 
 >This will create merged ***/data/icgc.simple_somatic_mutation.merged.maf*** file with mutation data from the individual ***/data/simple_somatic_mutation.open.PACA-AU.maf*** and ***/data/simple_somatic_mutation.open.PACA-CA.maf*** files.
 
-NOTE: If no output file name is specified the output will be saved as *merged.maf*.
+NOTE: If no output file name is specified the output will be saved as *merged.maf* in the directory with MAF files to be merged.
 
 <br>
 
@@ -290,6 +290,8 @@ Some example MAF files are located on [Spartan](https://dashboard.hpc.unimelb.ed
 To summarise MAF file(s) for specific set of genes run the *[summariseMAFsGenes.R](./scripts/summariseMAFsGenes.R)* script. This script catches the arguments from the command line and passes them to the *[summariseMAFsGenes.Rmd](./scripts/summariseMAFsGenes.Rmd)* script to produce the html report, generate set of plots and excel spreadsheets summarising user-defined genes for individual MAF files.
 
 NOTE: Only non-synonymous variants with high/moderate variant consequences, including *frame shift deletions*, *frame shift deletions*, *splice site mutations*, *translation start site mutations* ,*nonsense mutation*, *nonstop mutations*, *in-frame deletion*, *in-frame insertions* and *missense mutation*, are reported (silent variants are ignored).
+
+Make sure that *[X11](https://www.xquartz.org/)* is installed, as this is required to generate the interactive plots.
 
 **Script**: *[summariseMAFsGenes.R](./scripts/summariseMAFsGenes.R)*
 
