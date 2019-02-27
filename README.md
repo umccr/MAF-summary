@@ -77,12 +77,12 @@ Argument | Description
 **Command line use example**:
 
 ```
-perl multi_vcf2maf.pl  -l /examples/example_vcf_list.txt  -e FALSE  -s /tools/vcf2maf.pl  -r /reference/GRCh37-lite.fa  -m /data/example.maf
+perl multi_vcf2maf.pl  -l /examples/example_vcf_list.txt  -e FALSE  -s /tools/vcf2maf.pl  -r /reference/GRCh37-lite.fa  -m example.maf
 ```
 <br>
 
 
->This will convert the [VCF](http://www.internationalgenome.org/wiki/Analysis/vcf4.0/) files listed in [example_vcf_list.txt](./examples/example_vcf_list.txt) into corresponding MAF files, which are then will be merged into one collective MAF file **example.maf** saved in **data** directory.
+>This will convert the [VCF](http://www.internationalgenome.org/wiki/Analysis/vcf4.0/) files listed in [example_vcf_list.txt](./examples/example_vcf_list.txt) into corresponding MAF files, which are then will be merged into one collective MAF file **example.maf** saved in **examples** directory.
 
 <br>
 
