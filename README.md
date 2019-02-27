@@ -67,6 +67,7 @@ To convert multiple VCF files into one collective MAF file use *[multi_vcf2maf.p
 Argument | Description
 ------------ | ------------
 --vcf_list | Full path with name of a file listing VCF files to be converted
+--exons | Include exonic regions only: TRUE/T or FALSE/F (defualt)
 --v2m | Full path to [vcf2maf.pl](https://github.com/mskcc/vcf2maf) script
 --ref | Reference FASTA file
 --maf_file | Name of the merged MAF file to be created
@@ -76,7 +77,7 @@ Argument | Description
 **Command line use example**:
 
 ```
-perl multi_vcf2maf.pl  -l /examples/example_vcf_list.txt  -s /tools/vcf2maf.pl  -r /reference/GRCh37-lite.fa  -m /data/example.maf
+perl multi_vcf2maf.pl  -l /examples/example_vcf_list.txt  -e FALSE  -s /tools/vcf2maf.pl  -r /reference/GRCh37-lite.fa  -m /data/example.maf
 ```
 <br>
 
