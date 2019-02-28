@@ -74,6 +74,15 @@ Argument | Description
 
 <br />
 
+
+NOTE: *Samtools* and *tabix* are required to run this script. These can be loaded on [Spartan](https://dashboard.hpc.unimelb.edu.au/) with *module load* commnand:
+
+```
+module load SAMtools/1.9-intel-2018.u4
+
+module load tabix/0.2.6-intel-2017.u2
+```
+
 **Command line use example**:
 
 ```
@@ -84,15 +93,6 @@ perl multi_vcf2maf.pl  -l /examples/example_vcf_list.txt  -e FALSE  -s /tools/vc
 
 >This will convert the [VCF](http://www.internationalgenome.org/wiki/Analysis/vcf4.0/) files listed in [example_vcf_list.txt](./examples/example_vcf_list.txt) into corresponding MAF files, which are then will be merged into one collective MAF file **example.maf** saved in **examples** directory.
 >
-
-
-NOTE: *Samtools* and *tabix* are required to run this script. These can be loaded on [Spartan](https://dashboard.hpc.unimelb.edu.au/) with *module load* commnand:
-
-```
-module load SAMtools/1.9-intel-2018.u4
-
-module load tabix/0.2.6-intel-2017.u2
-```
 
 <br>
 
