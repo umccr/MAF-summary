@@ -195,8 +195,7 @@ if ($vcfList and $exons and $outMaf and $v2m and $ref) {
     }
     
     system("cat $mafFiles > $outMaf.tmp");
-    system("sed -i '' '/version 2.4/d' $outMaf.tmp");
-    system("sed -i '' '/Hugo_Symbol/d' $outMaf.tmp");
+    system("grep -E -v 'version 2.4|Hugo_Symbol' $outMaf.tmp > $outMaf.tmp2; mv $outMaf.tmp2 $outMaf.tmp");
         
     ##### Add the header at the beginning of the final MAF file
     open ( MAF, '<',  $mafFile) or die "Could not open file '$mafFile' $!";
