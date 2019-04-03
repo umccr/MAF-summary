@@ -2,13 +2,6 @@
 title: "MAF files summary"
 author: "UMCCR"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-params:
-  maf_dir: 
-  maf_files: 
-  datasets: 
-  genes_min: 
-  genes_list: 
-  out_folder: 
 output:
   html_document:
     theme: readable
@@ -17,6 +10,13 @@ output:
     code_folding: hide
   rmdformats::material:
     highlight: kate
+params:
+  maf_dir: 
+  maf_files: 
+  datasets: 
+  genes_min: 
+  genes_list: 
+  out_folder: 
 ---
 
 Mutation data summary for dataset(s) **`r gsub(",", ", ", params$datasets) `**
@@ -507,7 +507,7 @@ for ( i in 1:length(mafFiles) ) {
 
 Table(s) with basic information about each dataset based on data in corresponding MAF file(s).
 
-```{r overll_summary, warning=FALSE}
+```{r overll_summary, comment = NA, message=FALSE, warning=FALSE}
 ##### Write overall summary into a file
 ##### Assign different colour to individual datasets
 datasets.colour <- getDatasetsColours(datasets.list)
@@ -653,6 +653,10 @@ names(top_genes_no) <- datasets.list
 mut_freq <- vector("list", length(mafFiles))
 names(mut_freq) <- datasets.list
 
+##### Set height for oncoplots
+oncoplot_height <-  vector("list", length(mafFiles))
+names(oncoplot_height) <- datasets.list
+
 for ( i in 1:length(mafFiles) ) {
   
   ##### Get mutation frequency for each gene
@@ -661,6 +665,14 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Get the number of genes that have mutations in the defined minimal percentage of samples (4% as default)
   top_genes_no[[i]] <- length( mut_freq[[i]][ mut_freq[[i]] >= as.numeric(params$genes_min) ] )
+  
+  ##### Set height for oncoplots
+  if ( top_genes_no[[i]] > 10 ) {
+    
+    oncoplot_height[[i]] <- 100*top_genes_no[[i]]/2
+  } else {
+    oncoplot_height[[i]] <- 900
+  }
 }
 ```
 
@@ -696,6 +708,17 @@ if ( !is.null(params$genes_list) ) {
     ##### Remove genes absent in MAF from the genes of interest list
     genes_list[[i]] <- genes_list[[i]][ genes_list[[i]] %!in% goi_absent[[i]] ]
   }
+  
+  ##### Set height for oncoplots
+  oncoplot_goi_height <-  vector("list", length(mafFiles))
+  names(oncoplot_goi_height) <- datasets.list
+
+  if ( length(goi) > 10 ) {
+    
+    oncoplot_goi_height <- 100*length(goi)/2
+  } else {
+    oncoplot_goi_height <- 900
+  }
 }
 
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
@@ -712,23 +735,29 @@ cat("\n\n\n")
 
 Oncoplot(s) illustrating different types of mutations observed across samples for the **most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
-```{r maf_oncoplot, comment = NA, fig.width = 9, fig.height = top_genes_no[[i]]/4}
-###### Generate separate plot for each dataset
+```{r maf_oncoplot, comment = NA, results="asis"}
+##### Save oncoplot into the file
+##### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
-
+  
   cat(paste(datasets.list[i], "\n\n", sep=" "))
   cat(paste(top_genes_no[[i]], "genes are mutated in at least", params$genes_min, "% of patients\n\n", sep=" "))
   
-  ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
+  ##### Generate oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
   if ( top_genes_no[[i]] > 1 ) {
     
+    ##### Save the plot as PNG
+    png( file = paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_height[[i]], units = "px", res = 200 )
+      
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 12)
-  
-  } else {
-    cat(paste0("Dataset ", datasets.list[i], " has ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample with non-synonymous variants. Cannot create oncoplot for ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample.\n\n\n"))
+    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 12, colbar_pathway = TRUE, removeNonMutated = FALSE)
+    dev.off()
+    
+    ##### Read in the oncoplots PNG files
+    cat("![](",paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""),")")
+    cat(paste(rep("-", 80)), "\n")
   }
 }
 ```
@@ -739,7 +768,7 @@ for ( i in 1:length(mafFiles) ) {
 
 Oncoplot(s) illustrating different types of mutations observed across samples for the **genes of interest** (if specified). The side and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
-```{r maf_oncoplot_goi, comment = NA, fig.width = 9, fig.height = 10}
+```{r maf_oncoplot_goi, comment = NA, results="asis"}
 ##### Draw additional oncoplot if a list of genes of intereset was specified by user 
 ###### Generate separate plot for each dataset
 if ( !is.null(params$genes_list) && length(goi) > 1 ) {
@@ -749,20 +778,29 @@ if ( !is.null(params$genes_list) && length(goi) > 1 ) {
     cat(paste(datasets.list[i], "\n\n", sep=" "))
     
     ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
-  if ( top_genes_no[[i]] > 1 ) {
+    if ( top_genes_no[[i]] > 1 ) {
     
-    ##### Report genes missing in individual MAFs, as well as those which are within the list of genes of interest and are also among the most frequently mutated genes
-    cat(paste("The following genes from provided gene list are missing from", datasets.list[i], "MAF:\n\n", sep=" "))
-    
-    print(goi_absent[[i]])
-    
-    cat(paste("\n\nThe following genes from provided gene list are also among the top", top_genes_no[[i]], "most frequently mutated genes and are ignored in this oncoplot:\n\n", sep=" "))
-    
-    print(top_genes_goi[[i]])
-    
-    plot.new()
-    par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list[[i]], fontSize = 12)
+      ##### Report genes missing in individual MAFs, as well as those which are within the list of genes of interest and are also among the most frequently mutated genes
+      cat(paste("The following genes from provided gene list are missing from", datasets.list[i], "MAF:\n\n", sep=" "))
+      
+      cat(goi_absent[[i]])
+      
+      cat(paste("\n\nThe following genes from provided gene list are also among the top", top_genes_no[[i]], "most frequently mutated genes and are ignored in this oncoplot:\n\n", sep=" "))
+      
+      cat(top_genes_goi[[i]], "\n\n")
+      
+      ##### Save the plot as PNG
+      png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height, units = "px", res = 200 )
+        
+      ##### Drawing oncoplots for the top mutated genes in each dataset
+      plot.new()
+      par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
+      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list[[i]], fontSize = 12, colbar_pathway = TRUE, removeNonMutated = FALSE)
+      dev.off()
+      
+      ##### Read in the oncoplots PNG files
+      cat("![](",paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""),")")
+      cat(paste(rep("-", 80)), "\n")
 
     } else {
       cat(paste0("Dataset ", datasets.list[i], " has ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample with non-synonymous variants. Cannot create oncoplot for ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample.\n\n\n"))
@@ -1472,7 +1510,7 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[30]]) != 0 ) {
 
 Tables with detailed information, as as provided in corresponding MAF file(s), for the **`r top_genes_no[[i]]` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) across all datasets, as well as for the **genes of interest** (if specified).
 
-```{r details_mut_table}
+```{r details_mut_table, comment = NA, message=FALSE, warning=FALSE}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
 ##### Create a new workbook
 wb <- createWorkbook("MAF_top_mutations_details.xlsx")
@@ -1492,7 +1530,7 @@ saveWorkbook(wb, paste(outDir, "MAF_top_mutations_details.xlsx", sep="/"), overw
 
 ### Recurrently mutated genes
 
-```{r details_mut, comment = NA}
+```{r details_mut, comment = NA, message=FALSE, warning=FALSE}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
 mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[c(1:max(unlist(top_genes_no[[i]])))])
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
@@ -1503,7 +1541,7 @@ cat("\n\n\n")
 
 ### Additional genes of interest
 
-```{r details_mut_goi, comment = NA}
+```{r details_mut_goi, comment = NA, message=FALSE, warning=FALSE}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
 
 if ( !is.null(params$genes_list) ) {
@@ -1697,7 +1735,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 12)
+    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 12, colbar_pathway = TRUE, removeNonMutated = FALSE)
   }
   
   ##### Drawing oncoplots for additional genes of interest (if specified)
@@ -1710,7 +1748,7 @@ for ( i in 1:length(mafFiles) ) {
       
       plot.new()
       par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list[[i]], fontSize = 12)
+      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list[[i]], fontSize = 12, colbar_pathway = TRUE, removeNonMutated = FALSE)
       }
     }
   }
@@ -1737,7 +1775,11 @@ for ( i in 1:length(mafFiles) ) {
 
 ***
 
-## Parameters
+## Addendum
+
+<details>
+<summary>Parameters</summary>
+<font size="2">
 
 ```{r params_info, comment = NA}
 for ( i in 1:length(params) ) {
@@ -1746,10 +1788,16 @@ for ( i in 1:length(params) ) {
 }
 ```
 
-***
+</font>
+</details>
 
-## Addendum
+<details>
+<summary>Session info</summary>
+<font size="2">
 
 ```{r sessioninfo, comment = NA}
 devtools::session_info()
 ```
+
+</font>
+</details>
