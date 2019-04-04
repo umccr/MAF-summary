@@ -109,22 +109,49 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
       ##### Check if the amino acid changes information is available in MAF provided files. The script expects column called "HGVSp_Short", which is produced with vcf2maf (https://github.com/mskcc/vcf2maf) when converting VCFs to MAFs (https://github.com/cBioPortal/cbioportal/issues/2996) and describes a mutation's amino acid change. The "aa_mutation" field used for annotation in ICGC samples is also acceptable. NOTE: other possibilities are: "Protein_Change", "AAChange""
       if ( "HGVSp_Short" %in% maftools::getFields(mafInfo[[dataset]]) ) {
         
-        plot.new()
-        cat(paste(dataset, "\n\n", sep=" "))
-        plot( maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "HGVSp_Short",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, fn = paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"))) )
+        cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
         
+        ##### Make it plot to a dummy graphics device file (e.g. /dev/null) to avoid plotting to the console
+        pdf(file="/dev/null")
+        lollipopPlot.image <- capture.output(maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "HGVSp_Short", printCount = FALSE, showDomainLabel = FALSE, repel = FALSE, labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, fn = paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"))))
+        invisible(dev.off())
+        
+        ##### Export pdf to png
+        lollipopPlot.image <- image_read_pdf(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""), pages = NULL, density = 300)
+        image_write(lollipopPlot.image, path = paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".png", sep = ""), format = "png")
+        
+        ##### Read in the oncoplots PNG files
+        cat("![](",paste(paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_")), ".png", sep = ""),")")
+        
+        ##### Remove redundant pdf plot
+        file.remove(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""))
+    
       } else if ( "aa_mutation" %in% maftools::getFields(mafInfo[[dataset]]) ) {
         
-        plot.new()
-        cat(paste(dataset, "\n\n", sep=" "))
-        plot( maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "aa_mutation",  labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, fn = paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"))) )
+        cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
+        
+        ##### Make it plot to a dummy graphics device file (e.g. /dev/null) to avoid plotting to the console
+        pdf(file="/dev/null")
+        lollipopPlot.image <- capture.output(maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "aa_mutation", printCount = FALSE, showDomainLabel = FALSE, repel = FALSE, labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, fn = paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"))))
+        invisible(dev.off())
+        
+        ##### Export pdf to png
+        lollipopPlot.image <- image_read_pdf(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""), pages = NULL, density = 300)
+        image_write(lollipopPlot.image, path = paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".png", sep = ""), format = "png")
+        
+        ##### Read in the oncoplots PNG files
+        cat("![](",paste(paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_")), ".png", sep = ""),")")
+        
+        ##### Remove redundant pdf plot
+        file.remove(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""))
       
       ##### ...otherwise leave a message
       } else {
         cat(paste("This section was skipped for dataset", dataset, "since the corresponding MAF does not contain field with amino acid changes details!\n\n\n\n", sep=" "))
       }
     } else {
-      cat(paste("Gene", gene, "has no mutations reported in dataset", dataset, "\n\n\n\n", sep=" "))
+      cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
+      cat(paste("Gene <i>", gene, "</i> has no mutations reported in dataset", dataset, "\n\n\n\n", sep=" "))
     }
   }
 }
@@ -426,6 +453,7 @@ suppressMessages(library(maftools))
 suppressMessages(library(openxlsx))
 suppressMessages(library(ggplot2))
 suppressMessages(library(DT))
+suppressMessages(library(magick))
 ```
 
 ## Datasets
@@ -715,7 +743,7 @@ if ( !is.null(params$genes_list) ) {
 
   if ( length(goi) > 10 ) {
     
-    oncoplot_goi_height <- 100*length(goi)/2
+    oncoplot_goi_height <- 100*length(goi)/4
   } else {
     oncoplot_goi_height <- 900
   }
@@ -740,7 +768,7 @@ Oncoplot(s) illustrating different types of mutations observed across samples fo
 ##### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
   
-  cat(paste(datasets.list[i], "\n\n", sep=" "))
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   cat(paste(top_genes_no[[i]], "genes are mutated in at least", params$genes_min, "% of patients\n\n", sep=" "))
   
   ##### Generate oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
@@ -775,19 +803,19 @@ if ( !is.null(params$genes_list) && length(goi) > 1 ) {
   
   for ( i in 1:length(mafFiles) ) {
   
-    cat(paste(datasets.list[i], "\n\n", sep=" "))
+    cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
     
     ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
     if ( top_genes_no[[i]] > 1 ) {
     
       ##### Report genes missing in individual MAFs, as well as those which are within the list of genes of interest and are also among the most frequently mutated genes
-      cat(paste("The following genes from provided gene list are missing from", datasets.list[i], "MAF:\n\n", sep=" "))
+      cat(paste("* The following genes from provided gene list are missing from", datasets.list[i], "MAF:\n\n", sep=" "))
       
-      cat(goi_absent[[i]])
+      cat(paste("<i>", goi_absent[[i]], "</i>", collapse = ", "))
       
-      cat(paste("\n\nThe following genes from provided gene list are also among the top", top_genes_no[[i]], "most frequently mutated genes and are ignored in this oncoplot:\n\n", sep=" "))
+      cat(paste("\n\n* The following genes from provided gene list are also among the top", top_genes_no[[i]], "most frequently mutated genes and are ignored in this oncoplot:\n\n", sep=" "))
       
-      cat(top_genes_goi[[i]], "\n\n")
+      cat(paste("<i>", top_genes_goi[[i]], "</i>", collapse = ", "), "\n\n")
       
       ##### Save the plot as PNG
       png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height, units = "px", res = 200 )
@@ -1118,10 +1146,10 @@ gff = readRDS(file = gff)
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[1]) ) { names(mutRate.top.datasets)[1] }`
 
-```{r lollipop_plot_1, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_1, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 1st top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[1]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[1]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[1]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[1], "is not available\n\n\n\n", sep=" "))
 }
@@ -1131,10 +1159,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[1]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[2]) ) { names(mutRate.top.datasets)[2] }`
 
-```{r lollipop_plot_2, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_2, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 2nd top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[2]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[2]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[2]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[2], "is not available\n\n\n\n", sep=" "))
 }
@@ -1144,10 +1172,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[2]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[3]) ) { names(mutRate.top.datasets)[3] }`
 
-```{r lollipop_plot_3, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_3, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 3rd top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[3]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[3]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[3]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[3], "is not available\n\n\n\n", sep=" "))
 }
@@ -1157,10 +1185,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[3]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[4]) ) { names(mutRate.top.datasets)[4] }`
 
-```{r lollipop_plot_4, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_4, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 4th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[4]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[4]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[4]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[4], "is not available\n\n\n\n", sep=" "))
 }
@@ -1170,10 +1198,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[4]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[5]) ) { names(mutRate.top.datasets)[5] }`
 
-```{r lollipop_plot_5, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_5, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 5th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[5]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[5]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[5]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[5], "is not available\n\n\n\n", sep=" "))
 }
@@ -1183,10 +1211,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[5]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[6]) ) { names(mutRate.top.datasets)[6] }`
 
-```{r lollipop_plot_6, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_6, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 6th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[6]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[6]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[6]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[6], "is not available\n\n\n\n", sep=" "))
 }
@@ -1196,10 +1224,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[6]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[7]) ) { names(mutRate.top.datasets)[7] }`
 
-```{r lollipop_plot_7, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_7, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 7th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[7]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[7]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[7]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[7], "is not available\n\n\n\n", sep=" "))
 }
@@ -1209,10 +1237,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[7]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[8]) ) { names(mutRate.top.datasets)[8] }`
 
-```{r lollipop_plot_8, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_8, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 8th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[8]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[8]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[8]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[8], "is not available\n\n\n\n", sep=" "))
 }
@@ -1222,10 +1250,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[8]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[9]) ) { names(mutRate.top.datasets)[9] }`
 
-```{r lollipop_plot_9, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_9, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 9th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[9]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[9]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[9]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[9], "is not available\n\n\n\n", sep=" "))
 }
@@ -1235,10 +1263,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[9]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[10]) ) { names(mutRate.top.datasets)[10] }`
 
-```{r lollipop_plot_10, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_10, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 10th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[10]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[10]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[10]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[10], "is not available\n\n\n\n", sep=" "))
 }
@@ -1248,10 +1276,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[10]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[11]) ) { names(mutRate.top.datasets)[11] }`
 
-```{r lollipop_plot_11, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_11, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 11th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[11]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[11]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[11]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[11], "is not available\n\n\n\n", sep=" "))
 }
@@ -1261,10 +1289,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[11]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[12]) ) { names(mutRate.top.datasets)[12] }`
 
-```{r lollipop_plot_12, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_12, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 12th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[12]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[12]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[12]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[12], "is not available\n\n\n\n", sep=" "))
 }
@@ -1274,10 +1302,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[12]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[13]) ) { names(mutRate.top.datasets)[13] }`
 
-```{r lollipop_plot_13, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_13, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 13th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[13]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[13]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[13]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[13], "is not available\n\n\n\n", sep=" "))
 }
@@ -1287,10 +1315,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[13]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[14]) ) { names(mutRate.top.datasets)[14] }`
 
-```{r lollipop_plot_14, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_14, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 14th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[14]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[14]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[14]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[14], "is not available\n\n\n\n", sep=" "))
 }
@@ -1300,10 +1328,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[14]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[15]) ) { names(mutRate.top.datasets)[15] }`
 
-```{r lollipop_plot_15, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_15, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 15th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[15]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[15]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[15]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[15], "is not available\n\n\n\n", sep=" "))
 }
@@ -1313,10 +1341,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[15]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[16]) ) { names(mutRate.top.datasets)[16] }`
 
-```{r lollipop_plot_16, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_16, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 16th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[16]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[16]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[16]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[16], "is not available\n\n\n\n", sep=" "))
 }
@@ -1326,10 +1354,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[16]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[17]) ) { names(mutRate.top.datasets)[17] }`
 
-```{r lollipop_plot_17, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_17, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 17th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[17]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[17]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[17]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[17], "is not available\n\n\n\n", sep=" "))
 }
@@ -1339,10 +1367,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[17]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[18]) ) { names(mutRate.top.datasets)[18] }`
 
-```{r lollipop_plot_18, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_18, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 18th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[18]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[18]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[18]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[18], "is not available\n\n\n\n", sep=" "))
 }
@@ -1352,10 +1380,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[18]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[19]) ) { names(mutRate.top.datasets)[19] }`
 
-```{r lollipop_plot_19, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_19, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 19th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[19]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[19]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[19]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[19], "is not available\n\n\n\n", sep=" "))
 }
@@ -1365,10 +1393,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[19]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[20]) ) { names(mutRate.top.datasets)[20] }`
 
-```{r lollipop_plot_20, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_20, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 20th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[20]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[20]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[20]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[20], "is not available\n\n\n\n", sep=" "))
 }
@@ -1378,10 +1406,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[20]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[21]) ) { names(mutRate.top.datasets)[21] }`
 
-```{r lollipop_plot_21, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_21, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 21st top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[21]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[21]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[21]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[21], "is not available\n\n\n\n", sep=" "))
 }
@@ -1391,10 +1419,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[21]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[22]) ) { names(mutRate.top.datasets)[22] }`
 
-```{r lollipop_plot_22, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_22, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 22nd top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[22]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[22]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[22]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[22], "is not available\n\n\n\n", sep=" "))
 }
@@ -1404,10 +1432,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[22]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[23]) ) { names(mutRate.top.datasets)[23] }`
 
-```{r lollipop_plot_23, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_23, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 23rd top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[23]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[23]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[23]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[23], "is not available\n\n\n\n", sep=" "))
 }
@@ -1417,10 +1445,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[23]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[24]) ) { names(mutRate.top.datasets)[24] }`
 
-```{r lollipop_plot_24, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_24, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 24th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[24]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[24]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[24]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[24], "is not available\n\n\n\n", sep=" "))
 }
@@ -1430,10 +1458,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[24]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[25]) ) { names(mutRate.top.datasets)[25] }`
 
-```{r lollipop_plot_25, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_25, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 25th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[25]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[25]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[25]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[25], "is not available\n\n\n\n", sep=" "))
 }
@@ -1443,10 +1471,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[25]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[26]) ) { names(mutRate.top.datasets)[26] }`
 
-```{r lollipop_plot_26, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_26, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 26th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[26]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[26]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[26]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[26], "is not available\n\n\n\n", sep=" "))
 }
@@ -1456,10 +1484,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[26]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[27]) ) { names(mutRate.top.datasets)[27] }`
 
-```{r lollipop_plot_27, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_27, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 27th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[27]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[27]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[27]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[27], "is not available\n\n\n\n", sep=" "))
 }
@@ -1469,10 +1497,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[27]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[28]) ) { names(mutRate.top.datasets)[28] }`
 
-```{r lollipop_plot_28, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_28, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 28th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[28]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[28]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[28]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[28], "is not available\n\n\n\n", sep=" "))
 }
@@ -1482,10 +1510,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[28]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[29]) ) { names(mutRate.top.datasets)[29] }`
 
-```{r lollipop_plot_29, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_29, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 29th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[29]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[29]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[29]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[29], "is not available\n\n\n\n", sep=" "))
 }
@@ -1495,10 +1523,10 @@ if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[29]]) != 0 ) {
 
 ### `r if ( !is.na(names(mutRate.top.datasets)[30]) ) { names(mutRate.top.datasets)[30] }`
 
-```{r lollipop_plot_30, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 3}
+```{r lollipop_plot_30, comment = NA, message=FALSE, warning=FALSE, results = "asis"}
 ###### Generate lollipop plot for each dataset for 30th top mutated gene
 if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[30]]) != 0 ) {
-  try(lollipops.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[30]), silent = TRUE)
+  try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[30]), silent = TRUE)
 } else {
    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[30], "is not available\n\n\n\n", sep=" "))
 }
@@ -1726,7 +1754,7 @@ for ( i in 1:length(mafFiles) ) {
 
   ##### Plotting MAF summary
   par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-  plotmafSummary(maf = mafInfo[[i]], rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
+  plotmafSummary(maf = mafInfo[[i]], top = top_genes_no[[i]], rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
   mtext("MAF summary", outer=TRUE,  cex=1, line=-0.5)
 
   ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
@@ -1740,16 +1768,13 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Drawing oncoplots for additional genes of interest (if specified)
   if ( !is.null(params$genes_list) && length(goi) > 1 ) {
-    
-    for ( i in 1:length(mafFiles) ) {
 
-      ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
+    ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
     if ( top_genes_no[[i]] > 1 ) {
       
       plot.new()
       par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
       maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list[[i]], fontSize = 12, colbar_pathway = TRUE, removeNonMutated = FALSE)
-      }
     }
   }
   
