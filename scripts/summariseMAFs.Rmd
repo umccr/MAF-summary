@@ -36,14 +36,6 @@ NOTE: this report summarises only non-synonymous variants with high/moderate var
 ##### Create 'not in' operator
 "%!in%" <- function(x,table) match(x,table, nomatch = 0) == 0
 
-##### Prepare object to write into a file
-prepare2write <- function (x) {
-  
-  x2write <- cbind(rownames(x), x)
-  colnames(x2write) <- c("Gene",colnames(x))
-  return(x2write)
-}
-
 ##### Assign colours to different datasets. These colours will be used to distinguish tabs in generated excel summary spreadsheets
 getDatasetsColours <- function(datasets) {
   
@@ -709,8 +701,8 @@ for ( i in 1:length(mafFiles) ) {
 ##### Check if the use-defined genes of interest are already present withing the top most frequently mutated genes
 if ( !is.null(params$genes_list) ) {
   
-  genes_list <- vector("list", length(mafFiles))
-  names(genes_list) <- datasets.list
+  genes_list_goi <- vector("list", length(mafFiles))
+  names(genes_list_goi) <- datasets.list
   
   goi_absent <- vector("list", length(mafFiles))
   names(goi_absent) <- datasets.list
@@ -731,10 +723,10 @@ if ( !is.null(params$genes_list) ) {
     
     ##### Keep the genes of interest and most frequently mutated genes separately
     top_genes_goi[[i]] <- goi[ goi %in% top_genes[[i]] ]
-    genes_list[[i]] <- goi[ goi %!in% top_genes[[i]] ]
+    genes_list_goi[[i]] <- goi[ goi %!in% top_genes[[i]] ]
     
     ##### Remove genes absent in MAF from the genes of interest list
-    genes_list[[i]] <- genes_list[[i]][ genes_list[[i]] %!in% goi_absent[[i]] ]
+    genes_list_goi[[i]] <- genes_list_goi[[i]][ genes_list_goi[[i]] %!in% goi_absent[[i]] ]
   }
   
   ##### Set height for oncoplots
@@ -806,7 +798,7 @@ if ( !is.null(params$genes_list) && length(goi) > 1 ) {
     cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
     
     ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
-    if ( top_genes_no[[i]] > 1 ) {
+    if ( length(genes_list_goi[[i]]) > 1 ) {
     
       ##### Report genes missing in individual MAFs, as well as those which are within the list of genes of interest and are also among the most frequently mutated genes
       cat(paste("* The following genes from provided gene list are missing from", datasets.list[i], "MAF:\n\n", sep=" "))
@@ -823,7 +815,7 @@ if ( !is.null(params$genes_list) && length(goi) > 1 ) {
       ##### Drawing oncoplots for the top mutated genes in each dataset
       plot.new()
       par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list[[i]], fontSize = 12, colbar_pathway = TRUE, removeNonMutated = FALSE)
+      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list_goi[[i]], fontSize = 12, colbar_pathway = TRUE, removeNonMutated = FALSE)
       dev.off()
       
       ##### Read in the oncoplots PNG files
@@ -984,7 +976,7 @@ for ( i in 1:length(mafFiles) ) {
   ##### Drawing distribution plots of the transitions and transversions
   titv.info[[datasets.list[i]]] <- maftools::titv(maf = mafInfo[[i]], plot = FALSE, useSyn = TRUE)
 
-  maftools::plotTiTv(res = titv.info[[datasets.list[i]]])
+  try(maftools::plotTiTv(res = titv.info[[datasets.list[i]]]), silent = TRUE)
   mtext("Transition and transversions distribution", outer=TRUE,  cex=1, line=-1.5)
 }
 ```
@@ -1115,9 +1107,9 @@ for ( i in 1:length(mafFiles) ) {
   genes.top <- maftools::getGeneSummary(mafInfo[[i]])[c(1:top_genes_no[[i]]), Hugo_Symbol]
   
   ##### Add genes of interest to the list (if specified)
-  if ( !is.null(params$genes_list) ){
+  if ( !is.null(params$genes_list_goi) ){
     
-    genes.top <- c(genes.top, genes_list[[i]])
+    genes.top <- c(genes.top, genes_list_goi[[i]])
   }
     
   sampleSize <- as.numeric(mafInfo[[i]]@summary[ID %in% "Samples", summary])
@@ -1574,7 +1566,7 @@ cat("\n\n\n")
 
 if ( !is.null(params$genes_list) ) {
   
-  mut.details.datasets(mafInfo, datasets.list, unlist(genes_list))
+  mut.details.datasets(mafInfo, datasets.list, unlist(genes_list_goi))
   
 } else {
   cat("No list with genes of interest was provided\n\n\n\n")
@@ -1770,11 +1762,11 @@ for ( i in 1:length(mafFiles) ) {
   if ( !is.null(params$genes_list) && length(goi) > 1 ) {
 
     ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
-    if ( top_genes_no[[i]] > 1 ) {
+    if ( length(genes_list_goi[[i]]) > 1 ) {
       
       plot.new()
       par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list[[i]], fontSize = 12, colbar_pathway = TRUE, removeNonMutated = FALSE)
+      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list_goi[[i]], fontSize = 12, colbar_pathway = TRUE, removeNonMutated = FALSE)
     }
   }
   
@@ -1787,7 +1779,7 @@ for ( i in 1:length(mafFiles) ) {
   ##### Drawing distribution plots of the transitions and transversions
   titv.info = titv(maf = mafInfo[[i]], plot = FALSE, useSyn = TRUE)
 
-  plotTiTv(res = titv.info)
+  try(plotTiTv(res = titv.info), silent = TRUE)
   mtext("Transition and transversions distribution", outer=TRUE,  cex=1, line=-1.5)
 
   ##### Compare mutation load against TCGA cohorts
