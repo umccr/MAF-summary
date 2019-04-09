@@ -80,7 +80,7 @@ mut.details.datasets <- function(mafInfo, datasets, genes) {
   ##### Report datasets with no mutations reported in selected genes
   if ( length(datasets.noMut) != 0 ) {
     
-    cat(paste("Note, gene(s)", genes, "have no mutations reported in the following datasets:", paste(datasets.noMut, collapse = ", "), "\n\n\n\n", sep=" "))
+    cat(paste("Note, queried gene(s)", genes, "have no non-synonymous variants reported in the following dataset(s):", paste(datasets.noMut, collapse = ", "), "\n\n\n\n", sep=" "))
   }
   
   ##### Print a list of htmlwidgets
@@ -687,9 +687,14 @@ for ( i in 1:length(mafFiles) ) {
   top_genes_no[[i]] <- length( mut_freq[[i]][ mut_freq[[i]] >= as.numeric(params$genes_min) ] )
   
   ##### Set height for oncoplots
-  if ( top_genes_no[[i]] > 10 ) {
+  if ( top_genes_no[[i]] > 100 ) {
+    
+    oncoplot_height[[i]] <- 100*top_genes_no[[i]]/3
+    
+  } else if ( top_genes_no[[i]] > 19 ) {
     
     oncoplot_height[[i]] <- 100*top_genes_no[[i]]/2
+    
   } else {
     oncoplot_height[[i]] <- 900
   }
@@ -713,6 +718,10 @@ if ( !is.null(params$genes_list) ) {
   top_genes <- vector("list", length(mafFiles))
   names(top_genes) <- datasets.list
   
+  ##### Set height for oncoplots
+  oncoplot_goi_height <-  vector("list", length(mafFiles))
+  names(oncoplot_goi_height) <- datasets.list
+  
   for ( i in 1:length(mafFiles) ) {
     
     ##### Extract the user-defined number of top mutated genes
@@ -727,17 +736,19 @@ if ( !is.null(params$genes_list) ) {
     
     ##### Remove genes absent in MAF from the genes of interest list
     genes_list_goi[[i]] <- genes_list_goi[[i]][ genes_list_goi[[i]] %!in% goi_absent[[i]] ]
-  }
-  
-  ##### Set height for oncoplots
-  oncoplot_goi_height <-  vector("list", length(mafFiles))
-  names(oncoplot_goi_height) <- datasets.list
 
-  if ( length(goi) > 10 ) {
-    
-    oncoplot_goi_height <- 100*length(goi)/4
-  } else {
-    oncoplot_goi_height <- 900
+    ##### Set height for oncoplots
+    if ( length(genes_list_goi[[i]]) > 100 ) {
+      
+      oncoplot_goi_height[[i]] <- 100*length(genes_list_goi[[i]])/3
+      
+    } else if  ( length(genes_list_goi[[i]]) > 19 ) {
+      
+      oncoplot_goi_height[[i]] <- 100*length(genes_list_goi[[i]])/2
+      
+    } else {
+      oncoplot_goi_height[[i]] <- 900
+    }
   }
 }
 
@@ -778,6 +789,9 @@ for ( i in 1:length(mafFiles) ) {
     ##### Read in the oncoplots PNG files
     cat("![](",paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""),")")
     cat(paste(rep("-", 80)), "\n")
+    
+  } else {
+      cat(paste0("No genes are mutated in at least", params$genes_min, "% of patients.\n\n\n"))
   }
 }
 ```
@@ -810,7 +824,7 @@ if ( !is.null(params$genes_list) && length(goi) > 1 ) {
       cat(paste("<i>", top_genes_goi[[i]], "</i>", collapse = ", "), "\n\n")
       
       ##### Save the plot as PNG
-      png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height, units = "px", res = 200 )
+      png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height[[i]], units = "px", res = 200 )
         
       ##### Drawing oncoplots for the top mutated genes in each dataset
       plot.new()
@@ -823,7 +837,7 @@ if ( !is.null(params$genes_list) && length(goi) > 1 ) {
       cat(paste(rep("-", 80)), "\n")
 
     } else {
-      cat(paste0("Dataset ", datasets.list[i], " has ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample with non-synonymous variants. Cannot create oncoplot for ", nrow(maftools::getSampleSummary(mafInfo[[i]])), " sample.\n\n\n"))
+      cat(paste0("All genes of interest are among the top ", top_genes_no[[i]], " most frequently mutated genes (mutated in at least", params$genes_min, "% of patients) or no non-synonymous variants were detected in ", datasets.list[i], " dataset.\n\n\n"))
     }
   }
 } else {
