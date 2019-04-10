@@ -33,6 +33,9 @@ graphics.off()
 #    Functions
 #===============================================================================
 
+##### Create 'not in' operator
+"%!in%" <- function(x,table) match(x,table, nomatch = 0) == 0
+
 ##### Prepare object to write into a file
 prepare2write <- function (x) {
 
@@ -78,9 +81,8 @@ option_list <- list(
 
 opt <- parse_args(OptionParser(option_list=option_list))
 
-##### Collect MAF files and correspondiong datasets names
+##### Collect MAF files
 opt$maf_files <- gsub("\\s","", opt$maf_files)
-opt$datasets <- gsub("\\s","", opt$datasets)
 
 ##### Read in argument from command line and check if all were provide by the user
 if (is.na(opt$maf_dir) || is.na(opt$maf_files) ) {
@@ -98,6 +100,13 @@ if (is.na(opt$maf_dir) || is.na(opt$maf_files) ) {
 ##### Split the string of MAF files and put them into a vector
 mafFiles <- unlist(strsplit(opt$maf_files, split=',', fixed=TRUE))
 mafFiles <- paste(opt$maf_dir, mafFiles, sep="/")
+
+##### Check if more than 1 MAF is provided
+if ( length(mafFiles) < 2 ) {
+  
+  cat(paste0("\nOnly one MAF file (\"", mafFiles[i], "\") was provided!\n\n"))
+  q()
+}
 
 ##### Check if the input files exist
 for ( i in 1:length(mafFiles) ) {
@@ -122,15 +131,27 @@ cat("\nReading MAF files...\n\n")
 ##### Read MAF files and put associated info into a list
 ##### Create a list to store MAF info for individual datasets
 mafInfo <- vector("list", length(mafFiles))
+mafFields <- NULL
 
 for ( i in 1:length(mafFiles) ) {
   
   cat(paste0("\nProcessing MAF: ", mafFiles[i],"...\n\n"))
   
-  mafInfo[[i]] = maftools::read.maf(maf = mafFiles[i], verbose = FALSE)
+  mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], verbose = FALSE)
+  mafFields <- c(mafFields, names(mafInfo[[i]]@data))
 }
 
 mafs.merged <- merge_mafs(mafFiles, MAFobj = FALSE)
+
+##### Remove redundant columns, i.e. those which are present only in one dataset, but make sure that the required fields are not excluded
+mafFields.required <- c("Hugo_Symbol", "Chromosome", "Start_Position", "End_Position", "Reference_Allele", "Tumor_Seq_Allele2", "Variant_Classification", "Variant_Type", "Tumor_Sample_Barcode", "sample_id", "NCBI_Build", "HGVSp_Short", "aa_mutation")
+mafFields2rm <- unique(mafFields)[ table(mafFields) < 2 ]
+mafFields2rm <- mafFields2rm[ mafFields2rm %!in% mafFields.required ]
+
+if ( length(mafFields2rm) > 1 ) {
+
+    mafs.merged <- mafs.merged[, c(mafFields2rm):=NULL]
+}
 
 ##### Make sure that only the Build number is passed to the "
 mafs.merged$NCBI_Build <- gsub("[^0-9.]", "", mafs.merged$NCBI_Build) 
