@@ -16,7 +16,7 @@ params:
   datasets: 
   genes_min: 
   genes_list: 
-  out_folder: 
+  out_folder: 'MAF_report'
 ---
 
 Mutation data summary for dataset(s) **`r gsub(",", ", ", params$datasets) `**
