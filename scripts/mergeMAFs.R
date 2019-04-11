@@ -19,6 +19,7 @@
 #
 #   maf_dir:      Directory with MAF files to be merged
 #   maf_files:    List of MAF files to be merged. Each file name is expected to be separated by comma
+#   maf_fields:   Fields to be kept in merged MAF. Options available: "All" (default), "Nonredundant", and "Basic"
 #   output:       Name for the output merged MAF file. If no output file name is specified the output will be saved as "merged.maf"
 #
 ################################################################################
@@ -75,6 +76,8 @@ option_list <- list(
               help="Directory with MAF files"),
   make_option(c("-m", "--maf_files"), action="store", default=NA, type='character',
               help="List of MAF files to be processed"),
+  make_option(c("-f", "--maf_fields"), action="store", default=NA, type='character',
+              help="Fields to be kept in merged MAF"),
   make_option(c("-o", "--output"), action="store", default=NA, type='character',
               help="Name for the output merged MAF file")
 )
@@ -89,10 +92,19 @@ if (is.na(opt$maf_dir) || is.na(opt$maf_files) ) {
   
   cat("\nPlease type in required arguments!\n\n")
   cat("\ncommand example:\n\nRscript summariseMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --output icgc.simple_somatic_mutation.merged.maf\n\n")
-  
   q()
 }
 
+##### Set default parameters
+if ( tolower(opt$maf_fields) == "all" || tolower(opt$maf_fields) == "nonredundant" || tolower(opt$maf_fields) == "basic" ) {
+  
+  opt$maf_fields <- tolower(opt$maf_fields)
+  
+} else {
+  cat(paste0("\nWrong \"maf_fields\" parameter: ", opt$maf_fields, ". Choose \"all\", \"nonredundant\" or \"basic\" option.\n\n"))
+  q()
+}
+  
 #===============================================================================
 #    Main
 #===============================================================================
@@ -143,14 +155,34 @@ for ( i in 1:length(mafFiles) ) {
 
 mafs.merged <- merge_mafs(mafFiles, MAFobj = FALSE)
 
-##### Remove redundant columns, i.e. those which are present only in one dataset, but make sure that the required fields are not excluded
-mafFields.required <- c("Hugo_Symbol", "Chromosome", "Start_Position", "End_Position", "Reference_Allele", "Tumor_Seq_Allele2", "Variant_Classification", "Variant_Type", "Tumor_Sample_Barcode", "sample_id", "NCBI_Build", "HGVSp_Short", "aa_mutation")
-mafFields2rm <- unique(mafFields)[ table(mafFields) < 2 ]
-mafFields2rm <- mafFields2rm[ mafFields2rm %!in% mafFields.required ]
+##### Define required MAF fields
+mafFields.required <- c("Hugo_Symbol", "Chromosome", "Start_Position", "End_Position", "Reference_Allele", "Tumor_Seq_Allele2", "Variant_Classification", "Variant_Type", "Tumor_Sample_Barcode")
+mafFields.merged <- c("sample_id", "NCBI_Build")
+mafFields.aa_changes <- c("HGVSp_Short", "aa_mutation")
 
-if ( length(mafFields2rm) > 1 ) {
+mafFields.basic <- c(mafFields.required, mafFields.merged, mafFields.aa_changes)
 
+##### Keep only basic MAF fields
+if ( opt$maf_fields == "basic" ) {
+  
+  mafFields2rm <- unique(mafFields)[ unique(mafFields) %!in% mafFields.basic ]
+  
+  if ( length(mafFields2rm) > 1 ) {
+    
     mafs.merged <- mafs.merged[, c(mafFields2rm):=NULL]
+  }
+
+##### Keep only non-redundant columns, i.e. those which are present only in one dataset
+} else if ( opt$maf_fields == "nonredundant" ) {
+
+  mafFields2rm <- unique(mafFields)[ table(mafFields) < 2 ]
+  mafFields2rm <- mafFields2rm[ mafFields2rm %!in% mafFields.basic ]
+  
+  if ( length(mafFields2rm) > 1 ) {
+    
+    mafs.merged <- mafs.merged[, c(mafFields2rm):=NULL]
+  }
+
 }
 
 ##### Make sure that only the Build number is passed to the "
