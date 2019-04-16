@@ -25,11 +25,11 @@ params:
 
 Selection analyses and cancer driver discovery results for dataset(s) **`r gsub(",", ", ", params$datasets) `** using the following methods:
 
-* **[dndscv](https://github.com/im3sanger/dndscv)** (see paper by [Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346) for details)
-* **[OncodriveClust](https://bioconductor.org/packages/release/bioc/vignettes/maftools/inst/doc/maftools.html#92_detecting_cancer_driver_genes_based_on_positional_clustering)** (see paper by [Tamborero *et al*, 2013](https://www.ncbi.nlm.nih.gov/pubmed/23884480){target="_blank"} for details)
+* **[dndscv](https://github.com/im3sanger/dndscv){target="_blank"}** (see paper by [Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346){target="_blank"} for details)
+* **[OncodriveClust](https://bioconductor.org/packages/release/bioc/vignettes/maftools/inst/doc/maftools.html#92_detecting_cancer_driver_genes_based_on_positional_clustering){target="_blank"}** (see paper by [Tamborero *et al*, 2013](https://www.ncbi.nlm.nih.gov/pubmed/23884480){target="_blank"} for details)
 * **[OncodriveFML](http://bbglab.irbbarcelona.org/oncodrivefml/home)** (...work in progress)
 * **[MutSig](http://software.broadinstitute.org/cancer/cga/mutsig)** (...work in progress)
-* **[CHASMplus](https://github.com/KarchinLab/CHASMplus)** (...work in progress)
+* **[CHASMplus](https://github.com/KarchinLab/CHASMplus){target="_blank"}** (...work in progress)
 
 ```{r define_functions, comment=NA, message=FALSE, warning=FALSE}
 ##### Define functions
@@ -309,7 +309,7 @@ if ( !is.null(params$genes_list) ){
 
 ### dN/dS {.tabset}
 
-Selection analyses and cancer driver discovery using [dNdScv](https://github.com/im3sanger/dndscv) R package. It provides maximum-likelihood dN/dS methods designed to quantify selection in cancer and somatic evolution ([Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346)). The package contains functions to quantify dN/dS ratios for missense, nonsense and essential splice mutations, at the level of individual genes, groups of genes or at whole-genome level. The dNdScv method was designed to detect cancer driver genes (i.e. genes under positive selection in cancer) on datasets ranging from a few samples to thousands of samples, in whole-exome/genome or targeted sequencing studies. The *dNdScv* algorithm is used, to combine local information (synonymous mutations in the gene) and global information (variation of the mutation rate across genes, exploiting epigenomic covariates) to estimate the background mutation rate.
+Selection analyses and cancer driver discovery using [dNdScv](https://github.com/im3sanger/dndscv){target="_blank"} R package. It provides maximum-likelihood dN/dS methods designed to quantify selection in cancer and somatic evolution ([Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346){target="_blank"}). The package contains functions to quantify dN/dS ratios for missense, nonsense and essential splice mutations, at the level of individual genes, groups of genes or at whole-genome level. The dNdScv method was designed to detect cancer driver genes (i.e. genes under positive selection in cancer) on datasets ranging from a few samples to thousands of samples, in whole-exome/genome or targeted sequencing studies. The *dNdScv* algorithm is used, to combine local information (synonymous mutations in the gene) and global information (variation of the mutation rate across genes, exploiting epigenomic covariates) to estimate the background mutation rate.
 
 NOTE: by default, dNdScv assumes that mutation data is mapped to the **GRCh37/hg19**. Use *buildref* function (see the relevant tutorial [here](http://htmlpreview.github.io/?http://github.com/im3sanger/dndscv/blob/master/vignettes/buildref.html)) to generate the necessary reference file to run dNdScv on others assembly.
 Ultra-hypermutator samples (with > `r params$hypermut_sample_cutoff` coding mutations) are removed and mutations with > `r params$max_muts_per_gene` mutations per gene in the same sample are subsampled to protect against loss of sensitivity from ultra-hypermutators and from clustered artefacts.
@@ -465,7 +465,7 @@ Note that low estimates of θ, particularly θ < 1, may reflect problems with th
 
 ##### dNdScv
 
-P-values for substitutions are obtained by *likelihood-ratio tests* as described in [Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346) and q-values are obtained by *Benjamini-Hodgberg’s multiple testing correction*. The table(s) also include information on the number of substitutions of each class observed in each gene, as well as *maximum-likelihood estimates* (*MLEs*) of the *dN/dS ratios* for each gene, for **missense** (*wmis*), **nonsense** (*wnon*), essential **splice site** mutations (*wspl*) and **indels** (*wind*). The *global q-value* integrating all mutation types are available in the ***qglobal_cv*** and *qallsubs_cv* columns for analyses with and without indels, respectively.
+P-values for substitutions are obtained by *likelihood-ratio tests* as described in [Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346){target="_blank"} and q-values are obtained by *Benjamini-Hodgberg’s multiple testing correction*. The table(s) also include information on the number of substitutions of each class observed in each gene, as well as *maximum-likelihood estimates* (*MLEs*) of the *dN/dS ratios* for each gene, for **missense** (*wmis*), **nonsense** (*wnon*), essential **splice site** mutations (*wspl*) and **indels** (*wind*). The *global q-value* integrating all mutation types are available in the ***qglobal_cv*** and *qallsubs_cv* columns for analyses with and without indels, respectively.
 
 ```{r dndscv_results_summary, comment = NA, message=FALSE, warning=FALSE}
 ##### Present dndscv results summary table in the html report
@@ -501,7 +501,7 @@ cat("\n\n\n")
 
 ##### dNdSloc
 
-An additional set of neutrality tests per gene are performed using a more *traditional dN/dS model* in which the local mutation rate for a gene is estimated exclusively from the synonymous mutations observed in the gene ([Wong *et al*., 2014](https://www.ncbi.nlm.nih.gov/pubmed/24316979)). This test is typically only powered in very large datasets.
+An additional set of neutrality tests per gene are performed using a more *traditional dN/dS model* in which the local mutation rate for a gene is estimated exclusively from the synonymous mutations observed in the gene ([Wong *et al*., 2014](https://www.ncbi.nlm.nih.gov/pubmed/24316979){target="_blank"}). This test is typically only powered in very large datasets.
 
 
 ```{r dndsloc_results_summary, comment = NA, message=FALSE, warning=FALSE}
@@ -529,7 +529,7 @@ cat("\n\n\n")
 
 Table(s) presenting global *maximum-likelihood estimates* (*MLEs*) for the *dN/dS ratios* across all genes. dN/dS ratios with associated confidence intervals are calculated for **missense** (*wmis*), **nonsense** (*wnon*) and essential **splice site** substitutions (*wspl*) separately, as well as for **all non-synonymous** substitutions (*wall*) and for **all truncating** substitutions together (*wtru*), which include nonsense and essential splice site mutations.
 
-Global dN/dS ratios in somatic evolution of cancer, and seemingly of healthy somatic tissues, appear to show a near-universal pattern of **dN/dS ~1**, with exome-wide dN/dS ratios typically slightly higher than 1 ([Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346)). The global **dN/dS < 1** is typically caused by contamination of the catalogue of somatic mutations with germline SNPs. An exception are melanoma tumours, which show a bias towards slight underestimation of dN/dS due to the signature of ultraviolet-induced mutations extending beyond the trinucleotide model. The global **dN/dS << 1** reflects a problem of SNP contamination or an inadequate substitution model, and so the evaluation of global dN/dS values can help identify problems in certain datasets.
+Global dN/dS ratios in somatic evolution of cancer, and seemingly of healthy somatic tissues, appear to show a near-universal pattern of **dN/dS ~1**, with exome-wide dN/dS ratios typically slightly higher than 1 ([Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346){target="_blank"}). The global **dN/dS < 1** is typically caused by contamination of the catalogue of somatic mutations with germline SNPs. An exception are melanoma tumours, which show a bias towards slight underestimation of dN/dS due to the signature of ultraviolet-induced mutations extending beyond the trinucleotide model. The global **dN/dS << 1** reflects a problem of SNP contamination or an inadequate substitution model, and so the evaluation of global dN/dS values can help identify problems in certain datasets.
 
 ```{r global_dnds_estimates, comment = NA, message=FALSE, warning=FALSE}
 ##### Present results summary table in the html report
@@ -730,6 +730,85 @@ for ( i in 1:length(mafFiles) ) {
 
 ## Driver genes summary
 
+Visualise the intersections between cancer driver genes detected by various tools.
+
+```{r driver_genes_summary, comment = NA, message=FALSE, warning=FALSE}
+##### Compute the overlap between cancer driver genes detected by various tools
+signif_genes.overlap <- vector("list", length(mafFiles))
+names(signif_genes.overlap) <- datasets.list
+
+signif_genes.all <- vector("list", length(mafFiles))
+names(signif_genes.all) <- datasets.list
+
+
+
+
+
+##### Get list of significant driver genes detected by individual methods
+method <- c("dNdScv", "dNdSloc", "OncodriveClust")
+genes_column <- c("gene_name", "gene_name", "Hugo_Symbol")
+analysis_method <- data.frame(method, genes_column)
+
+signif_genes.methods <- vector("list", length(method))
+names(signif_genes.methods) <- method
+signif_genes.methods
+
+
+
+
+for ( i in 1:length(mafFiles) ) {
+  
+  signif_genes.all[[i]] <- unique( c(as.character(signif_genes[[i]]$gene_name), as.character(signif_genes_loc[[i]]$gene_name), as.character(oncodrive.res[[datasets.list[i]]][[1]]$Hugo_Symbol)) )
+  
+  gene.count <- NULL
+  
+  for ( gene in as.character(signif_genes.all[[i]]) ) {
+    
+    if ( gene %in% as.character(signif_genes[[i]]$gene_name) ) {
+      
+      gene.count <- c(gene.count, 1)
+    
+    } else {
+      gene.count <- c(gene.count, 0)
+    }
+  }
+  
+  signif_genes.overlap[[i]] <- gene.count
+  
+  for ( gene in as.character(signif_genes.all[[i]]) ) {
+    
+    if ( gene %in% as.character(signif_genes_loc[[i]]$gene_name) ) {
+      
+      gene.count <- c(gene.count, 1)
+    
+    } else {
+      gene.count <- c(gene.count, 0)
+    }
+  }
+  
+  signif_genes.overlap[[i]] <- rbind(signif_genes.overlap[[i]], gene.count)
+  
+  for ( gene in as.character(signif_genes.all[[i]]) ) {
+    
+    if ( gene %in% as.character(signif_genes[[i]]$gene_name) ) {
+      
+      gene.count <- c(gene.count, 1)
+    
+    } else {
+      gene.count <- c(gene.count, 0)
+    }
+  }
+  
+  signif_genes.overlap[[i]] <- rbind(signif_genes.overlap[[i]], gene.count)
+  
+  signif_genes.overlap[[i]] <- as.data.frame(signif_genes.overlap[[i]])
+  names(signif_genes.overlap[[i]]) <- as.character(signif_genes.all[[i]])
+  rownames(signif_genes.overlap[[i]]) <- c("dNdScv", "dNdSloc", "oncodriveCLUST")
+
+  upset(signif_genes.overlap[[i]], sets = as.character(signif_genes.all[[i]]), sets.bar.color = "#56B4E9",
+order.by = "freq", empty.intersections = "on")
+  
+}```
 
 ***
 ## Addendum
