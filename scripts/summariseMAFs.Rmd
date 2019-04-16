@@ -868,7 +868,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ### Driver genes detection {.tabset .tabset-fade}
 
-Cancer driver genes detection based on positional clustering using [oncodriveCLUST](http://bg.upf.edu/group/projects/oncodrive-clust.php){target="_blank"} algorithm is based on the fact that most of the variants in cancer causing genes are enriched at few specific loci (hot-spots). According to this concept mutations in these regions potentially change the function of these proteins in a manner that provides an adaptive advantage to cancer cells and consequently are positively selected during clonal evolution of tumours. This property can thus be used to nominate novel candidate driver genes, as described in the paper [OncodriveCLUST](https://www.ncbi.nlm.nih.gov/pubmed/23884480){target="_blank"} by Tamborero *et al*.
+Cancer driver genes detection based on positional clustering using [oncodriveCLUST](http://bg.upf.edu/group/projects/oncodrive-clust.php){target="_blank"} algorithm is based on the fact that most of the variants in cancer causing genes are enriched at few specific loci (hot-spots). According to this concept mutations in these regions potentially change the function of these proteins in a manner that provides an adaptive advantage to cancer cells and consequently are positively selected during clonal evolution of tumours. This property can thus be used to nominate novel candidate driver genes, as described in the paper [OncodriveCLUST](https://www.ncbi.nlm.nih.gov/pubmed/23884480){target="_blank"} by [Tamborero *et al*, 2013](https://www.ncbi.nlm.nih.gov/pubmed/23884480){target="_blank"}.
 
 #### Plots
 
@@ -899,7 +899,6 @@ for ( i in 1:length(mafFiles) ) {
     cat(paste("This section was skipped for dataset", datasets.list[i], "since the corresponding MAF does not contain field with amino acid changes details!\n\n\n\n", sep=" "))
   }
 }
-
 ```
 
 ```{r maf_oncodrive_results, comment=NA, warning=FALSE, fig.width = 9, fig.height = 4 }
