@@ -15,7 +15,7 @@
 #   Description: Script merging multiple MAF files using merge_mafs function in maftools R package ( https://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html, https://rdrr.io/github/PoisonAlien/maftools/man/merge_mafs.html ).
 #   NOTE: Each MAF file needs to contain the "Tumor_Sample_Barcode" column.
 #
-#   Command line use example: Rscript mergeMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --output icgc.simple_somatic_mutation.merged.maf
+#   Command line use example: Rscript mergeMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --maf_fields All --output icgc.simple_somatic_mutation.merged.maf
 #
 #   maf_dir:      Directory with MAF files to be merged
 #   maf_files:    List of MAF files to be merged. Each file name is expected to be separated by comma
