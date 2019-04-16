@@ -1,0 +1,760 @@
+---
+title: "Driver analyses results"
+author: "UMCCR"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    theme: readable
+    toc: true
+    toc_float: true
+    code_folding: hide
+  rmdformats::material:
+    highlight: kate
+params:
+  maf_dir: '/Users/jmarzec/data/Cohort_analyses/mutation/projects/Avner_organoid_bank'
+  maf_files: 'Avner-primary_tissue.maf,Avner-organoids.maf'
+  datasets: 'Primary_tissue,Organoid'
+  genes_list: NULL
+  q_value: 0.1
+  ratios_ci: FALSE
+  hypermut_sample_cutoff: 3000
+  max_muts_per_gene: 3
+  ucsc_genome_assembly: 19
+  out_folder: 'Driver_analysis_report'
+---
+
+Selection analyses and cancer driver discovery results for dataset(s) **`r gsub(",", ", ", params$datasets) `** using the following methods:
+
+* **[dndscv](https://github.com/im3sanger/dndscv)** (see paper by [Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346) for details)
+* **[OncodriveClust](https://bioconductor.org/packages/release/bioc/vignettes/maftools/inst/doc/maftools.html#92_detecting_cancer_driver_genes_based_on_positional_clustering)** (see paper by [Tamborero *et al*, 2013](https://www.ncbi.nlm.nih.gov/pubmed/23884480){target="_blank"} for details)
+* **[OncodriveFML](http://bbglab.irbbarcelona.org/oncodrivefml/home)** (...work in progress)
+* **[MutSig](http://software.broadinstitute.org/cancer/cga/mutsig)** (...work in progress)
+* **[CHASMplus](https://github.com/KarchinLab/CHASMplus)** (...work in progress)
+
+```{r define_functions, comment=NA, message=FALSE, warning=FALSE}
+##### Define functions
+
+##### Create 'not in' operator
+"%!in%" <- function(x,table) match(x,table, nomatch = 0) == 0
+
+##### Perfrom oncodrive analysis. Clusters variants based on their position to detect disease causing genes
+oncodrive.mod <- function(mafInfo, dataset, AACol, gl) {
+
+  ##### Check whether it's possible to run oncodrive analysis for given dataset by calculating cluster scores
+  nonsyn.scores <- parse_prot(mafInfo, AACol = AACol, gl = gl, m = 5, calBg = FALSE, nBg = 100)
+    
+  if ( !is.null(nonsyn.scores) ) {
+      
+    ##### Cluster variants based on their position to detect disease causing genes
+    sig = oncodrive(maf = mafInfo, AACol = AACol, minMut = 5, pvalMethod = 'zscore')
+    
+    oncodrive.plot <- plotOncodrive(res = sig, fdrCutOff = 0.05, useFraction = FALSE)
+      
+    return(list(sig, oncodrive.plot))
+  }
+}
+
+##### Functon to calcluate cluster score (from https://rdrr.io/github/PoisonAlien/maftools/src/R/clusterScore.R). It's required in order check whether it's possible to run oncodrive analysis for given dataset
+parse_prot <- function(dat, AACol, gl, m, calBg = FALSE, nBg){
+
+  mafInfo <- dat
+  dat <- mafInfo@data
+  
+  if(is.null(AACol)){
+    pchange = c('HGVSp_Short', 'Protein_Change', 'AAChange')
+    if(pchange[pchange %in% colnames(dat)] > 0){
+      pchange = suppressWarnings(pchange[pchange %in% colnames(dat)][1])
+      message(paste0("Assuming protein change information are stored under column ", pchange,". Use argument AACol to override if necessary."))
+      colnames(dat)[which(colnames(dat) == pchange)] = 'AAChange'
+    }else{
+      message('Available fields:')
+      print(colnames(dat))
+      stop('AAChange field not found in MAF. Use argument AACol to manually specifiy field name containing protein changes.')
+    }
+  }else{
+    colnames(dat)[which(colnames(dat) == AACol)] = 'AAChange'
+  }
+
+  all.prot.dat = dat[,.(Hugo_Symbol, Variant_Classification, AAChange)]
+  all.prot.dat = all.prot.dat[Variant_Classification != 'Splice_Site']
+  #parse AAchanges to get postion
+  prot.spl = strsplit(x = as.character(all.prot.dat$AAChange), split = '.', fixed = TRUE)
+  prot.conv = sapply(sapply(prot.spl, function(x) x[length(x)]), '[', 1)
+
+  all.prot.dat[,conv := prot.conv]
+  all.prot.dat = all.prot.dat[!conv == 'NULL']
+
+  #If conversions are in HGVSp_long (default HGVSp) format, we will remove strings Ter followed by anything (e.g; p.Asn1986GlnfsTer13)
+  pos = gsub(pattern = 'Ter.*', replacement = '',x = all.prot.dat$conv)
+
+  #Following parsing takes care of most of HGVSp_short and HGVSp_long format
+  pos = gsub(pattern = '[[:alpha:]]', replacement = '', x = pos)
+  pos = gsub(pattern = '\\*$', replacement = '', x = pos) #Remove * if nonsense mutation ends with *
+  pos = gsub(pattern = '^\\*', replacement = '', x = pos) #Remove * if nonsense mutation starts with *
+  pos = gsub(pattern = '\\*.*', replacement = '', x = pos) #Remove * followed by position e.g, p.C229Lfs*18
+
+  pos = suppressWarnings( as.numeric(sapply(strsplit(x = pos, split = '_', fixed = TRUE), '[', 1)) )
+  all.prot.dat[,pos := pos]
+
+  all.prot.dat = all.prot.dat[!is.na(pos)] #Remove NA's
+
+  gene.sum = mafInfo@gene.summary
+  gene.sum = merge(x = gene.sum, y = gl, by = 'Hugo_Symbol', all.x = TRUE)
+  gene.sum = gene.sum[!is.na(aa.length)]
+
+  num_mut_colIndex = which(colnames(gene.sum) == 'total')
+  aalen_colIndex = which(colnames(gene.sum) == 'aa.length')
+
+  #Get background threshold
+  gene.sum$th = apply(gene.sum, 1, function(x) get_threshold(gene_muts = as.numeric(x[num_mut_colIndex]), gene_length = as.numeric(x[aalen_colIndex])))
+  #use only genes with atleast 2 (or m ) mutations.
+  gene.sum = gene.sum[total >= m]
+
+  if(calBg){
+    if(nrow(gene.sum) < nBg){
+      #message("Not enough genes to build background. Using predefined values. (Mean = 0.279; SD = 0.13)")
+      return(NULL)
+    } else{
+      syn.res = c()
+      pb <- txtProgressBar(min = 0, max = nrow(gene.sum), style = 3) #progress bar
+
+      for(i in 1:nrow(gene.sum)){
+        prot.dat = all.prot.dat[Hugo_Symbol %in% gene.sum[i, Hugo_Symbol]]
+        syn.res = rbind(syn.res, cluster_prot(prot.dat = prot.dat, gene = gene.sum[i, Hugo_Symbol], th = gene.sum[i, th], protLen = gene.sum[i,aa.length]))
+        setTxtProgressBar(pb, i)
+      }
+      return(syn.res)
+    }
+  } else{
+    nonsyn.res = c()
+    #pb <- txtProgressBar(min = 0, max = nrow(gene.sum), style = 3) #progress bar
+
+    for(i in 1:nrow(gene.sum)){
+      hs = gene.sum[i, Hugo_Symbol]
+      #print(hs)
+      prot.dat = all.prot.dat[Hugo_Symbol %in% hs]
+      nonsyn.res = rbind(nonsyn.res, cluster_prot(prot.dat = prot.dat, gene = hs, th = gene.sum[Hugo_Symbol %in% hs, th], protLen = gene.sum[Hugo_Symbol %in% hs, aa.length]))
+      #setTxtProgressBar(pb, i)
+    }
+    return(nonsyn.res)
+  }
+}
+
+###### Estimate threshhold based on binaomial distribution (from https://rdrr.io/github/PoisonAlien/maftools/src/R/clusterScore.R). Required for parse_prot function
+get_threshold <- function(gene_muts, gene_length){
+  th = which(unlist(lapply(X = 2:gene_muts, FUN = function(x) dbinom(x = x, size = gene_muts, prob = 1/gene_length) )) < 0.01)[1]
+  return(th+1)
+}
+
+###### Clustering function (from https://rdrr.io/github/PoisonAlien/maftools/src/R/clusterScore.R). Required for parse_prot function
+cluster_prot <- function(prot.dat, gene, th, protLen){
+
+  mergeDist = 5 #hard coded inter event distance.
+  #prot.dat = all.prot.dat[Hugo_Symbol == gene]
+
+  #Summarise counts per position
+  pos.counts = prot.dat[,.N,pos]
+  pos.counts = pos.counts[order(pos)]
+
+  #classify position as meaningful if its greater than background threshhold.
+  pos.counts$cluster = ifelse(test = pos.counts$N >= th, yes = 'meaningful', no = 'nonMeaningful')
+
+  #Just choose meaningful positions
+  clust.tbl = pos.counts[cluster %in% 'meaningful']
+  nonclust.tbl = pos.counts[cluster %in% 'nonMeaningful']
+
+  if(nrow(clust.tbl) == 0){
+    #message(paste('No meaningful positions found for', gene, sep=' '))
+    return(NULL)
+  }
+
+  clust.tbl$distance = c(0,diff(clust.tbl$pos)) #calculate inter event distance.
+
+  #If more than one meaningful positions are found within a 5 aa distance, join them to form a cluster.
+  if(nrow(clust.tbl) > 1){
+
+    #initialize variables.
+    cstart = end = clust.tbl[1,pos]
+    n = clust.tbl[1,N]
+    cdf = c()
+    cluster = 1
+
+    #Go through entire table and update variables.
+    for(i in 2:nrow(clust.tbl)){
+      pos = clust.tbl[i,pos]
+
+      d = clust.tbl[i,distance]
+
+      if(d < mergeDist){
+        end = pos
+        n = n + clust.tbl[i,N]
+      }else{
+        tempdf = data.frame(cluster = paste('cluster', cluster, sep='_'), start = cstart, end = end ,N = n)
+        cdf = rbind(cdf, tempdf)
+        cstart = end = pos
+        n = clust.tbl[i,N]
+        cluster = cluster + 1
+      }
+    }
+    cdf = rbind(cdf, data.frame(cluster = paste('cluster', cluster, sep='_'), start = cstart, end = end ,N = n))
+  } else {
+    cdf = data.frame(cluster = 'cluster_1', start = clust.tbl$pos, end = clust.tbl$pos ,N = clust.tbl$N)
+  }
+
+  #merge adjacent variants to clusters.
+  for(i in 1:nrow(cdf)){
+    tempcdf = cdf[i,]
+    nonclust.tbl$startDist = nonclust.tbl$pos - tempcdf$start
+    nonclust.tbl$endDist = nonclust.tbl$pos - tempcdf$end
+
+    merge.adj.to.start = nonclust.tbl[startDist >= -5 & startDist <= 0]
+    if(nrow(merge.adj.to.start) > 0){
+      tempcdf$start = merge.adj.to.start[which(merge.adj.to.start$startDist == min(merge.adj.to.start$startDist)),pos]
+      tempcdf$N = tempcdf$N + sum(merge.adj.to.start$N)
+    }
+
+    merge.adj.to.end = nonclust.tbl[endDist <= 5 & endDist >= 0]
+    if(nrow(merge.adj.to.end) > 0){
+      tempcdf$end = merge.adj.to.end[which(merge.adj.to.end$endDist == max(merge.adj.to.end$endDist)),pos]
+      tempcdf$N = tempcdf$N + sum(merge.adj.to.end$N)
+    }
+    cdf[i,] = tempcdf
+  }
+  cdf$Hugo_Symbol = gene
+
+  #Calcluate cluster score.
+
+  total.muts = nrow(prot.dat) #total variants for this gene.
+  clusterScores = c()
+
+  for(i in 1:nrow(cdf)){
+    temp.prot.dat = prot.dat[pos >= as.numeric(cdf$start[i]) & pos <= as.numeric(cdf$end[i])]
+    temp.prot.dat.summary = temp.prot.dat[,.N, pos]
+    temp.prot.dat.summary[,fraction:= N/total.muts]
+
+    peak = temp.prot.dat.summary[N == max(N), pos]
+
+    posVector = as.numeric(temp.prot.dat.summary[,pos])
+    fractionMutVector = unlist(lapply(posVector, FUN = function(x) temp.prot.dat.summary[pos == x, fraction]))
+    distanceVector = suppressWarnings(abs(posVector - peak))
+
+    clusterScores = c(clusterScores,  sum( fractionMutVector / (sqrt(2)^ distanceVector)))
+
+  }
+
+  cdf$clusterScore = clusterScores
+
+  gene.clust.res = data.frame(Hugo_Symbol = gene, clusters = nrow(cdf), muts_in_clusters = sum(cdf$N), clusterScores = sum(cdf$clusterScore), protLen = protLen)
+  return(gene.clust.res)
+}
+```
+
+```{r load_libraries, warning=FALSE}
+suppressMessages(library(knitr))
+suppressMessages(library(maftools))
+suppressMessages(library(dndscv))
+suppressMessages(library(ggplot2))
+suppressMessages(library(DT))
+suppressMessages(library(UpSetR))
+```
+
+## Datasets
+
+This report summarises and visualises mutation data in [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat){target="_blank"} (MAF) files for the following dataset(s):
+
+```{r datasets, comment = NA}
+##### Present patient cohorts to be summarised
+##### Split the string of MAF files and put them into a vector
+mafFiles <- unlist(strsplit(params$maf_files, split=',', fixed=TRUE))
+mafFiles <- paste(params$maf_dir, mafFiles, sep="/")
+
+##### Split the string of datasets names and put them into a vector
+datasets.list <- unlist(strsplit(params$datasets, split=',', fixed=TRUE))
+
+datasets.df <- as.data.frame( cbind(datasets.list, unlist(strsplit(params$maf_files, split=',', fixed=TRUE))) )
+names(datasets.df) <- c("Dataset", "MAF file")
+
+DT::datatable( data = datasets.df, filter = "none", extensions = 'Buttons', options = list(pageLength = length(mafFiles), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')) ) %>%
+        DT::formatStyle( columns = names(datasets.df), 'text-align' = 'center' )
+```
+
+```{r load_data, comment = NA, message=FALSE, warning=FALSE, results='hide'}
+##### Read MAF files and put associated info into a list
+##### Create a list to store MAF info for individual datasets
+mafInfo <- vector("list", length(mafFiles))
+names(mafInfo) <- datasets.list
+
+##### NOTE: maftools by default summarises only non-synonymous variants with high/moderate variant consequences and ignores silent variants (https://github.com/PoisonAlien/maftools/issues/63), which are stored in "maf.silent" slot of the class MAF object (mafInfo[[i]]@maf.silent)
+for ( i in 1:length(mafFiles) ) {
+  mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], verbose = FALSE)
+}
+
+##### Create directory for output files
+outDir <- paste(params$maf_dir, params$out_folder, sep = "/")
+if ( !file.exists(params$out_folder) ){
+
+  dir.create(outDir, recursive=TRUE)
+}
+
+##### Read in list of genes of interest of specified
+if ( !is.null(params$genes_list) ){
+  
+  goi <- unique(read.table(params$genes_list, sep="\t", as.is=TRUE, header=FALSE, row.names=NULL)[,1])
+}
+```
+
+***
+
+## Driver analyses
+
+### dN/dS {.tabset}
+
+Selection analyses and cancer driver discovery using [dNdScv](https://github.com/im3sanger/dndscv) R package. It provides maximum-likelihood dN/dS methods designed to quantify selection in cancer and somatic evolution ([Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346)). The package contains functions to quantify dN/dS ratios for missense, nonsense and essential splice mutations, at the level of individual genes, groups of genes or at whole-genome level. The dNdScv method was designed to detect cancer driver genes (i.e. genes under positive selection in cancer) on datasets ranging from a few samples to thousands of samples, in whole-exome/genome or targeted sequencing studies. The *dNdScv* algorithm is used, to combine local information (synonymous mutations in the gene) and global information (variation of the mutation rate across genes, exploiting epigenomic covariates) to estimate the background mutation rate.
+
+NOTE: by default, dNdScv assumes that mutation data is mapped to the **GRCh37/hg19**. Use *buildref* function (see the relevant tutorial [here](http://htmlpreview.github.io/?http://github.com/im3sanger/dndscv/blob/master/vignettes/buildref.html)) to generate the necessary reference file to run dNdScv on others assembly.
+Ultra-hypermutator samples (with > `r params$hypermut_sample_cutoff` coding mutations) are removed and mutations with > `r params$max_muts_per_gene` mutations per gene in the same sample are subsampled to protect against loss of sensitivity from ultra-hypermutators and from clustered artefacts.
+
+```{r dndscv_format_data, comment = NA, message=FALSE, warning=FALSE }
+##### The input data is supposed to be a data.frame with five columns (sampleID, chr, pos, ref [base], mutant [base])
+##### Convert the MAF calss objest to the format relevant for dndscv
+dndscvInfo <- vector("list", length(mafFiles))
+names(dndscvInfo) <- datasets.list
+
+for ( i in 1:length(mafFiles) ) {
+  
+  dndscvInfo[[i]] <- rbind(mafInfo[[i]]@data[, c("Tumor_Sample_Barcode", "Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2")], mafInfo[[i]]@maf.silent[, c("Tumor_Sample_Barcode", "Chromosome", "Start_Position", "Reference_Allele", "Tumor_Seq_Allele2")])
+  names(dndscvInfo[[i]]) <- c("sampleID", "chr", "pos", "ref", "mut")
+}
+```
+
+```{r dndscv_driver_analysis, comment = NA, message=FALSE, warning=FALSE }
+##### Run dN/dS approach for cancer driver discovery using dNdScv option, which combines local information (synonymous mutations in the gene) and global information (variation of the mutation rate across genes, exploiting epigenomic covariates) to estimate the background mutation rate
+dndsout <- vector("list", length(mafFiles))
+names(dndsout) <- datasets.list
+
+ci <- vector("list", length(mafFiles))
+names(ci) <- datasets.list
+
+for ( i in 1:length(mafFiles) ) {
+  
+  ##### Run analysis for selected genes
+  if ( !is.null(params$genes_list) ){
+    
+    dndsout[[i]] <- dndscv(dndscvInfo[[i]], gene_list = goi, refdb = paste0("hg", as.character(params$ucsc_genome_assembly)), sm = "192r_3w", kc = "cgc81", cv = paste0("hg", as.character(params$ucsc_genome_assembly)), max_muts_per_gene_per_sample = params$max_muts_per_gene, max_coding_muts_per_sample = params$hypermut_sample_cutoff, use_indel_sites = TRUE, min_indels = 5, maxcovs = 20, constrain_wnon_wspl = TRUE, outp = 3, numcode = 1, outmats = TRUE)
+    
+    ##### Calculate confidence intervals for the dN/dS ratios per gene
+    if ( params$ratios_ci ) {
+      ci[[i]] = geneci(dndsout[[i]])
+    }
+    
+  ##### Run analysis for all genes
+  } else {
+    
+    dndsout[[i]] <- dndscv(dndscvInfo[[i]], gene_list = NULL, refdb = paste0("hg", as.character(params$ucsc_genome_assembly)), sm = "192r_3w", kc = "cgc81", cv = paste0("hg", as.character(params$ucsc_genome_assembly)), max_muts_per_gene_per_sample = params$max_muts_per_gene, max_coding_muts_per_sample = params$hypermut_sample_cutoff, use_indel_sites = TRUE, min_indels = 5, maxcovs = 20, constrain_wnon_wspl = TRUE, outp = 3, numcode = 1, outmats = TRUE)
+
+    ##### Calculate confidence intervals for the dN/dS ratios per gene
+    if ( params$ratios_ci ) {
+      ci[[i]] = geneci(dndsout[[i]])
+    }
+  }
+}
+```
+
+```{r dndscv_summarise, comment = NA, message=FALSE, warning=FALSE}
+##### Write dndscv summary into a file
+sel_cv <- vector("list", length(mafFiles))
+names(sel_cv) <- datasets.list
+
+theta <- vector("list", length(mafFiles))
+names(theta) <- datasets.list
+
+signif_genes <- vector("list", length(mafFiles))
+names(signif_genes) <- datasets.list
+
+signif_genes_loc <- vector("list", length(mafFiles))
+names(signif_genes_loc) <- datasets.list
+
+exclsamples <- vector("list", length(mafFiles))
+names(exclsamples) <- datasets.list
+
+exclmuts <- vector("list", length(mafFiles))
+names(exclmuts) <- datasets.list
+
+globaldnds <- vector("list", length(mafFiles))
+names(globaldnds) <- datasets.list
+
+annotmuts <- vector("list", length(mafFiles))
+names(annotmuts) <- datasets.list
+
+for ( i in 1:length(mafFiles) ) {
+  
+  ##### Calculate theta estimtates
+  theta[[i]] <- round(dndsout[[i]]$nbreg$theta, digits = 2)
+  
+  ##### Get a table of significant genes
+  sel_cv[[i]] <- dndsout[[i]]$sel_cv
+  signif_genes[[i]] <- sel_cv[[i]][sel_cv[[i]]$qglobal_cv < params$q_value, ]
+  rownames(signif_genes[[i]]) = NULL
+  
+  ##### Organise the table of significant genes
+  ##### Add confidence intervals for the dN/dS ratios per gene
+  if ( params$ratios_ci ) {
+    
+    signif_genes[[i]] <- merge( signif_genes[[i]], ci[[i]], by.x="gene_name", by.y="gene", all.x = TRUE, all.y = FALSE, sort = FALSE)
+    
+    ##### Organise the table of significant genes
+    signif_genes[[i]] <- signif_genes[[i]][ , c("gene_name", "pglobal_cv", "qglobal_cv", "n_syn", "n_mis", "n_non", "n_spl", "n_ind", "wmis_cv", "mis_low", "mis_high", "pmis_cv", "qmis_cv", "wnon_cv", "wspl_cv", "tru_mle", "tru_low", "tru_high", "ptrunc_cv", "qtrunc_cv", "pallsubs_cv", "qallsubs_cv", "wind_cv", "pind_cv")]
+    
+  } else {
+    
+    ##### Organise the table of significant genes
+    signif_genes[[i]] <- signif_genes[[i]][ , c("gene_name", "pglobal_cv", "qglobal_cv", "n_syn", "n_mis", "n_non", "n_spl", "n_ind", "wmis_cv", "pmis_cv", "qmis_cv", "wnon_cv", "wspl_cv", "ptrunc_cv", "qtrunc_cv", "pallsubs_cv", "qallsubs_cv", "wind_cv", "pind_cv")]
+  }
+
+  ##### Note excluded (hypermutated) samples
+  if (!is.null(dndsout[[i]]$exclsamples)) {
+    
+    exclsamples[[i]] <- as.data.frame(dndsout[[i]]$exclsamples)
+    names(exclsamples[[i]]) <- "sampleID"
+      
+  } else {
+    
+    exclsamples[[i]] <- data.frame(matrix(ncol = 1, nrow = 0))
+    names(exclsamples[[i]]) <- "sampleID"
+  }
+  
+  ##### Note excluded mutations (mutations when encountering too many mutations per gene in the same sample)
+  if (!is.null(dndsout[[i]]$exclmuts)) {
+    
+    exclmuts[[i]] <- dndsout[[i]]$exclmuts
+  
+    } else {
+    
+    exclmuts[[i]] <- data.frame(matrix(ncol = 9, nrow = 0))
+    names(exclmuts[[i]]) <- c("sampleID", "chr", "pos", "ref", "mut", "start", "end", "geneind", "gene")
+  }
+  
+  ##### Extract global maximum-likelihood estimates (MLEs) for the dN/dS ratios across all genes
+  globaldnds[[i]] <- dndsout[[i]]$globaldnds
+  
+  ##### Extract an annotated table of coding mutations, limited to the significantly mutated genes
+  annotmuts[[i]] <- dndsout[[i]]$annotmuts[ dndsout[[i]]$annotmuts$gene %in% signif_genes[[i]]$gene_name, ]
+  
+  ##### Extract results from the local neutrality test based on the dNdSloc model
+  signif_genes_loc[[i]] <- dndsout[[i]]$sel_loc[ dndsout[[i]]$sel_loc$qall_loc < params$q_value, ]
+  rownames(signif_genes_loc[[i]]) = NULL
+}
+```
+
+
+
+
+```{r dndscv_plot, comment = NA, message=FALSE, warning=FALSE}
+
+#dnds ratio vs qvalues
+
+```
+
+***
+
+#### Significant cancer genes {.tabset}
+
+The estimates theta (θ, the overdispersion parameter) value(s) for dataset(s) `r cat(datasets.list)` are: **`r unlist(theta)`**, respectively.
+
+Note that low estimates of θ, particularly θ < 1, may reflect problems with the suitability of the ***dNdScv*** model for the dataset. In these cases, it is reasonable to consider the traditional *dN/dS* (***dNdSloc***) model, based on local neutrality test, in which the local mutation rate for a gene is estimated exclusively from the synonymous mutations observed in the gene.
+
+##### dNdScv
+
+P-values for substitutions are obtained by *likelihood-ratio tests* as described in [Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346) and q-values are obtained by *Benjamini-Hodgberg’s multiple testing correction*. The table(s) also include information on the number of substitutions of each class observed in each gene, as well as *maximum-likelihood estimates* (*MLEs*) of the *dN/dS ratios* for each gene, for **missense** (*wmis*), **nonsense** (*wnon*), essential **splice site** mutations (*wspl*) and **indels** (*wind*). The *global q-value* integrating all mutation types are available in the ***qglobal_cv*** and *qallsubs_cv* columns for analyses with and without indels, respectively.
+
+```{r dndscv_results_summary, comment = NA, message=FALSE, warning=FALSE}
+##### Present dndscv results summary table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  
+  if ( params$ratios_ci) {
+    
+    widges.list[[i]] <- DT::datatable( data = signif_genes[[i]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(signif_genes[[i]]), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+          DT::formatStyle( columns = names(signif_genes[[i]]), 'text-align' = 'center' ) %>%
+    formatRound(columns = c("wmis_cv","wnon_cv", "wspl_cv", "wind_cv", "mis_mle", "tru_mle", "mis_low", "tru_low", "mis_high", "tru_high"), 1) %>%
+    formatRound(columns = c("pglobal_cv", "qglobal_cv", "pmis_cv", "ptrunc_cv", "pallsubs_cv", "pind_cv", "qmis_cv", "qtrunc_cv", "qallsubs_cv", "pglobal_cv", "qglobal_cv"), 6)
+    
+  } else {
+    
+    widges.list[[i]] <- DT::datatable( data = signif_genes[[i]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(signif_genes[[i]]), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+          DT::formatStyle( columns = names(signif_genes[[i]]), 'text-align' = 'center' ) %>%
+    formatRound(columns = c("wmis_cv", "wnon_cv", "wspl_cv", "wind_cv"), 1) %>%
+    formatRound(columns = c("pglobal_cv", "qglobal_cv", "pmis_cv", "qmis_cv", "ptrunc_cv", "qtrunc_cv", "pallsubs_cv", "qallsubs_cv", "pind_cv"), 6)
+  }
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+***
+
+##### dNdSloc
+
+An additional set of neutrality tests per gene are performed using a more *traditional dN/dS model* in which the local mutation rate for a gene is estimated exclusively from the synonymous mutations observed in the gene ([Wong *et al*., 2014](https://www.ncbi.nlm.nih.gov/pubmed/24316979)). This test is typically only powered in very large datasets.
+
+
+```{r dndsloc_results_summary, comment = NA, message=FALSE, warning=FALSE}
+##### Present dndscv results summary table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+    
+  widges.list[[i]] <- DT::datatable( data = signif_genes_loc[[i]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(signif_genes_loc[[i]]), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+        DT::formatStyle( columns = names(signif_genes_loc[[i]]), 'text-align' = 'center' ) %>%
+  formatRound(columns = c("pmis_loc", "pall_loc", "qmis_loc", "qall_loc"), 6)
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+***
+
+#### Global dN/dS estimates
+
+Table(s) presenting global *maximum-likelihood estimates* (*MLEs*) for the *dN/dS ratios* across all genes. dN/dS ratios with associated confidence intervals are calculated for **missense** (*wmis*), **nonsense** (*wnon*) and essential **splice site** substitutions (*wspl*) separately, as well as for **all non-synonymous** substitutions (*wall*) and for **all truncating** substitutions together (*wtru*), which include nonsense and essential splice site mutations.
+
+Global dN/dS ratios in somatic evolution of cancer, and seemingly of healthy somatic tissues, appear to show a near-universal pattern of **dN/dS ~1**, with exome-wide dN/dS ratios typically slightly higher than 1 ([Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346)). The global **dN/dS < 1** is typically caused by contamination of the catalogue of somatic mutations with germline SNPs. An exception are melanoma tumours, which show a bias towards slight underestimation of dN/dS due to the signature of ultraviolet-induced mutations extending beyond the trinucleotide model. The global **dN/dS << 1** reflects a problem of SNP contamination or an inadequate substitution model, and so the evaluation of global dN/dS values can help identify problems in certain datasets.
+
+```{r global_dnds_estimates, comment = NA, message=FALSE, warning=FALSE}
+##### Present results summary table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+    
+  widges.list[[i]] <- DT::datatable( data = globaldnds[[i]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(globaldnds[[i]]), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+        DT::formatStyle( columns = names(globaldnds[[i]]), 'text-align' = 'center' ) %>%
+    formatRound(columns = c("mle", "cilow", "cihigh"), 1) 
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+***
+
+#### Mutations annotation
+
+Table(s) with detailed annotation of coding mutations in affected samples.
+
+```{r mutations_annotation, comment = NA, message=FALSE, warning=FALSE}
+##### Present results summary table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+    
+  widges.list[[i]] <- DT::datatable( data = annotmuts[[i]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(annotmuts[[i]]), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+        DT::formatStyle( columns = names(annotmuts[[i]]), 'text-align' = 'center' )
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+***
+
+#### Hypermutator samples
+
+Table(s) listing sample(s) with > `r params$hypermut_sample_cutoff` mutations per gene. These have been removed from the analysis to protect against loss of sensitivity from ultra-hypermutators.
+
+```{r hypermutator_samples, comment = NA, message=FALSE, warning=FALSE}
+##### Present results summary table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+    
+  widges.list[[i]] <- DT::datatable( data = exclsamples[[i]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(exclsamples[[i]]), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+        DT::formatStyle( columns = names(exclsamples[[i]]), 'text-align' = 'center' )
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+***
+
+#### Subsampled mutations
+
+Table(s) listing coding mutations within genes with > `r params$max_muts_per_gene` coding mutations per gene in same sample. These have been removed from the analysis to protect against loss of sensitivity from clustered artefacts.
+
+```{r subsampled_mutations, comment = NA, message=FALSE, warning=FALSE}
+##### Present results summary table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+    
+  widges.list[[i]] <- DT::datatable( data = exclmuts[[i]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(exclmuts[[i]]), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+        DT::formatStyle( columns = names(exclmuts[[i]]), 'text-align' = 'center' )
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+***
+
+### OncodriveClust {.tabset}
+
+Cancer driver genes detection based on positional clustering using [OncodriveClust](http://bg.upf.edu/group/projects/oncodrive-clust.php){target="_blank"} algorithm is based on the fact that most of the variants in cancer causing genes are enriched at few specific loci (hot-spots). According to this concept mutations in these regions potentially change the function of these proteins in a manner that provides an adaptive advantage to cancer cells and consequently are positively selected during clonal evolution of tumours. This property can thus be used to nominate novel candidate driver genes, as described in the paper [OncodriveClust](https://www.ncbi.nlm.nih.gov/pubmed/23884480){target="_blank"} by [Tamborero *et al*, 2013](https://www.ncbi.nlm.nih.gov/pubmed/23884480){target="_blank"}.
+
+```{r oncodriveCLUST_analysis,  include=FALSE }
+##### In this chunk the clusters variants are calculated, but the results are reported in the next chunk
+##### Import protein info data provided within maftools package
+gl <- data.table::fread(input = paste("zcat <", system.file("extdata", "prot_len.txt.gz", package = "maftools")), sep = "\t", stringsAsFactors = FALSE)
+
+##### Create a list to store MAF info for individual datasets
+oncodrive.res <- vector("list", length(mafFiles))
+names(oncodrive.res) <- datasets.list
+
+###### Generate separate plot for each dataset
+for ( i in 1:length(mafFiles) ) {
+  
+  ##### Check if the amino acid changes information is available in MAF provided files. The script expects column called "HGVSp_Short", which is produced with vcf2maf (https://github.com/mskcc/vcf2maf) when converting VCFs to MAFs (https://github.com/cBioPortal/cbioportal/issues/2996) and describes a mutation's amino acid change. The "aa_mutation" field used for annotation in ICGC samples is also acceptable.
+  if ( "HGVSp_Short" %in% maftools::getFields(mafInfo[[i]]) ) {
+          
+    oncodrive.res[[datasets.list[i]]] <- oncodrive.mod(mafInfo[[i]], datasets.list[i], AACol = "HGVSp_Short", gl) 
+
+  } else if ( "aa_mutation" %in% maftools::getFields(mafInfo[[i]]) ) {
+    
+    oncodrive.res[[datasets.list[i]]] <- oncodrive.mod(mafInfo[[i]], datasets.list[i], AACol = "aa_mutation", gl)
+    
+  } else {
+    cat(paste("This section was skipped for dataset", datasets.list[i], "since the corresponding MAF does not contain field with amino acid changes details!\n\n\n\n", sep=" "))
+  }
+}
+```
+
+#### Significant cancer genes
+
+Table(s) presenting per-dataset [OncodriveClust](https://www.ncbi.nlm.nih.gov/pubmed/23884480){target="_blank"} results, including *cluster scores*, *p-values*, *false discovery rate (FDR) values*, *number of mutations in clusters*, as well as the *fraction of mutations in clusters*. **Cluster score** of 1 means that a single hotspot hosts all observed variants. The genes are ordered according to p-values.
+
+```{r oncodriveCLUST_table, comment=NA, warning=FALSE}
+##### Generate tables with oncodriveCLUST results
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  
+  if ( !is.null(oncodrive.res[[datasets.list[i]]]) ) {
+      
+    widges.list[[i]] <- DT::datatable(data = oncodrive.res[[datasets.list[i]]][[1]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 5, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+      DT::formatStyle( columns = names(oncodrive.res[[datasets.list[i]]][[1]]), 'text-align' = 'center' ) %>%
+  formatRound(columns = c("clusterScores", "zscore", "fract_muts_in_clusters"), 1) %>%
+  formatRound(columns = c("pval", "fdr"), 6)
+  
+  } else {
+    cat(paste("It was not possible to calculate cluster scores for dataset", datasets.list[i], "\n\n\n\n", sep=" "))
+  }
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+***
+
+#### Plot
+
+The size of the points on the scatter-plot(s) is proportional to the number of clusters found in the gene. X-axis shows the number of variants observed in these clusters. Y-axis illustrates false discovery rate (FDR) values transformed into -log10. Labels indicate gene name with the number of observed clusters.
+
+```{r oncodriveCLUST_plot, comment=NA, warning=FALSE, fig.width = 9, fig.height = 4 }
+##### Draw oncodrive plot for each dataset
+###### Generate separate plot for each dataset
+for ( i in 1:length(mafFiles) ) {
+  
+  cat(paste(datasets.list[i], "\n\n", sep=" "))
+    
+  if ( !is.null(oncodrive.res[[datasets.list[i]]]) ) {
+      
+      try(plot(oncodrive.res[[datasets.list[i]]][[2]]), silent = TRUE)
+      
+  } else {
+    cat(paste("It was not possible to calculate cluster scores for dataset", datasets.list[i], "\n\n\n\n", sep=" "))
+  }
+}
+```
+
+***
+
+### OncodriveFML {.tabset}
+
+... work in progress
+
+***
+
+### MutSig {.tabset}
+
+... work in progress
+
+***
+
+### CHASMplus {.tabset}
+
+... work in progress
+
+***
+
+## Driver genes summary
+
+
+***
+## Addendum
+
+<details>
+<summary>Parameters</summary>
+<font size="2">
+
+```{r params_info, comment = NA}
+for ( i in 1:length(params) ) {
+
+  cat(paste("Parameter: ", names(params)[i], "\nValue: ", paste(unlist(params[i]), collapse = ","), "\n\n", sep=""))
+}
+```
+
+</font>
+</details>
+
+<details>
+<summary>Session info</summary>
+<font size="2">
+
+```{r sessioninfo, comment = NA}
+devtools::session_info()
+```
+
+</font>
+</details>
