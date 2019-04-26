@@ -14,7 +14,7 @@
 #
 #   Description: Script for selection analyses and cancer driver discovery results. This script catches the arguments from the command line and passes them to the driverAnalysis.Rmd script to produce the report, generate set of plots and tables.
 #
-#   Command line use example: Rscript driverAnalysis.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --q_value 0.1 --ratios_ci FALSE --hypermut_sample_cutoff 3000 --max_muts_per_gene 3 --ucsc_genome_assembly 19 --out_folder Driver_analysis_report
+#   Command line use example: Rscript driverAnalysis.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --q_value 0.1 --ratios_ci FALSE --hypermut_sample_cutoff 1000 --max_muts_per_gene 3 --ucsc_genome_assembly 19 --out_folder Driver_analysis_report
 #
 #   maf_dir:      Directory with MAF files
 #   maf_files:    List of MAF files to be processed. Each file name is expected to be separated by comma
@@ -22,7 +22,7 @@
 #   genes_list (optional):  Location and name of a file listing genes of interest to be considered in the report. The genes are expected to be listed in first column
 #   q_value:      q-value threshold for reporting significant genes (defualt 0.1)
 #   ratios_ci:    Calculate per-gene confidence intervals for the dN/dS ratios (default FALSE)
-#   hypermut_sample_cutoff:   Mutations per gene to define ultra-hypermutator samples (these will be excluded; defualt 3000)
+#   hypermut_sample_cutoff:   Mutations per gene to define ultra-hypermutator samples (these will be excluded; defualt 1000)
 #   max_muts_per_gene:   Maximum mutations per gene in same sample (remaining will be subsampled; defualt 3)
 #   ucsc_genome_assembly:   Version of UCSC genome assembly to be used as a reference
 #   out_folder:   Name for the output folder that will be created within the directory with MAF files. If no output folder is specified the results will be saved in folder "Driver_analysis_report"
@@ -78,7 +78,7 @@ opt$datasets <- gsub("\\s","", opt$datasets)
 if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$datasets) ) {
 
   cat("\nPlease type in required arguments!\n\n")
-  cat("\ncommand example:\n\nRscript driverAnalysis.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --q_value 0.1 --ratios_ci FALSE --hypermut_sample_cutoff 3000 --max_muts_per_gene 3 --ucsc_genome_assembly 19 --out_folder Driver_analysis_report\n\n")
+  cat("\ncommand example:\n\nRscript driverAnalysis.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --q_value 0.1 --ratios_ci FALSE --hypermut_sample_cutoff 1000 --max_muts_per_gene 3 --ucsc_genome_assembly 19 --out_folder Driver_analysis_report\n\n")
   q()
   
 } else if ( length(unlist(strsplit(opt$maf_files, split=',', fixed=TRUE))) != length(unlist(strsplit(opt$datasets, split=',', fixed=TRUE))) ) {
@@ -115,7 +115,7 @@ if ( is.na(opt$ratios_ci) ) {
 
 ##### See default for calling ultra-hypermutator samples
 if ( is.na(opt$hypermut_sample_cutoff) ) {
-  opt$hypermut_sample_cutoff <- 3000
+  opt$hypermut_sample_cutoff <- 1000
 }
 
 ##### See default for maximum mutations per gene in same sample
@@ -129,4 +129,4 @@ if ( is.na(opt$ucsc_genome_assembly) ) {
 }
 
 ##### Pass the user-defined argumentas to the driverAnalysis.R markdown script and run the analysis
-rmarkdown::render(input = "driverAnalysis.Rmd", output_dir = opt$maf_dir, output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, genes_list = opt$genes_list, q_value = as.numeric(opt$q_value), ratios_ci = as.logical(opt$ratios_ci), hypermut_sample_cutoff = as.numeric(opt$hypermut_sample_cutoff), max_muts_per_gene = as.numeric(opt$max_muts_per_gene), ucsc_genome_assembly = as.numeric(opt$ucsc_genome_assembly), out_folder = opt$out_folder))
+rmarkdown::render(input = "driverAnalysis.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, genes_list = opt$genes_list, q_value = as.numeric(opt$q_value), ratios_ci = as.logical(opt$ratios_ci), hypermut_sample_cutoff = as.numeric(opt$hypermut_sample_cutoff), max_muts_per_gene = as.numeric(opt$max_muts_per_gene), ucsc_genome_assembly = as.numeric(opt$ucsc_genome_assembly), out_folder = opt$out_folder))
