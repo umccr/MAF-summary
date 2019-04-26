@@ -99,7 +99,7 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
       
       ##### Drawing lollipop for the top 10 genes in each dataset
       ##### Check if the amino acid changes information is available in MAF provided files. The script expects column called "HGVSp_Short", which is produced with vcf2maf (https://github.com/mskcc/vcf2maf) when converting VCFs to MAFs (https://github.com/cBioPortal/cbioportal/issues/2996) and describes a mutation's amino acid change. The "aa_mutation" field used for annotation in ICGC samples is also acceptable. NOTE: other possibilities are: "Protein_Change", "AAChange""
-      if ( "HGVSp_Short" %in% maftools::getFields(mafInfo[[dataset]]) ) {
+       if ( "HGVSp_Short" %in% maftools::getFields(mafInfo[[dataset]]) && gene %in% mafInfo[[dataset]]@data$Hugo_Symbol ) {
         
         cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
         
@@ -118,11 +118,7 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         ##### Remove redundant pdf plot
         file.remove(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""))
     
-      } else if ( "HGVSp_Short" %in% names(mafInfo[[dataset]]@maf.silent) && gene %in% mafInfo[[dataset]]@maf.silent$Hugo_Symbol  ) {
-        
-        cat(paste("This section was skipped for dataset", dataset, "since only synonymous variants were detected in", gene, "gene.\n\n\n\n", sep=" "))
-    
-      } else if ( "aa_mutation" %in% maftools::getFields(mafInfo[[dataset]]) ) {
+      } else if ( "aa_mutation" %in% maftools::getFields(mafInfo[[dataset]]) && gene %in% mafInfo[[dataset]]@data$Hugo_Symbo ) {
         
         cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
         
@@ -142,14 +138,24 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         file.remove(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""))
       
       ##### ...otherwise leave a message
-      } else if ( "aa_mutation" %in% names(mafInfo[[dataset]]@maf.silent) && gene %in% mafInfo[[dataset]]@maf.silent$Hugo_Symbol  ) {
-        
-        cat(paste("This section was skipped for dataset", dataset, "since only synonymous variants were detected in", gene, "gene.\n\n\n\n", sep=" "))
-    
       } else {
-        cat(paste("This section was skipped for dataset", dataset, "since the corresponding MAF does not contain field with amino acid changes details!\n\n\n\n", sep=" "))
+        
+        ##### Check if the genes has any synonymous vatiants
+        if ( "HGVSp_Short" %in% names(mafInfo[[dataset]]@maf.silent) && gene %in% mafInfo[[dataset]]@maf.silent$Hugo_Symbol  ) {
+        
+          cat(paste("This section was skipped for dataset", dataset, "since only synonymous variants were detected in", gene, "gene.\n\n\n\n", sep=" "))
+      
+        } else if ( "aa_mutation" %in% names(mafInfo[[dataset]]@maf.silent) && gene %in% mafInfo[[dataset]]@maf.silent$Hugo_Symbol  ) {
+          
+          cat(paste("This section was skipped for dataset", dataset, "since only synonymous variants were detected in", gene, "gene.\n\n\n\n", sep=" "))
+      
+        } else {
+          cat(paste("This section was skipped for dataset", dataset, "since the corresponding MAF does not contain field with amino acid changes details!\n\n\n\n", sep=" "))
+        }
       }
-    } else {
+        
+      } else {
+        
       cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
       cat(paste("Gene <i>", gene, "</i> has no mutations reported in dataset", dataset, "\n\n\n\n", sep=" "))
     }
