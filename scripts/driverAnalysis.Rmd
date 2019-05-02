@@ -649,25 +649,8 @@ for ( i in 1:length(mafFiles) ) {
       signif_genes.upset.mod[[i]][ signif_genes.upset.mod[[i]][, j] == 1, j ] <- "Yes"
       signif_genes.upset.mod[[i]][ signif_genes.upset.mod[[i]][, j] == 0, j ] <- "No"
     }
-      
   }
 }
-```
-
-```{r mutations_annotation, comment = NA, message=FALSE, warning=FALSE, eval=FALSE}
-##### Extract 
-
-annotmuts <- vector("list", length(mafFiles))
-names(annotmuts) <- datasets.list
-
-for ( i in 1:length(mafFiles) ) {
-
-  ##### Extract an annotated table of coding mutations, limited to the significantly mutated genes
-  annotmuts[[i]] <- dndsout[[i]]$annotmuts[ dndsout[[i]]$annotmuts$gene %in% signif_genes_cv[[i]]$gene_name, ]
-
-}
-
-
 ```
 
 ## Datasets  {.tabset}
@@ -1589,22 +1572,71 @@ if ( nrow(gff[HGNC %in% verify_genes(unlist(signif_genes.methods$OncodriveCLUST)
 
 ***
 
-
-## Mutations annotation
+## Mutations annotation {.tabset}
 
 Table(s) with detailed annotation of coding mutations in affected samples.
 
-... work in progress
+### dNdScv
 
-```{r mutations_annotation_summary, comment = NA, message=FALSE, warning=FALSE, eval=FALSE}
+```{r mutations_annotation_dNdScv, comment = NA, message=FALSE, warning=FALSE, eval=FALSE}
 ##### Present results summary table in the html report
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-    
-  widges.list[[i]] <- DT::datatable( data = annotmuts[[i]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(annotmuts[[i]]), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
-        DT::formatStyle( columns = names(annotmuts[[i]]), 'text-align' = 'center' )
+  
+  annotmuts <- dndsout[[i]]$annotmuts[ dndsout[[i]]$annotmuts$gene %in% signif_genes.methods$dNdScv[[i]], ]
+  
+  widges.list[[i]] <- DT::datatable( data = annotmuts, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(annotmuts), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+        DT::formatStyle( columns = names(annotmuts), 'text-align' = 'center' )
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+***
+
+### dNdSloc
+
+```{r mutations_annotation_dNdSloc, comment = NA, message=FALSE, warning=FALSE, eval=FALSE}
+##### Present results summary table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  
+  annotmuts <- dndsout[[i]]$annotmuts[ dndsout[[i]]$annotmuts$gene %in% signif_genes.methods$dNdSloc[[i]], ]
+  
+  widges.list[[i]] <- DT::datatable( data = annotmuts, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(annotmuts), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+        DT::formatStyle( columns = names(annotmuts), 'text-align' = 'center' )
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+***
+
+### OncodriveCLUST
+
+```{r mutations_annotation_OncodriveCLUST, comment = NA, message=FALSE, warning=FALSE, eval=FALSE}
+##### Present results summary table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  
+  annotmuts <- dndsout[[i]]$annotmuts[ dndsout[[i]]$annotmuts$gene %in% signif_genes.methods$OncodriveCLUST[[i]], ]
+  
+  widges.list[[i]] <- DT::datatable( data = annotmuts, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(annotmuts), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+        DT::formatStyle( columns = names(annotmuts), 'text-align' = 'center' )
 }
 
 ##### Print a list of htmlwidgets
