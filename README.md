@@ -363,7 +363,7 @@ Argument | Description
 
 <br />
 
-**Packages**: *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*, *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)*, *[knitr](https://cran.r-project.org/web/packages/knitr/knitr.pdf)*, *[DT](https://rstudio.github.io/DT/)*, *[ggplot2](https://cran.r-project.org/web/packages/ggplot2/ggplot2.pdf)*, *[dndscv](http://htmlpreview.github.io/?http://github.com/im3sanger/dndscv/blob/master/vignettes/dNdScv.html)*, *[UpSetR](https://cran.r-project.org/web/packages/UpSetR/README.html)*
+**Packages**: *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*, *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)*, *[knitr](https://cran.r-project.org/web/packages/knitr/knitr.pdf)*, *[DT](https://rstudio.github.io/DT/)*, *[ggplot2](https://cran.r-project.org/web/packages/ggplot2/ggplot2.pdf)*, *[dndscv](http://htmlpreview.github.io/?http://github.com/im3sanger/dndscv/blob/master/vignettes/dNdScv.html)*, *[UpSetR](https://cran.r-project.org/web/packages/UpSetR/README.html)*, *[stringr](https://cran.r-project.org/web/packages/stringr/vignettes/stringr.html)*, *[magick](https://cran.r-project.org/web/packages/magick/vignettes/intro.html)*
 
 **Command line use example**:
 
