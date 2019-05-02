@@ -285,7 +285,7 @@ Rscript summariseMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open
 ```
 <br>
 
-This will generate *[summariseMAFs.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)* and *[summariseMAFs.md](./scripts/summariseMAFs.md)* reports with interactive summary tables and heatmaps. It will also create a folder with user-defined name containing output tables and plots described [here](README_output_files.md).
+This will generate *[summariseMAFs.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)* report with interactive summary tables and heatmaps within *MAF_summary* folder. It will also create a folder with user-defined name containing output tables and plots described [here](README_output_files.md).
 
 ### Example output
 
@@ -326,7 +326,7 @@ Rscript summariseMAFsGenes.R --maf_dir /data --maf_files simple_somatic_mutation
 ```
 <br>
 
-This will generate *[summariseMAFsGenes.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html)* and *[summariseMAFsGenes.md](./scripts/summariseMAFsGenes.md)* reports with interactive summary tables and heatmaps. It will also create a folder with user-defined name containing output tables and plots described [here](README_output_files.md).
+This will generate *[summariseMAFsGenes.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html)* report with interactive summary tables and heatmaps within *MAF_summary* folder. It will also create a folder with user-defined name containing output tables and plots described [here](README_output_files.md).
 
 ### Example output
 
@@ -356,10 +356,10 @@ Argument | Description
 --genes_list | Location and name of a file listing genes of interest to be considered in the report (OPTIONAL)
 --q_value | Q-value threshold for reporting significant genes (defualt 0.1)
 --ratios_ci | Calculate per-gene confidence intervals for the dN/dS ratios (default FALSE)
---hypermut_sample_cutoff | Mutations per gene to define ultra-hypermutator samples (these will be excluded; defualt 3000)
+--hypermut_sample_cutoff | Mutations per gene to define ultra-hypermutator samples (these will be excluded; defualt 1000)
 --max_muts_per_gene | Maximum mutations per gene in same sample (remaining will be subsampled; defualt 3)
---ucsc_genome_assembly | Version of UCSC genome assembly to be used as a reference
---out_folder | Output folder
+--ucsc_genome_assembly | Version of UCSC genome assembly to be used as a reference (defualt 19)
+--out_folder | Output folder (defualt "Driver_analysis_report")
 
 <br />
 
@@ -372,4 +372,4 @@ Rscript driverAnalysis.R --maf_dir /data --maf_files simple_somatic_mutation.ope
 ```
 <br>
 
-This will generate *Driver_analysis_report.html* report with summary tables and plots.
+This will generate *Driver_analysis_report.html* report with summary tables and plots within *Driver_analysis_report* folder.
