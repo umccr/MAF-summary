@@ -27,7 +27,7 @@ Selection analyses and cancer driver discovery results for dataset(s) **`r gsub(
 
 * **[dndscv](https://github.com/im3sanger/dndscv){target="_blank"}** (see paper by [Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346){target="_blank"} for details)
 * **[OncodriveClust](https://bioconductor.org/packages/release/bioc/vignettes/maftools/inst/doc/maftools.html#92_detecting_cancer_driver_genes_based_on_positional_clustering){target="_blank"}** (see paper by [Tamborero *et al*, 2013](https://www.ncbi.nlm.nih.gov/pubmed/23884480){target="_blank"} for details)
-* **[OncodriveFML](https://bitbucket.org/bbglab/oncodrivefml.git){target="_blank"}** (...work in progress)
+* **[OncodriveFML](https://bitbucket.org/bbglab/oncodrivefml.git){target="_blank"}**  (see paper by [Mularoni et al., 2016](https://www.ncbi.nlm.nih.gov/pubmed/27311963){target="_blank"} for details)
 * **[MutSig](http://software.broadinstitute.org/cancer/cga/mutsig){target="_blank"}** (...work in progress)
 * **[CHASMplus](https://github.com/KarchinLab/CHASMplus){target="_blank"}** (...work in progress)
 
@@ -560,7 +560,6 @@ for ( i in 1:length(mafFiles) ) {
       
     ##### Extract required data from MAF
     mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = sample2keep, genes = NULL, fields = NULL, query = NULL, mafObj = TRUE, includeSyn = TRUE)
-    
   }
 }
 ```
@@ -1169,6 +1168,8 @@ cat("\n\n\n")
 
 ### OncodriveFML {.tabset}
 
+[OncodriveFML](https://oncodrivefml.readthedocs.io/en/latest/oncodriveFML.html){target="_blank"} is a method designed to analyse the pattern of somatic mutations across tumours in both **coding and non-coding genomic regions** to identify signals of positive selection, and therefore, their involvement in tumorigenesis. The identification of protein coding genes, promoters, untranslated regions, intronic splice regions, and lncRNAs-containing driver mutations in several malignancies using [OncodriveFML](https://oncodrivefml.readthedocs.io/en/latest/oncodriveFML.html){target="_blank"} is described by [Mularoni et al., 2016](https://www.ncbi.nlm.nih.gov/pubmed/27311963){target="_blank"}.
+
 ... work in progress
 
 ***
@@ -1189,7 +1190,7 @@ cat("\n\n\n")
 
 ## Mutation maps {.tabset .tabset-fade}
 
-Lollipop plot(s) showing mutation spots on protein structure for the **10 driver genes** detected by the following methods (*columns*): **`r paste(names(signif_genes.datasets[[i]]), collapse = ", ")`**. Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Note, that lollipop plot(s) are generated for MAF files containing field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
+Lollipop plot(s) showing mutation spots on protein structure for the top **10 driver genes** detected by the following methods: **`r paste(names(signif_genes.datasets[[i]]), collapse = ", ")`**. Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Note, that lollipop plot(s) are generated for MAF files containing field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
 
 ```{r prot_structre, comment = NA, message=FALSE, warning=FALSE}
 ##### Get list of proteins for which structure is available within maftools
@@ -1574,7 +1575,7 @@ if ( nrow(gff[HGNC %in% verify_genes(unlist(signif_genes.methods$OncodriveCLUST)
 
 ## Mutations annotation {.tabset}
 
-Table(s) with detailed annotation of coding mutations in affected samples.
+Table(s) with detailed annotation of coding mutations (detected by the following methods: **`r paste(names(signif_genes.datasets[[i]]), collapse = ", ")`**) in affected samples.
 
 ### dNdScv
 
