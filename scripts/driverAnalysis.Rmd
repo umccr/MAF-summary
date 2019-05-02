@@ -593,6 +593,9 @@ for ( i in 1:length(mafFiles) ) {
     cat(paste("This section was skipped for dataset", datasets.list[i], "since the corresponding MAF does not contain field with amino acid changes details!\n\n\n\n", sep=" "))
   }
   
+  ##### Order results by genes' increasing FDR and then by decreasing total number of mutations
+  oncodrive.res[[datasets.list[i]]][[1]] <- oncodrive.res[[datasets.list[i]]][[1]][ order(oncodrive.res[[datasets.list[i]]][[1]][, "fdr"],  rev(unlist(oncodrive.res[[datasets.list[i]]][[1]][, "total"]))) , ]
+  
   ##### Record sinigficant driver genes for each dataset and method
   signif_genes.datasets[[i]]$OncodriveCLUST <- as.character(oncodrive.res[[datasets.list[i]]][[1]]$Hugo_Symbol)
   signif_genes.methods$OncodriveCLUST[[i]] <- as.character(oncodrive.res[[datasets.list[i]]][[1]]$Hugo_Symbol)
@@ -730,7 +733,7 @@ widges.list <- htmltools::tagList()
 
 #### Samples with no non-synonymous variants
 
-The table below lists sample(s) in which **no non-synonymous variants** were detected and hence will not be included in the summary tables/plots.
+Table listing sample(s) in which **no non-synonymous variants** were detected and hence will not be included in the summary tables/plots.
 
 ```{r sample_no_nonsynonymous, comment = NA, warning=FALSE}
 ##### report samples with no non-synonymous variants according to corresponding MAF file
@@ -1653,10 +1656,7 @@ cat("\n\n\n")
 Plot(s) illustrating the intersections of driver analysis results between the following methods: **`r paste(names(signif_genes.datasets[[i]]), collapse = ", ")`**.
 
 ```{r driver_genes_summary_plot, comment = NA, message=FALSE, warning=FALSE, results="asis"}
-##### Presnet the intersections between cancer driver genes detected by various methods
-##### Create a list for htmlwidgets
-widges.list <- htmltools::tagList()
-
+##### Present the intersections between cancer driver genes detected by various methods
 for ( i in 1:length(mafFiles) ) {
   
   if ( length(signif_genes[[i]]) > 0 ) {
@@ -1671,9 +1671,6 @@ for ( i in 1:length(mafFiles) ) {
     cat(paste("None cancer driver gene have been detected by either method in dataset", datasets.list[i], "\n\n\n\n", sep=" "))
   }
 }
-
-##### Print a list of htmlwidgets
-widges.list
 ```
 
 ***
