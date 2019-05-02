@@ -1578,7 +1578,7 @@ Table(s) with detailed annotation of coding mutations in affected samples.
 
 ### dNdScv
 
-```{r mutations_annotation_dNdScv, comment = NA, message=FALSE, warning=FALSE, eval=FALSE}
+```{r mutations_annotation_dNdScv, comment = NA, message=FALSE, warning=FALSE}
 ##### Present results summary table in the html report
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
@@ -1587,7 +1587,11 @@ for ( i in 1:length(mafFiles) ) {
   
   annotmuts <- dndsout[[i]]$annotmuts[ dndsout[[i]]$annotmuts$gene %in% signif_genes.methods$dNdScv[[i]], ]
   
-  widges.list[[i]] <- DT::datatable( data = annotmuts, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(annotmuts), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+  ##### Move gene name to the first column
+  col_idx <- grep("gene", names(annotmuts))
+  annotmuts <- subset(annotmuts, select=c(names(annotmuts)[c(col_idx, c(1:ncol(annotmuts))[-col_idx])]))
+  
+  widges.list[[i]] <- DT::datatable( data = annotmuts, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(annotmuts), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
         DT::formatStyle( columns = names(annotmuts), 'text-align' = 'center' )
 }
 
@@ -1602,7 +1606,7 @@ cat("\n\n\n")
 
 ### dNdSloc
 
-```{r mutations_annotation_dNdSloc, comment = NA, message=FALSE, warning=FALSE, eval=FALSE}
+```{r mutations_annotation_dNdSloc, comment = NA, message=FALSE, warning=FALSE}
 ##### Present results summary table in the html report
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
@@ -1611,7 +1615,11 @@ for ( i in 1:length(mafFiles) ) {
   
   annotmuts <- dndsout[[i]]$annotmuts[ dndsout[[i]]$annotmuts$gene %in% signif_genes.methods$dNdSloc[[i]], ]
   
-  widges.list[[i]] <- DT::datatable( data = annotmuts, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(annotmuts), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+  ##### Move gene name to the first column
+  col_idx <- grep("gene", names(annotmuts))
+  annotmuts <- subset(annotmuts, select=c(names(annotmuts)[c(col_idx, c(1:ncol(annotmuts))[-col_idx])]))
+  
+  widges.list[[i]] <- DT::datatable( data = annotmuts, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(annotmuts), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
         DT::formatStyle( columns = names(annotmuts), 'text-align' = 'center' )
 }
 
@@ -1626,7 +1634,7 @@ cat("\n\n\n")
 
 ### OncodriveCLUST
 
-```{r mutations_annotation_OncodriveCLUST, comment = NA, message=FALSE, warning=FALSE, eval=FALSE}
+```{r mutations_annotation_OncodriveCLUST, comment = NA, message=FALSE, warning=FALSE}
 ##### Present results summary table in the html report
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
@@ -1635,7 +1643,11 @@ for ( i in 1:length(mafFiles) ) {
   
   annotmuts <- dndsout[[i]]$annotmuts[ dndsout[[i]]$annotmuts$gene %in% signif_genes.methods$OncodriveCLUST[[i]], ]
   
-  widges.list[[i]] <- DT::datatable( data = annotmuts, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(annotmuts), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+  ##### Move gene name to the first column
+  col_idx <- grep("gene", names(annotmuts))
+  annotmuts <- subset(annotmuts, select=c(names(annotmuts)[c(col_idx, c(1:ncol(annotmuts))[-col_idx])]))
+  
+  widges.list[[i]] <- DT::datatable( data = annotmuts, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = nrow(annotmuts), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
         DT::formatStyle( columns = names(annotmuts), 'text-align' = 'center' )
 }
 
