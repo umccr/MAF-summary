@@ -342,10 +342,10 @@ To perform selection analyses and cancer driver discovery run the *[driverAnalys
 
 * **[dndscv](https://github.com/im3sanger/dndscv)** (see paper by [Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346) for details)
 * **[OncodriveClust](https://bioconductor.org/packages/release/bioc/vignettes/maftools/inst/doc/maftools.html#92_detecting_cancer_driver_genes_based_on_positional_clustering)** (see paper by [Tamborero *et al*, 2013](https://www.ncbi.nlm.nih.gov/pubmed/23884480) for details)
-* **[OncodriveFML](http://bbglab.irbbarcelona.org/oncodrivefml/home)** (...work in progress)
-* **[MutSig](http://software.broadinstitute.org/cancer/cga/mutsig)** (...work in progress)
-* **[CHASMplus](https://github.com/KarchinLab/CHASMplus)** (...work in progress)
-* **[HotNet2](https://github.com/raphael-group/hotnet2)** (...work in progress)
+* **[OncodriveFML](http://bbglab.irbbarcelona.org/oncodrivefml/home)** (see paper by [Mularoni *et al*, 2013](https://www.ncbi.nlm.nih.gov/pubmed/27311963) for details, ...*work in progress*)
+* **[MutSig](http://software.broadinstitute.org/cancer/cga/mutsig)** (see paper by [Lawrence et al., 2013](https://www.ncbi.nlm.nih.gov/pubmed/23770567) for details, ...*work in progress*)
+* **[CHASMplus](https://github.com/KarchinLab/CHASMplus)** (see paper by [Tokheim and Karchin., preprint](https://www.biorxiv.org/content/10.1101/313296v4) for details, ...*work in progress*)
+* **[Hierarchical HotNet](https://github.com/raphael-group/hierarchical-hotnet)** (see paper by [Reyna et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/30423088) for details, it is improved version of [HotNet2](https://github.com/raphael-group/hotnet2), ...*work in progress*)
 
 **Script**: *[driverAnalysis.R](./scripts/driverAnalysis.R)*
 
