@@ -27,9 +27,10 @@ Selection analyses and cancer driver discovery results for dataset(s) **`r gsub(
 
 * **[dndscv](https://github.com/im3sanger/dndscv){target="_blank"}** (see paper by [Martincorena et al., 2017](https://www.ncbi.nlm.nih.gov/pubmed/29056346){target="_blank"} for details)
 * **[OncodriveClust](https://bioconductor.org/packages/release/bioc/vignettes/maftools/inst/doc/maftools.html#92_detecting_cancer_driver_genes_based_on_positional_clustering){target="_blank"}** (see paper by [Tamborero *et al*, 2013](https://www.ncbi.nlm.nih.gov/pubmed/23884480){target="_blank"} for details)
-* **[OncodriveFML](https://bitbucket.org/bbglab/oncodrivefml.git){target="_blank"}**  (see paper by [Mularoni et al., 2016](https://www.ncbi.nlm.nih.gov/pubmed/27311963){target="_blank"} for details)
-* **[MutSig](http://software.broadinstitute.org/cancer/cga/mutsig){target="_blank"}** (...work in progress)
-* **[CHASMplus](https://github.com/KarchinLab/CHASMplus){target="_blank"}** (...work in progress)
+* **[OncodriveFML](https://bitbucket.org/bbglab/oncodrivefml.git){target="_blank"}** (see paper by [Mularoni et al., 2016](https://www.ncbi.nlm.nih.gov/pubmed/27311963){target="_blank"} for details)
+* **[MutSig](http://software.broadinstitute.org/cancer/cga/mutsig){target="_blank"}** (see paper by [Lawrence et al., 2013](https://www.ncbi.nlm.nih.gov/pubmed/23770567){target="_blank"} for details, ...work in progress)
+* **[CHASMplus](https://github.com/KarchinLab/CHASMplus){target="_blank"}** (see paper by [Tokheim and Karchin., preprint](https://www.biorxiv.org/content/10.1101/313296v4){target="_blank"} for details, ...work in progress)
+* **[HotNet2](https://github.com/raphael-group/hotnet2){target="_blank"}** (see paper by [Leiserson et al., 2015](https://www.ncbi.nlm.nih.gov/pubmed/25501392){target="_blank"} for details, ...work in progress)
 
 ```{r define_functions, comment=NA, message=FALSE, warning=FALSE}
 ##### Define functions
@@ -1185,6 +1186,10 @@ cat("\n\n\n")
 ... work in progress
 
 ***
+
+### HotNet2 {.tabset}
+
+... work in progress
 
 ***
 
