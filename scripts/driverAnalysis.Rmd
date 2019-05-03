@@ -30,7 +30,7 @@ Selection analyses and cancer driver discovery results for dataset(s) **`r gsub(
 * **[OncodriveFML](https://bitbucket.org/bbglab/oncodrivefml.git){target="_blank"}** (see paper by [Mularoni et al., 2016](https://www.ncbi.nlm.nih.gov/pubmed/27311963){target="_blank"} for details)
 * **[MutSig](http://software.broadinstitute.org/cancer/cga/mutsig){target="_blank"}** (see paper by [Lawrence et al., 2013](https://www.ncbi.nlm.nih.gov/pubmed/23770567){target="_blank"} for details, ...work in progress)
 * **[CHASMplus](https://github.com/KarchinLab/CHASMplus){target="_blank"}** (see paper by [Tokheim and Karchin., preprint](https://www.biorxiv.org/content/10.1101/313296v4){target="_blank"} for details, ...work in progress)
-* **[HotNet2](https://github.com/raphael-group/hotnet2){target="_blank"}** (see paper by [Leiserson et al., 2015](https://www.ncbi.nlm.nih.gov/pubmed/25501392){target="_blank"} for details, ...work in progress)
+* **[Hierarchical HotNet](https://github.com/raphael-group/hierarchical-hotnet){target="_blank"}** (see paper by [Reyna et al., 2015](https://www.ncbi.nlm.nih.gov/pubmed/30423088){target="_blank"} for details, ...work in progress)
 
 ```{r define_functions, comment=NA, message=FALSE, warning=FALSE}
 ##### Define functions
@@ -1187,7 +1187,9 @@ cat("\n\n\n")
 
 ***
 
-### HotNet2 {.tabset}
+### Hierarchical HotNet {.tabset}
+
+[Hierarchical HotNet](https://github.com/raphael-group/hierarchical-hotnet){target="_blank"}** (see paper by [Reyna et al., 2015](https://www.ncbi.nlm.nih.gov/pubmed/30423088){target="_blank"} for details) is an improved version of [HotNet2](https://github.com/raphael-group/hotnet2).
 
 ... work in progress
 
