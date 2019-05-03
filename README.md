@@ -344,7 +344,7 @@ To perform selection analyses and cancer driver discovery run the *[driverAnalys
 * **[OncodriveClust](https://bioconductor.org/packages/release/bioc/vignettes/maftools/inst/doc/maftools.html#92_detecting_cancer_driver_genes_based_on_positional_clustering)** (see paper by [Tamborero *et al*, 2013](https://www.ncbi.nlm.nih.gov/pubmed/23884480) for details)
 * **[OncodriveFML](http://bbglab.irbbarcelona.org/oncodrivefml/home)** (...work in progress)
 * **[MutSig](http://software.broadinstitute.org/cancer/cga/mutsig)** (...work in progress)
-* **[CHASMplus](https://github.com/KarchinLab/CHASMplus)** (...work in progress)
+* **[HotNet2](https://github.com/raphael-group/hotnet2)** (...work in progress)
 
 **Script**: *[driverAnalysis.R](./scripts/driverAnalysis.R)*
 
