@@ -18,7 +18,7 @@ params:
   genes_list: 
   genes_blacklist: 
   samples_blacklist: 
-  out_folder: 
+  out_folder: 'MAF_summary_report'
 ---
 
 Mutation data summary for dataset(s) **`r gsub(",", ", ", params$datasets) `**
@@ -309,9 +309,12 @@ if ( !is.na(params$samples_blacklist) ) {
     exclsamples <- unique(exclsamples.df[,"Tumor_Sample_Barcode"])
     
     samples2keep <- unlist(unique( mafInfo[[i]]@maf.silent[, "Tumor_Sample_Barcode"]))[ unlist(unique(mafInfo[[i]]@maf.silent[, "Tumor_Sample_Barcode"])) %!in% exclsamples ]
-  
+    
+    ##### Subset the maf object to exclude use-defined sample(s)
+    ##### Initially don't save the subset output as maf object, as this will exlude samples with no non-synonymous mutations from the summary
     mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = as.vector(samples2keep), genes = NULL, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE, dropLevels=TRUE)
     
+    ##### Now read the data subset as a maf object
     mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], verbose = FALSE)
   }
 }
@@ -329,10 +332,11 @@ if ( !is.na(params$genes_blacklist) ) {
     genes2keep <- unique( mafInfo[[i]]@data$Hugo_Symbol)[ unique( mafInfo[[i]]@data$Hugo_Symbol) %!in% exclgenes ]
   
     ##### Subset the maf object to exclude use-defined gene(s)
+    ##### Initially don't save the subset output as maf object, as this will exlude samples with no non-synonymous mutations from the summary
     mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = NULL, genes = genes2keep, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE)
     
+    ##### Now read the data subset as a maf object
     mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], verbose = FALSE)
-    
   }
 }
 ```
