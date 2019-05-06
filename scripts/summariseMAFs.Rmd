@@ -16,7 +16,9 @@ params:
   datasets: 
   genes_min: 
   genes_list: 
-  out_folder: 'MAF_report'
+  genes_blacklist: 
+  samples_blacklist: 
+  out_folder: 
 ---
 
 Mutation data summary for dataset(s) **`r gsub(",", ", ", params$datasets) `**
@@ -290,9 +292,48 @@ if ( !file.exists(params$out_folder) ){
 }
 
 ##### Read in list of genes of interest of specified
-if ( !is.null(params$genes_list) ){
+if ( !is.na(params$genes_list) ){
   
   goi <- unique(read.table(params$genes_list, sep="\t", as.is=TRUE, header=FALSE, row.names=NULL)[,1])
+}
+```
+
+```{r exclude_samples, comment = NA, message=FALSE, warning=FALSE}
+##### Exclude user-derined samples(s) from the analysis
+if ( !is.na(params$samples_blacklist) ) {
+    
+  for ( i in 1:length(mafFiles) ) {
+      
+    ##### Read in list of samples to be excluded
+    exclsamples.df <- read.table(params$samples_blacklist, sep="\t", as.is=TRUE, header=TRUE, row.names=NULL)
+    exclsamples <- unique(exclsamples.df[,"Tumor_Sample_Barcode"])
+    
+    samples2keep <- unlist(unique( mafInfo[[i]]@maf.silent[, "Tumor_Sample_Barcode"]))[ unlist(unique(mafInfo[[i]]@maf.silent[, "Tumor_Sample_Barcode"])) %!in% exclsamples ]
+  
+    mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = as.vector(samples2keep), genes = NULL, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE, dropLevels=TRUE)
+    
+    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], verbose = FALSE)
+  }
+}
+```
+
+```{r exclude_genes, comment = NA, message=FALSE, warning=FALSE}
+##### Exclude user-derined gene(s) from the analysis
+if ( !is.na(params$genes_blacklist) ) {
+    
+  for ( i in 1:length(mafFiles) ) {
+    
+    ##### Read in list of genes to be excluded
+    exclgenes <- unique(read.table(params$genes_blacklist, sep="\t", as.is=TRUE, header=FALSE, row.names=NULL)[,1])
+    
+    genes2keep <- unique( mafInfo[[i]]@data$Hugo_Symbol)[ unique( mafInfo[[i]]@data$Hugo_Symbol) %!in% exclgenes ]
+  
+    ##### Subset the maf object to exclude use-defined gene(s)
+    mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = NULL, genes = genes2keep, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE)
+    
+    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], verbose = FALSE)
+    
+  }
 }
 ```
 
@@ -437,7 +478,27 @@ cat("\n\n\n")
 
 ***
 
-### Genes summary
+#### Excluded samples
+
+List of samples excluded from the analysis.
+
+```{r excluded_samples_table, comment = NA, message=FALSE, warning=FALSE}
+##### Present a samples table in the html report
+if ( !is.na(params$samples_blacklist) ) {
+    
+  DT::datatable(data = exclsamples.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;'), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+      DT::formatStyle( columns = names(exclsamples.df), 'text-align' = 'center' )
+  
+} else {
+  cat("No samples were excluded.\n\n\n")
+}
+```
+
+***
+
+### Genes summary {.tabset}
+
+#### Mutated genes
 
 Table(s) summarising mutated genes in individual datasets. Each table contains per-gene information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file. The last two columns contain the *number of samples with mutations/alterations* in the corresponding gene.
 
@@ -467,6 +528,25 @@ for ( i in 1:length(mafFiles) ) {
 ##### Print a list of htmlwidgets
 widges.list
 ```
+
+***
+
+#### Excluded genes
+
+List of genes excluded from the analysis.
+
+```{r excluded_genes_table, comment = NA, message=FALSE, warning=FALSE}
+##### Present a gene table in the html report
+if ( !is.na(params$genes_blacklist) ) {
+    
+  DT::datatable(data = data.frame(Gene = exclgenes), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;'), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+    DT::formatStyle( columns = "Gene", 'text-align' = 'center' )
+  
+} else {
+  cat("No genes were excluded.\n\n\n")
+}
+```
+
 
 ```{r top_genes_threshold, warning=FALSE}
 ##### Check if the use-defined number of genes to present is not higher than the number of genes with non-synonymous mutations reported in individual MAFs
@@ -507,7 +587,7 @@ for ( i in 1:length(mafFiles) ) {
 ```{r goi, warning=FALSE}
 ##### Deal with additional genes of interest (if specified)
 ##### Check if the use-defined genes of interest are already present withing the top most frequently mutated genes
-if ( !is.null(params$genes_list) ) {
+if ( !is.na(params$genes_list) ) {
   
   genes_list_goi <- vector("list", length(mafFiles))
   names(genes_list_goi) <- datasets.list
@@ -608,7 +688,7 @@ Oncoplot(s) illustrating different types of mutations observed across samples fo
 ```{r maf_oncoplot_goi, comment = NA, results="asis"}
 ##### Draw additional oncoplot if a list of genes of intereset was specified by user 
 ###### Generate separate plot for each dataset
-if ( !is.null(params$genes_list) && length(goi) > 1 ) {
+if ( !is.na(params$genes_list) && length(goi) > 1 ) {
   
   for ( i in 1:length(mafFiles) ) {
   
@@ -818,7 +898,7 @@ for ( i in 1:length(mafFiles) ) {
   genes.top <- maftools::getGeneSummary(mafInfo[[i]])[c(1:top_genes_no[[i]]), Hugo_Symbol]
   
   ##### Add genes of interest to the list (if specified)
-  if ( !is.null(params$genes_list) ){
+  if ( !is.na(params$genes_list) ){
     
     genes.top <- c(genes.top, genes_list_goi[[i]])
   }
@@ -1275,7 +1355,7 @@ cat("\n\n\n")
 ```{r details_mut_goi, comment = NA, message=FALSE, warning=FALSE}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
 
-if ( !is.null(params$genes_list) ) {
+if ( !is.na(params$genes_list) ) {
   
   mut.details.datasets(mafInfo, datasets.list, unlist(genes_list_goi))
   
@@ -1470,7 +1550,7 @@ for ( i in 1:length(mafFiles) ) {
   }
   
   ##### Drawing oncoplots for additional genes of interest (if specified)
-  if ( !is.null(params$genes_list) && length(goi) > 1 ) {
+  if ( !is.na(params$genes_list) && length(goi) > 1 ) {
 
     ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
     if ( length(genes_list_goi[[i]]) > 1 ) {
