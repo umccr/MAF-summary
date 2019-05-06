@@ -22,6 +22,8 @@
 #   datasets:     Desired names of each dataset. The names are expected to be in the same order as provided MAF files and should be separated by comma
 #   genes_min (optional):  Minimal percentage of patients carrying mutations in individual genes to be included in the report
 #   genes_list (optional):  Location and name of a file listing genes of interest to be considered in the report. The genes are expected to be listed in first column
+#   genes_blacklist (optional):  Location and name of a file listing genes to be excluded. Header is not expected and the genes should be listed in separate lines
+#   samples_blacklist (optional):  Location and name of a file listing samples to be excluded. ocation and name of a file listing samples to be excluded (OPTIONAL). The ID of samples to be exdluded are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
 #   out_folder:      Name for the output folder that will be created within the directory with MAF files. If no output folder is specified the results will be saved in folder "MAF_summary"
 #
 ################################################################################
@@ -53,6 +55,10 @@ option_list <- list(
               help="Minimal percentage of patients carrying mutations in individual genes to be included in the report"),
   make_option(c("-l", "--genes_list"), action="store", default=NA, type='character',
               help="Location and name of a file listing genes of interest to be considered in the report"),
+  make_option(c("-r", "--genes_blacklist"), action="store", default=NA, type='character',
+              help="Location and name of a file listing genes to be excluded"),
+  make_option(c("-s", "--samples_blacklist"), action="store", default=NA, type='character',
+              help="Location and name of a file listing samples to be excluded"),
   make_option(c("-o", "--out_folder"), action="store", default=NA, type='character',
               help="Output directory")
 )
@@ -79,7 +85,7 @@ if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$datasets) ) {
 
 ##### Write the results into folder "MAF_summary" if no output directory is specified
 if ( is.na(opt$out_folder) ) {
-	opt$out_folder<- "MAF_summary"
+	opt$out_folder<- "MAF_summary_report"
 }
 
 ##### Present genes with mutations present in >= 4% patients, if not specified differently
@@ -87,10 +93,5 @@ if ( is.na(opt$genes_min) ) {
   opt$genes_min<- 4
 }
 
-##### Don't present mutations for any additional genes if not specified by user
-if ( is.na(opt$genes_list) ) {
-  opt$genes_list<- NULL
-}
-
 ##### Pass the user-defined argumentas to the summariseMAFs.R markdown script and run the analysis
-rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, genes_min = opt$genes_min, genes_list = opt$genes_list, out_folder = opt$out_folder))
+rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, genes_min = opt$genes_min, genes_list = opt$genes_list, genes_blacklist = opt$genes_blacklist, samples_blacklist = opt$samples_blacklist, out_folder = opt$out_folder))

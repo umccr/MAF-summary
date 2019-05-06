@@ -271,6 +271,8 @@ Argument | Description
 --datasets | Desired names of each dataset. The names are expected to be in the same order as provided *MAF* files
 --genes_min | Minimal percentage of patients carrying mutations in individual genes to be included in the report (OPTIONAL; default is 4)
 --genes_list | Location and name of a file listing genes of interest to be considered in the report (OPTIONAL)
+--genes_blacklist | Location and name of a file listing genes to be excluded (OPTIONAL). Header is not expected and the genes should be listed in separate lines
+--samples_blacklist | Location and name of a file listing samples to be excluded (OPTIONAL). The ID of samples to be excluded are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are allowed
 --out_folder | Output folder
 
 <br />
