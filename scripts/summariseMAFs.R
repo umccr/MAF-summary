@@ -15,7 +15,7 @@
 #   Description: Script summarising and visualising multiple MAF files using maftools R package ( https://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html ). This script catches the arguments from the command line and passes them to the summariseMAFs.Rmd script to produce the report, generate set of plots and excel spreadsheets summarising each MAF file.
 #   NOTE: Each MAF file needs to contain the "Tumor_Sample_Barcode" column.
 #
-#   Command line use example: Rscript summariseMAFs.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --genes_list genes_of_interest.txt --out_folder MAF_summary
+#   Command line use example: Rscript summariseMAFs.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --genes_list genes_of_interest.txt --out_folder MAF_summary_report
 #
 #   maf_dir:      Directory with MAF files
 #   maf_files:    List of MAF files to be processed. Each file name is expected to be separated by comma
@@ -24,7 +24,7 @@
 #   genes_list (optional):  Location and name of a file listing genes of interest to be considered in the report. The genes are expected to be listed in first column
 #   genes_blacklist (optional):  Location and name of a file listing genes to be excluded. Header is not expected and the genes should be listed in separate lines
 #   samples_blacklist (optional):  Location and name of a file listing samples to be excluded. ocation and name of a file listing samples to be excluded (OPTIONAL). The ID of samples to be exdluded are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
-#   out_folder:      Name for the output folder that will be created within the directory with MAF files. If no output folder is specified the results will be saved in folder "MAF_summary"
+#   out_folder:      Name for the output folder that will be created within the directory with MAF files. If no output folder is specified the results will be saved in folder "MAF_summary_report"
 #
 ################################################################################
 
@@ -73,7 +73,7 @@ opt$datasets <- gsub("\\s","", opt$datasets)
 if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$datasets) ) {
 
   cat("\nPlease type in required arguments!\n\n")
-  cat("\ncommand example:\n\nRscript summariseMAFs.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --genes_list genes_of_interest.txt --out_folder MAF_summary\n\n")
+  cat("\ncommand example:\n\nRscript summariseMAFs.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --genes_list genes_of_interest.txt --out_folder MAF_summary_report\n\n")
 
   q()
 } else if ( length(unlist(strsplit(opt$maf_files, split=',', fixed=TRUE))) != length(unlist(strsplit(opt$datasets, split=',', fixed=TRUE))) ) {
@@ -83,7 +83,7 @@ if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$datasets) ) {
   q()
 }
 
-##### Write the results into folder "MAF_summary" if no output directory is specified
+##### Write the results into folder "MAF_summary_report" if no output directory is specified
 if ( is.na(opt$out_folder) ) {
 	opt$out_folder<- "MAF_summary_report"
 }
