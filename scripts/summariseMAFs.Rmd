@@ -18,17 +18,30 @@ params:
   genes_list: 
   genes_blacklist: 
   samples_blacklist: 
+  nonSyn_list: 
   out_folder: 'MAF_summary_report'
 ---
 
 Mutation data summary for dataset(s) **`r gsub(",", ", ", params$datasets) `**
 
 ***
-NOTE: this report summarises only non-synonymous variants with high/moderate variant consequences, including *frame shift deletions*, *frame shift deletions*, *splice site mutations*, *translation start site mutations*, *nonsense mutation*, *nonstop mutations*, *in-frame deletion*, *in-frame insertions* and *missense mutation*, and ignores silent variants.
 
-[*High impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535){target="_blank"} -	the variant is assumed to have high (disruptive) impact in the protein, probably causing protein truncation, loss of function or triggering nonsense mediated decay.
+**NOTE**: this report summarises only non-synonymous variants defined as variants with the following consequences: **`r params$nonSyn_list`**.
 
-[*Moderate impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535){target="_blank"} -	a non-disruptive variant that might change protein effectiveness.
+<details>
+<summary>Variants consequence impact definitions</summary>
+<font size="2">
+
+* [*High impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535){target="_blank"} -	the variant is assumed to have high (disruptive) impact in the protein, probably causing protein truncation, loss of function or triggering nonsense mediated decay.
+
+* [*Moderate impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535){target="_blank"} -	a non-disruptive variant that might change protein effectiveness.
+
+* [*Low impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535){target="_blank"} -	a variant that is assumed to be mostly harmless or unlikely to change protein behaviour.
+
+Variants with high/moderate variant consequences include: *frame shift deletions*, *frame shift deletions*, *splice site mutations*, *translation start site mutations*, *nonsense mutation*, *nonstop mutations*, *in-frame deletion*, *in-frame insertions* and *missense mutation*.
+
+</font> 
+</details>
 
 ***
 
@@ -281,7 +294,7 @@ names(mafInfo) <- datasets.list
 
 ##### NOTE: maftools by default summarises only non-synonymous variants with high/moderate variant consequences and ignores silent variants (https://github.com/PoisonAlien/maftools/issues/63), which are stored in "maf.silent" slot of the class MAF object (mafInfo[[i]]@maf.silent)
 for ( i in 1:length(mafFiles) ) {
-  mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], verbose = FALSE)
+  mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = params$nonSyn_list, verbose = FALSE)
 }
 
 ##### Create directory for output files
@@ -315,7 +328,7 @@ if ( !is.na(params$samples_blacklist) ) {
     mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = as.vector(samples2keep), genes = NULL, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE, dropLevels=TRUE)
     
     ##### Now read the data subset as a maf object
-    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], verbose = FALSE)
+    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, verbose = FALSE)
   }
 }
 ```
@@ -336,7 +349,7 @@ if ( !is.na(params$genes_blacklist) ) {
     mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = NULL, genes = genes2keep, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE)
     
     ##### Now read the data subset as a maf object
-    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], verbose = FALSE)
+    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, verbose = FALSE)
   }
 }
 ```
