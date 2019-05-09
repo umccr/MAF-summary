@@ -17,6 +17,7 @@ params:
   genes_min: 
   genes_list: 
   genes_blacklist: 
+  samples_list:
   samples_blacklist: 
   nonSyn_list: 
   out_folder: 'MAF_summary_report'
@@ -26,7 +27,7 @@ Mutation data summary for dataset(s) **`r gsub(",", ", ", params$datasets) `**
 
 ***
 
-**NOTE**: this report summarises only non-synonymous variants defined as variants with the following consequences: **`r params$nonSyn_list`**.
+**NOTE**: this report summarises **only non-synonymous variants** defined as variants with the following consequences: *`r params$nonSyn_list`*.
 
 <details>
 <summary>Variants consequence impact definitions</summary>
@@ -311,8 +312,25 @@ if ( !is.na(params$genes_list) ){
 }
 ```
 
-```{r exclude_samples, comment = NA, message=FALSE, warning=FALSE}
-##### Exclude user-derined samples(s) from the analysis
+```{r include_exclude_samples, comment = NA, message=FALSE, warning=FALSE}
+##### Include user-derined samples(s) for the analysis
+if ( !is.na(params$samples_list) ) {
+    
+  for ( i in 1:length(mafFiles) ) {
+      
+    ##### Read in list of samples to be excluded
+    inclsamples.df <- read.table(params$samples_list, sep="\t", as.is=TRUE, header=TRUE, row.names=NULL)
+    samples2keep <- unique(inclsamples.df[,"Tumor_Sample_Barcode"])
+    
+    ##### Subset the maf object to include only use-defined sample(s)
+    ##### Initially don't save the subset output as maf object, as this will exlude samples with no non-synonymous mutations from the summary
+    mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = as.vector(samples2keep), genes = NULL, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE, dropLevels=TRUE)
+    
+    ##### Now read the data subset as a maf object
+    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, verbose = FALSE)
+  }
+}
+
 if ( !is.na(params$samples_blacklist) ) {
     
   for ( i in 1:length(mafFiles) ) {
@@ -474,6 +492,8 @@ widges.list
 widges.list <- htmltools::tagList()
 ```
 
+***
+
 #### Samples with no non-synonymous variants
 
 The table below lists sample(s) in which **no non-synonymous variants** were detected and hence will not be included in the summary tables/plots.
@@ -495,7 +515,7 @@ cat("\n\n\n")
 
 ***
 
-#### Excluded samples
+#### `r if ( !is.na(params$samples_blacklist) ) { c("Excluded samples") }`
 
 List of samples excluded from the analysis.
 
