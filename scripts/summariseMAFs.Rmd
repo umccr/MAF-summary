@@ -14,10 +14,11 @@ params:
   maf_dir: 
   maf_files: 
   datasets: 
-  genes_min: 
+  samples_id_cols: 
+  genes_min: 7
   genes_list: 
   genes_blacklist: 
-  samples_list:
+  samples_list: 
   samples_blacklist: 
   nonSyn_list: 
   out_folder: 'MAF_summary_report'
@@ -84,6 +85,13 @@ mut.details.datasets <- function(mafInfo, datasets, genes) {
       
       ##### Sort table by gene symbol and then by sample ID
       mut.details.genes <- mut.details.genes[ order(mut.details.genes$Hugo_Symbol, mut.details.genes$Tumor_Sample_Barcode), ]
+      
+      #### Move column with Hugo_Symbol to the first place and Tumor_Sample_Barcode to the second
+      col_idx <- grep("Tumor_Sample_Barcode", names(mut.details.genes))
+      mut.details.genes <- as.data.frame(mut.details.genes)[, c(col_idx, (1:ncol(mut.details.genes))[-col_idx]) ]
+      
+      col_idx <- grep("Hugo_Symbol", names(mut.details.genes))
+      mut.details.genes <- as.data.frame(mut.details.genes)[, c(col_idx, (1:ncol(mut.details.genes))[-col_idx]) ]
       
       widges.list[[i]] <- DT::datatable( data = mut.details.genes, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
         DT::formatStyle( columns = names(mut.details.genes), 'text-align' = 'center' )
@@ -296,6 +304,30 @@ names(mafInfo) <- datasets.list
 ##### NOTE: maftools by default summarises only non-synonymous variants with high/moderate variant consequences and ignores silent variants (https://github.com/PoisonAlien/maftools/issues/63), which are stored in "maf.silent" slot of the class MAF object (mafInfo[[i]]@maf.silent)
 for ( i in 1:length(mafFiles) ) {
   mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = params$nonSyn_list, verbose = FALSE)
+}
+
+##### Change the column to be used to indicate samples' IDs
+if ( !is.na(params$samples_id_cols) ) {
+  
+  samples_id_cols <- make.names(unlist(strsplit(params$samples_id_cols, split=',', fixed=TRUE)))
+  
+  for ( i in 1:length(mafFiles) ) {
+    
+    ##### Check if use-defined column name exists
+    if ( samples_id_cols[i] %in% names(mafInfo[[i]]@data) && samples_id_cols[i] != "Tumor_Sample_Barcode" ) {
+      
+      ##### Change the use-defined column with samples' IDs to "Tumor_Sample_Barcode". If this column name already exist, then renames it to "Tumor_Sample_Barcode.orig"
+      maf.data <- mafInfo[[i]]@data
+      names(maf.data) <- gsub("Tumor_Sample_Barcode", "Tumor_Sample_Barcode.orig", names(maf.data))
+      names(maf.data) <- gsub(samples_id_cols[i], "Tumor_Sample_Barcode", names(maf.data))
+      
+      ##### Now read the data with changess column names as a maf object
+      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = params$nonSyn_list, verbose = FALSE)
+      
+    } else {
+      cat(paste0("\nColumn \"", samples_id_cols[i], "\" does not exist in MAF file ", mafFiles[i], "!\n\n"))
+    }
+  }
 }
 
 ##### Create directory for output files
@@ -568,7 +600,7 @@ widges.list
 
 ***
 
-#### Excluded genes
+#### `r if ( !is.na(params$genes_blacklist) ) { c("Excluded genes") }`
 
 List of genes excluded from the analysis.
 

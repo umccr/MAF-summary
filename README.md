@@ -189,7 +189,7 @@ NOTE: If no output file name is specified the output will have the same name as 
 
 ## Subsetting MAF
 
-To subset MAF based on a list of samples and/or genes run the *[subsetMAF.R](./scripts/subsetMAF.R)* script. It also allows to subset MAF based on variants classifiaction as defined in [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Variant_Classification* field. The script expects file(s) listing samples (as shown [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Tumor_Sample_Barcode* field) and/or genes to include in the new MAF file (see example files [example_samples_to_subset.txt](./examples/example_samples_to_subset.txt) and [example_genes_to_subset.txt](./examples/example_genes_to_subset.txt)).
+To subset MAF based on a list of samples and/or genes run the *[subsetMAF.R](./scripts/subsetMAF.R)* script. It also allows to subset MAF based on variants classifiaction as defined in [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Variant_Classification* field. The script expects file(s) listing samples (as shown in [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Tumor_Sample_Barcode* field) and/or genes to include in the new MAF file (see example files [example_samples_to_subset.txt](./examples/example_samples_to_subset.txt) and [example_genes_to_subset.txt](./examples/example_genes_to_subset.txt)).
 
 <br />
 
@@ -269,6 +269,7 @@ Argument | Description
 --maf_dir | Directory with *MAF* file(s)
 --maf_files | List of *MAF* file(s) to be processed. Each file name is expected to be separated by comma
 --datasets | Desired names of each dataset. The names are expected to be in the same order as provided *MAF* files
+--samples_id_cols | The name(s) of MAF file(s) column containing samples' IDs (OPTIONAL). One column name is expected for a single file, and each separated by comma. The defualt samples' ID column is "Tumor_Sample_Barcode"
 --genes_min | Minimal percentage of patients carrying mutations in individual genes to be included in the report (OPTIONAL; default is 4)
 --genes_list | Location and name of a file listing genes of interest to be considered in the report (OPTIONAL)
 --genes_blacklist | Location and name of a file listing genes to be excluded (OPTIONAL). Header is not expected and the genes should be listed in separate lines
@@ -284,11 +285,11 @@ Argument | Description
 **Command line use example**:
 
 ```
-Rscript summariseMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --out_folder MAF_summary
+Rscript summariseMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --out_folder MAF_summary_report
 ```
 <br>
 
-This will generate *[summariseMAFs.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)* report with interactive summary tables and heatmaps within *MAF_summary* folder. It will also create a folder with user-defined name containing output tables and plots described [here](README_output_files.md).
+This will generate *[summariseMAFs.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)* report with interactive summary tables and heatmaps within *MAF_summary_report* folder. It will also create a folder with user-defined name containing output tables and plots described [here](README_output_files.md).
 
 ### Example output
 

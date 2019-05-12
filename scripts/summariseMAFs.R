@@ -13,13 +13,14 @@
 ################################################################################
 #
 #   Description: Script summarising and visualising multiple MAF files using maftools R package ( https://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html ). This script catches the arguments from the command line and passes them to the summariseMAFs.Rmd script to produce the report, generate set of plots and excel spreadsheets summarising each MAF file.
-#   NOTE: Each MAF file needs to contain the "Tumor_Sample_Barcode" column.
+#   NOTE: Each MAF file needs to contain the "Tumor_Sample_Barcode" column. Otherwise, user needs to specify the MAF file column containing samples' IDs using "--samples_id_col" parameter.
 #
 #   Command line use example: Rscript summariseMAFs.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --genes_list genes_of_interest.txt --out_folder MAF_summary_report
 #
 #   maf_dir:      Directory with MAF files
 #   maf_files:    List of MAF files to be processed. Each file name is expected to be separated by comma
 #   datasets:     Desired names of each dataset. The names are expected to be in the same order as provided MAF files and should be separated by comma
+#   samples_id_cols (optional):  The name(s) of MAF file(s) column containing samples' IDs. One column name is expected for a single file, and each separated by comma. The defualt samples' ID column is "Tumor_Sample_Barcode"
 #   genes_min (optional):  Minimal percentage of patients carrying mutations in individual genes to be included in the report
 #   genes_list (optional):  Location and name of a file listing genes of interest to be considered in the report. The genes are expected to be listed in first column
 #   genes_blacklist (optional):  Location and name of a file listing genes to be excluded. Header is not expected and the genes should be listed in separate lines
@@ -53,6 +54,8 @@ option_list <- list(
               help="List of MAF files to be processed"),
   make_option(c("-c", "--datasets"), action="store", default=NA, type='character',
               help="Desired names of each dataset"),
+  make_option(c("-a", "--samples_id_cols"), action="store", default=NA, type='character',
+              help="The name(s) of MAF file(s) column containing samples' IDs"),
   make_option(c("-g", "--genes_min"), action="store", default=NA, type='character',
               help="Minimal percentage of patients carrying mutations in individual genes to be included in the report"),
   make_option(c("-l", "--genes_list"), action="store", default=NA, type='character',
@@ -89,6 +92,13 @@ if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$datasets) ) {
   q()
 }
 
+if ( !is.na(opt$samples_id_cols) && length(unlist(strsplit(opt$maf_files, split=',', fixed=TRUE))) != length(unlist(strsplit(opt$samples_id_cols, split=',', fixed=TRUE))) ) {
+  
+  cat("\nMake sure that the number of samples' ID columns match the number of queried MAF files\n\n")
+  
+  q()
+}
+
 ##### Write the results into folder "MAF_summary_report" if no output directory is specified
 if ( is.na(opt$out_folder) ) {
 	opt$out_folder<- "MAF_summary_report"
@@ -107,4 +117,4 @@ if ( is.na(opt$nonSyn_list) ) {
 }
 
 ##### Pass the user-defined argumentas to the summariseMAFs.R markdown script and run the analysis
-rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, genes_min = opt$genes_min, genes_list = opt$genes_list, genes_blacklist = opt$genes_blacklist, samples_list = opt$samples_list, samples_blacklist = opt$samples_blacklist, nonSyn_list = opt$nonSyn_list, out_folder = opt$out_folder))
+rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, samples_id_cols = opt$samples_id_cols, genes_min = opt$genes_min, genes_list = opt$genes_list, genes_blacklist = opt$genes_blacklist, samples_list = opt$samples_list, samples_blacklist = opt$samples_blacklist, nonSyn_list = opt$nonSyn_list, out_folder = opt$out_folder))
