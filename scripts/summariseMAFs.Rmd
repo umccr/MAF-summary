@@ -15,12 +15,13 @@ params:
   maf_files: 
   datasets: 
   samples_id_cols: 
-  genes_min: 7
+  genes_min: 
   genes_list: 
   genes_blacklist: 
   samples_list: 
   samples_blacklist: 
   nonSyn_list: 
+  remove_duplicated_variants: 
   out_folder: 'MAF_summary_report'
 ---
 
@@ -303,7 +304,7 @@ names(mafInfo) <- datasets.list
 
 ##### NOTE: maftools by default summarises only non-synonymous variants with high/moderate variant consequences and ignores silent variants (https://github.com/PoisonAlien/maftools/issues/63), which are stored in "maf.silent" slot of the class MAF object (mafInfo[[i]]@maf.silent)
 for ( i in 1:length(mafFiles) ) {
-  mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = params$nonSyn_list, verbose = FALSE)
+  mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
 }
 
 ##### Change the column to be used to indicate samples' IDs
@@ -322,7 +323,7 @@ if ( !is.na(params$samples_id_cols) ) {
       names(maf.data) <- gsub(samples_id_cols[i], "Tumor_Sample_Barcode", names(maf.data))
       
       ##### Now read the data with changess column names as a maf object
-      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = params$nonSyn_list, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
       
     } else {
       cat(paste0("\nColumn \"", samples_id_cols[i], "\" does not exist in MAF file ", mafFiles[i], "!\n\n"))
@@ -344,7 +345,7 @@ if ( !is.na(params$genes_list) ){
 }
 ```
 
-```{r include_exclude_samples, comment = NA, message=FALSE, warning=FALSE}
+```{r include_exclude_samples, comment=NA, message=FALSE, warning=FALSE, results='hide'}
 ##### Include user-derined samples(s) for the analysis
 if ( !is.na(params$samples_list) ) {
     
@@ -359,7 +360,7 @@ if ( !is.na(params$samples_list) ) {
     mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = as.vector(samples2keep), genes = NULL, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE, dropLevels=TRUE)
     
     ##### Now read the data subset as a maf object
-    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, verbose = FALSE)
+    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
   }
 }
 
@@ -378,12 +379,12 @@ if ( !is.na(params$samples_blacklist) ) {
     mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = as.vector(samples2keep), genes = NULL, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE, dropLevels=TRUE)
     
     ##### Now read the data subset as a maf object
-    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, verbose = FALSE)
+    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
   }
 }
 ```
 
-```{r exclude_genes, comment = NA, message=FALSE, warning=FALSE}
+```{r exclude_genes, comment=NA, message=FALSE, warning=FALSE}
 ##### Exclude user-derined gene(s) from the analysis
 if ( !is.na(params$genes_blacklist) ) {
     
@@ -399,7 +400,7 @@ if ( !is.na(params$genes_blacklist) ) {
     mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = NULL, genes = genes2keep, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE)
     
     ##### Now read the data subset as a maf object
-    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, verbose = FALSE)
+    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
   }
 }
 ```
