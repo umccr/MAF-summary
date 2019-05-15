@@ -14,7 +14,7 @@
 #
 #	  Description: Script converting ICGC Simple Somatic Mutation Format file to MAF file using maftools R package ( https://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html ).
 #
-#	  Command line use example: Rscript icgcMutationToMAF.R --icgc_file PACA-AU.icgc.simple_somatic_mutation.tsv --removeDuplicatedVariants TRUE --output PACA-AU.icgc.simple_somatic_mutation.maf
+#	  Command line use example: Rscript icgcMutationToMAF.R --icgc_file PACA-AU.icgc.simple_somatic_mutation.tsv --removeDuplicatedVariants FALSE --output PACA-AU.icgc.simple_somatic_mutation.maf
 #
 #	  icgc_file:		ICGC Simple Somatic Mutation Format file to be converted
 #	  remove_duplicated_variants (optional):		Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? Defulat value is "FALSE"
