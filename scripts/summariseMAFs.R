@@ -121,7 +121,7 @@ if ( is.na(opt$nonSyn_list) ) {
 
 ##### Set defualt paramters
 if ( is.na(opt$remove_duplicated_variants) ) {
-  opt$remove_duplicated_variants = FALSE
+  opt$remove_duplicated_variants = TRUE
 }
 
 ##### Check input paramters
