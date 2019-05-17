@@ -139,6 +139,7 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         
         ##### Read in the oncoplots PNG files
         cat("![](",paste(paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_")), ".png", sep = ""),")")
+        cat("<br/><br/><br/>")
         
         ##### Remove redundant pdf plot
         file.remove(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""))
@@ -158,6 +159,7 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         
         ##### Read in the oncoplots PNG files
         cat("![](",paste(paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_")), ".png", sep = ""),")")
+        cat("<br/><br/><br/>")
         
         ##### Remove redundant pdf plot
         file.remove(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""))
@@ -741,7 +743,7 @@ for ( i in 1:length(mafFiles) ) {
     
     ##### Read in the oncoplots PNG files
     cat("![](",paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""),")")
-    cat(paste(rep("-", 80)), "\n")
+    cat("<br/><br/><br/>")
     
   } else {
       cat(paste0("No genes are mutated in at least", params$genes_min, "% of patients.\n\n\n"))
@@ -787,7 +789,7 @@ if ( !is.na(params$genes_list) && length(goi) > 1 ) {
       
       ##### Read in the oncoplots PNG files
       cat("![](",paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""),")")
-      cat(paste(rep("-", 80)), "\n")
+      cat("<br/><br/><br/>")
 
     } else {
       cat(paste0("All genes of interest are among the top ", top_genes_no[[i]], " most frequently mutated genes (mutated in at least", params$genes_min, "% of patients) or no non-synonymous variants were detected in ", datasets.list[i], " dataset.\n\n\n"))
