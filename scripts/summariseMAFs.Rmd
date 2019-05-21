@@ -69,8 +69,8 @@ getDatasetsColours <- function(datasets) {
   return( list(vec.datasets, datasets.colour) )
 }
 
-###### Generate dataTable for each dataset with all mutation information for selected gene(s), as provided in MAF files
-mut.details.datasets <- function(mafInfo, datasets, genes) {
+###### Generate dataTable for each dataset with all mutation information for selected gene(s), as provided in MAF files. User can filter variants to include only non-synonymous (defualt), silent or all variants
+mut.details.datasets <- function(mafInfo, datasets, genes, type = "nonsynonymous") {
   
   ##### Vector with datasets with no mutations reported in selected genes
   datasets.noMut <- NULL
@@ -79,8 +79,24 @@ mut.details.datasets <- function(mafInfo, datasets, genes) {
   widges.list <- htmltools::tagList()
   
   for ( i in 1:length(datasets) ) {
-  
-    mut.details.genes <- mafInfo[[datasets[i]]]@data[ mafInfo[[datasets[i]]]@data[, Hugo_Symbol] %in% genes, ]
+    
+    ##### Include all variants
+    if ( type == "all" ) {
+      
+        mut.details.genes <- mafInfo[[datasets[i]]]@data[ mafInfo[[datasets[i]]]@data[, Hugo_Symbol] %in% genes, ]
+        mut.details.genes <- rbind(mut.details.genes, mafInfo[[datasets[i]]]@maf.silent[ mafInfo[[datasets[i]]]@maf.silent[, Hugo_Symbol] %in% genes, ] )
+        
+    ##### Include silent variants
+    } else if ( type == "silent" ) {
+      
+        mut.details.genes <- mafInfo[[datasets[i]]]@maf.silent[ mafInfo[[datasets[i]]]@maf.silent[, Hugo_Symbol] %in% genes, ]
+    
+    ##### Include only non-synonymous variants
+    } else {
+      
+        mut.details.genes <- mafInfo[[datasets[i]]]@data[ mafInfo[[datasets[i]]]@data[, Hugo_Symbol] %in% genes, ]
+    }
+    
     
     if ( nrow(mut.details.genes) != 0 ) {
       
@@ -1415,7 +1431,7 @@ saveWorkbook(wb, paste(outDir, "MAF_top_mutations_details.xlsx", sep="/"), overw
 
 ```{r details_mut, comment = NA, message=FALSE, warning=FALSE}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
-mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[c(1:max(unlist(top_genes_no[[i]])))])
+mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[c(1:max(unlist(top_genes_no[[i]])))], type = "nonsynonymous")
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
@@ -1429,7 +1445,7 @@ cat("\n\n\n")
 
 if ( !is.na(params$genes_list) ) {
   
-  mut.details.datasets(mafInfo, datasets.list, unlist(genes_list_goi))
+  mut.details.datasets(mafInfo, datasets.list, unlist(genes_list_goi), type = "nonsynonymous")
   
 } else {
   cat("No list with genes of interest was provided\n\n\n\n")
