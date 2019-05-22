@@ -29,19 +29,21 @@ Mutation data summary for dataset(s) **`r gsub(",", ", ", params$datasets) `**
 
 ***
 
-**NOTE**: this report summarises **only non-synonymous variants** defined as variants with the following consequences: *`r params$nonSyn_list`*.
+NOTE: this report summarises **only non-synonymous variants** (see definitions below).
 
 <details>
-<summary>Variants consequence impact definitions</summary>
+<summary>Variants consequence definitions</summary>
 <font size="2">
+
+* **Non-synonymous variants** are defined as variants with the following consequences: *`r paste(params$nonSyn_list, collapse = ", ")`*. Rest will be considered as silent variants.
+
+NOTE: by default, variants considered as non-synonymous are those with high/moderate variant consequences, which include: *frame shift deletions*, *frame shift deletions*, *splice site mutations*, *translation start site mutations*, *nonsense mutation*, *nonstop mutations*, *in-frame deletion*, *in-frame insertions* and *missense mutation*.
 
 * [*High impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535){target="_blank"} -	the variant is assumed to have high (disruptive) impact in the protein, probably causing protein truncation, loss of function or triggering nonsense mediated decay.
 
 * [*Moderate impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535){target="_blank"} -	a non-disruptive variant that might change protein effectiveness.
 
 * [*Low impact variant consequence*](http://asia.ensembl.org/Help/Glossary?id=535){target="_blank"} -	a variant that is assumed to be mostly harmless or unlikely to change protein behaviour.
-
-Variants with high/moderate variant consequences include: *frame shift deletions*, *frame shift deletions*, *splice site mutations*, *translation start site mutations*, *nonsense mutation*, *nonstop mutations*, *in-frame deletion*, *in-frame insertions* and *missense mutation*.
 
 </font> 
 </details>
