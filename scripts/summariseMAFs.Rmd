@@ -810,7 +810,7 @@ if ( !is.na(params$genes_list) && length(goi) > 1 ) {
       cat("<br/><br/><br/>")
 
     } else {
-      cat(paste0("All genes of interest are among the top ", top_genes_no[[i]], " most frequently mutated genes (mutated in at least", params$genes_min, "% of patients) or no non-synonymous variants were detected in ", datasets.list[i], " dataset.\n\n\n"))
+      cat(paste0("All genes of interest are among the top ", top_genes_no[[i]], " most frequently mutated genes (mutated in at least ", params$genes_min, "% of patients) or no non-synonymous variants were detected in ", datasets.list[i], " dataset.\n\n\n"))
     }
   }
 } else {
