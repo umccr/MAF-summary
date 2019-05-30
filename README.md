@@ -11,6 +11,7 @@ Set of scripts to **summarise**, **analyse** and **visualise** [Mutation Annotat
 * [Converting VCF files to MAF files](#converting-vcf-files-to-maf-files)
 * [Converting ICGC mutation format to MAF](#converting-icgc-mutation-format-to-maf)
 * [Extracting variants within exonic regions](#extracting-variants-within-exonic-regions)
+* [Extracting variants of specific classification](#extracting-variants-of-specific-classification)
 * [Changing sample names](#changing-sample-names)
 * [Subsetting MAF](#subsetting-maf)
 * [Merging MAFs](#merging-mafs)
@@ -47,6 +48,7 @@ Script | Description
 *[multi_vcf2maf.pl](./scripts/multi_vcf2maf.pl)* | Converts multiple [VCF](http://www.internationalgenome.org/wiki/Analysis/vcf4.0/) (Variant Call Format) file to [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file 
 *[icgcMutationToMAF.R](./scripts/icgcMutationToMAF.R)* | Converts ICGC [Simple Somatic Mutation Format](http://docs.icgc.org/submission/guide/icgc-simple-somatic-mutation-format/) file to [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file 
 *[exons_maf.pl](./scripts/exons_maf.pl)* | Extracts variants detected within exonic regions
+*[var_class_maf.pl](./scripts/var_class_maf.pl)* | Extracts variants of specific classification/consequence
 *[MAFsamplesRename.R](./scripts/MAFsamplesRename.R)* | Changes sample names in [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Tumor_Sample_Barcode* field
 *[subsetMAF.R](./scripts/subsetMAF.R)* | Subsets MAF based on defined list of samples and/or genes
 *[mergeMAFs.R](./scripts/mergeMAFs.R)* | Merges multiple MAFs
@@ -58,7 +60,6 @@ Script | Description
 ## Converting VCF files to MAF files
 
 To convert multiple VCF files into one collective MAF file use *[multi_vcf2maf.pl](./scripts/multi_vcf2maf.pl)* script. It requires a file with listed [VCF](http://www.internationalgenome.org/wiki/Analysis/vcf4.0/) files to be converted into corresponding MAF files (see an example [here](./examples/example_vcf_list.txt)). The individual MAF files are then merged into one collective MAF file, which is saved in the same directory as the files listing VCF files.
-
 
 **Script**: *[multi_vcf2maf.pl](./scripts/multi_vcf2maf.pl)*
 
@@ -72,6 +73,8 @@ Argument | Description
 --maf_file | Name of the merged MAF file to be created
 
 <br />
+
+NOTE: The definition of **exonic regions** is based on the [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Variant_Classification* field and is described in [Extracting variants within exonic regions](#extracting-variants-within-exonic-regions) section. If one requires to subset generated [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file based on different *Variant_Classification* categories, then one can run the *[var_class_maf.pl](./scripts/var_class_maf.pl)* script, which allows define *Variant_Classification* categories of interest using ```--var_class``` parameter.
 
 
 NOTE: *Samtools* and *tabix* are required to run this script. These can be loaded on [Spartan](https://dashboard.hpc.unimelb.edu.au/) with *module load* commnand:
@@ -106,7 +109,7 @@ The publicly available ICGC mutation data is stored in [Simple Somatic Mutation 
 Argument | Description
 ------------ | ------------
 --icgc_file | ICGC Simple Somatic Mutation Format file to be converted
---remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (OPTIONAL; defulat is `TRUE`). **Note**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them)
+--remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (OPTIONAL; defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them)
 --output | Output file name
 
 <br />
@@ -135,6 +138,10 @@ Missense_Mutation, Nonsense_Mutation, Frame_Shift_Del, Frame_Shift_Ins, In_Frame
 
 <br />
 
+NOTE: If one requires to subset [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file based on different *Variant_Classification* categories, then one can run the *[var_class_maf.pl](./scripts/var_class_maf.pl)* script, which allows define *Variant_Classification* categories of interest using ```--var_class``` parameter.
+
+<br />
+
 **Script**: *[exons_maf.pl](./scripts/exons_maf.pl)*
 
 Argument | Description
@@ -155,6 +162,33 @@ perl exons_maf.pl --maf /data/simple_somatic_mutation.open.PACA-AU.maf
 >This will extract variants within exonic regions reported in ***/data/simple_somatic_mutation.open.PACA-AU.maf*** file and will save them in ***/data/simple_somatic_mutation.open.PACA-AU.exonic.maf***.
 
 <br>
+
+## Extracting variants of specific classification
+
+To extract variants with specific consequences run the *[var_class_maf.pl](./scripts/var_class_maf.pl)* script. It will create a MAF file with *.var_class.maf* extension, which will have the user-defined variants included based on the input [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Variant_Classification* field.  Available options are listed in [MAF field requirements](#maf-field-requirements) section.:
+
+**Script**: *[var_class_maf.pl](./scripts/var_class_maf.pl)*
+
+Argument | Description
+------------ | ------------
+--maf | Full path with name of a MAF file to be converted
+--var_class | List of variants classifications to incude in the subet MAF. The default list includes exonic regions, i.e. marked as *Missense_Mutation, Nonsense_Mutation, Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Silent* and *Translation_Start_Site* in [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Variant_Classification* field
+
+<br />
+
+**Command line use example**:
+
+```
+perl var_class_maf.pl --maf /data/simple_somatic_mutation.open.PACA-AU.maf --var_class Missense_Mutation,Nonsense_Mutation
+```
+
+<br>
+
+
+>This will extract variants within exonic regions reported in ***/data/simple_somatic_mutation.open.PACA-AU.maf*** file and will save them in ***/data/simple_somatic_mutation.open.PACA-AU.var_class.maf***.
+
+<br>
+
 
 ## Changing sample names
 
@@ -184,6 +218,8 @@ Rscript MAFsamplesRename.R --maf_file /data/simple_somatic_mutation.open.PACA-AU
 
 >This will create a ***/data/simple_somatic_mutation.open.PACA-AU_samples_renamed.maf*** with sample names changed according to ***/examples/example_samples_to_rename.txt*** file.
 
+<br />
+
 NOTE: If no output file name is specified the output will have the same name as the input *maf_file* with suffix *_samples_renamed.maf*.
 
 <br>
@@ -201,8 +237,10 @@ Argument | Description
 --maf_file | MAF file to be subsetted
 --samples | Name and path to a file listing samples to be kept in the subsetted MAF. Sample names are expected to be separated by comma. Use ***all*** to keep all samples (OPTIONAL)
 --genes | Name and path to a file listing genes to be kept in the subsetted MAF. Gene symbols are expected to be separated by comma. Use ***all*** to keep all genes (OPTIONAL)
---var_class | Classification of variants to be kept in the subsetted MAF (OPTIONAL)
+--var_class | Classification of variants to be kept in the subsetted MAF (OPTIONAL). Available options are listed in [MAF field requirements](#maf-field-requirements) section
 --output | Name for the subsetted MAF
+
+<br />
 
 NOTE: The available variants types for *var_class* parameter are listed in *Variant_Classification* row in the [MAF field requirements](https://github.com/umccr/MAF-summary#maf-field-requirements) section. 
 
@@ -277,7 +315,7 @@ Argument | Description
 --samples_list | Location and name of a file listing specific samples to be included (OPTIONAL). All other samples will be ignored. The ID of samples to be included are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
 --samples_blacklist | Location and name of a file listing samples to be excluded (OPTIONAL). The ID of samples to be excluded are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are allowed
 --nonSyn_list | List of variant classifications to be considered as non-synonymous (OPTIONAL). Rest will be considered as silent variants. Default uses [Variant Classifications](http://asia.ensembl.org/Help/Glossary?id=535) with `High/Moderate variant consequences`
---remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (OPTIONAL; defulat is `TRUE`). **Note**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them)
+--remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (OPTIONAL; defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them)
 --out_folder | Output folder
 
 <br />
