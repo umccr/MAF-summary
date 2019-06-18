@@ -274,7 +274,7 @@ Argument | Description
 ------------ | ------------
 --maf_dir | Directory with MAF files to be merged
 --maf_files | List of MAF files to be merged. Each file name is expected to be separated by comma
---maf_fields | Fields to be kept in merged MAF. Options available: *All* (default), *Nonredundant* (i.e. those which are present more than one dataset) and *Basic* (see [MAF field requirements](#maf-field-requirements) section)
+--maf_fields | Fields to be kept in merged MAF. Options available: *All* (default), *Nonredundant* (i.e. those which are present in more than one dataset) and *Basic* (see [MAF field requirements](#maf-field-requirements) section)
 --output | Location and name for the merged MAF file
 
 <br />
@@ -308,14 +308,15 @@ Argument | Description
 --maf_dir | Directory with *MAF* file(s)
 --maf_files | List of *MAF* file(s) to be processed. Each file name is expected to be separated by comma
 --datasets | Desired names of each dataset. The names are expected to be in the same order as provided *MAF* files
---samples_id_cols | The name(s) of MAF file(s) column containing samples' IDs (OPTIONAL). One column name is expected for a single file, and each separated by comma. The defualt samples' ID column is "Tumor_Sample_Barcode"
+--samples_id_cols | The name(s) of MAF file(s) column containing samples' IDs (OPTIONAL). One column name is expected for a single file, and each separated by comma. The defualt samples' ID column is `Tumor_Sample_Barcode`
 --genes_min | Minimal percentage of patients carrying mutations in individual genes to be included in the report (OPTIONAL; default is `4`)
 --genes_list | Location and name of a file listing genes of interest to be considered in the report (OPTIONAL)
 --genes_blacklist | Location and name of a file listing genes to be excluded (OPTIONAL). Header is not expected and the genes should be listed in separate lines
---samples_list | Location and name of a file listing specific samples to be included (OPTIONAL). All other samples will be ignored. The ID of samples to be included are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
---samples_blacklist | Location and name of a file listing samples to be excluded (OPTIONAL). The ID of samples to be excluded are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are allowed
+--samples_list | Location and name of a file listing specific samples to be included (OPTIONAL). All other samples will be ignored. The ID of samples to be included are expected to be listed in column named `Tumor_Sample_Barcode`. Additional columns are also allowed
+--samples_blacklist | Location and name of a file listing samples to be excluded (OPTIONAL). The ID of samples to be excluded are expected to be listed in column named `Tumor_Sample_Barcode`. Additional columns are allowed
 --nonSyn_list | List of variant classifications to be considered as non-synonymous (OPTIONAL). Rest will be considered as silent variants. Default uses [Variant Classifications](http://asia.ensembl.org/Help/Glossary?id=535) with `High/Moderate variant consequences`
 --remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (OPTIONAL; defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them)
+--gistic | Location of the corresponding [GISTIC](http://software.broadinstitute.org/cancer/software/genepattern/modules/docs/GISTIC_2.0) output files (including *gisticAllLesionsFile*, *gisticAmpGenesFile*, *gisticDelGenesFile* and *gisticScoresFile*)
 --out_folder | Output folder
 
 <br />

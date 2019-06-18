@@ -28,6 +28,7 @@
 #   samples_blacklist (optional):  Location and name of a file listing samples to be excluded. The ID of samples to be exdluded are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
 #   nonSyn_list (optional):   List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants
 #	  remove_duplicated_variants (optional):		Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? Defulat value is "FALSE"
+#   gistic (optional):  Location of the corresponding GISTIC output files (including gisticAllLesionsFile, gisticAmpGenesFile, gisticDelGenesFile and gisticScoresFile)
 #   out_folder:      Name for the output folder that will be created within the directory with MAF files. If no output folder is specified the results will be saved in folder "MAF_summary_report"
 #
 ################################################################################
@@ -71,6 +72,8 @@ option_list <- list(
               help="List of variant classifications to be considered as non-synonymous"),
   make_option(c("-v", "--remove_duplicated_variants"), action="store", default=NA, type='character',
               help="Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene?"),
+  make_option(c("-b", "--gistic"), action="store", default=NA, type='character',
+              help="Location of the corresponding GISTIC output files"),
   make_option(c("-o", "--out_folder"), action="store", default=NA, type='character',
               help="Output directory")
 )
@@ -131,4 +134,4 @@ if ( tolower(opt$remove_duplicated_variants) != "true" && tolower(opt$remove_dup
 }
 
 ##### Pass the user-defined argumentas to the summariseMAFs.R markdown script and run the analysis
-rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, samples_id_cols = opt$samples_id_cols, genes_min = opt$genes_min, genes_list = opt$genes_list, genes_blacklist = opt$genes_blacklist, samples_list = opt$samples_list, samples_blacklist = opt$samples_blacklist, nonSyn_list = opt$nonSyn_list, remove_duplicated_variants = opt$remove_duplicated_variants, out_folder = opt$out_folder))
+rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, samples_id_cols = opt$samples_id_cols, genes_min = opt$genes_min, genes_list = opt$genes_list, genes_blacklist = opt$genes_blacklist, samples_list = opt$samples_list, samples_blacklist = opt$samples_blacklist, nonSyn_list = opt$nonSyn_list, remove_duplicated_variants = opt$remove_duplicated_variants, gistic = opt$gistic, out_folder = opt$out_folder))

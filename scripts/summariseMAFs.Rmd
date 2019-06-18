@@ -22,6 +22,7 @@ params:
   samples_blacklist: 
   nonSyn_list: 
   remove_duplicated_variants: 
+  gistic: 
   out_folder: 'MAF_summary_report'
 ---
 
@@ -324,7 +325,32 @@ names(mafInfo) <- datasets.list
 
 ##### NOTE: maftools by default summarises only non-synonymous variants with high/moderate variant consequences and ignores silent variants (https://github.com/PoisonAlien/maftools/issues/63), which are stored in "maf.silent" slot of the class MAF object (mafInfo[[i]]@maf.silent)
 for ( i in 1:length(mafFiles) ) {
+
   mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+}
+
+##### Read in GISTIC output files if defined by user
+runGistic <- FALSE
+
+if ( !is.na(params$gistic) ){
+  
+  ##### List required files in the GISTIC output directory
+  all.lesions <- list.files(params$gistic, pattern="all_lesions.conf", all.files=FALSE,
+    full.names=TRUE)
+  amp.genes <- list.files(params$gistic, pattern="amp_genes.conf", all.files=FALSE,
+    full.names=TRUE)
+  del.genes <- list.files(params$gistic, pattern="del_genes.conf", all.files=FALSE,
+    full.names=TRUE)
+  scores.gis <- list.files(params$gistic, pattern="scores.gistic", all.files=FALSE,
+    full.names=TRUE)
+
+  ##### Check if GISTIC output files exist
+  if ( !is.na(all.lesions[1]) && !is.na(amp.genes[1]) && !is.na(del.genes[1]) && !is.na(scores.gis[1]) ) {
+    
+  runGistic <- TRUE
+  gistic = readGistic(gisticAllLesionsFile = all.lesions, gisticAmpGenesFile = amp.genes, gisticDelGenesFile = del.genes, gisticScoresFile = scores.gis)
+  
+  }
 }
 
 ##### Change the column to be used to indicate samples' IDs
@@ -338,16 +364,28 @@ if ( !is.na(params$samples_id_cols) ) {
     if ( samples_id_cols[i] %in% names(mafInfo[[i]]@data) && samples_id_cols[i] != "Tumor_Sample_Barcode" ) {
       
       ##### Change the use-defined column with samples' IDs to "Tumor_Sample_Barcode". If this column name already exist, then renames it to "Tumor_Sample_Barcode.orig"
-      maf.data <- mafInfo[[i]]@data
+      maf.data <- rbind(mafInfo[[i]]@data, mafInfo[[i]]@maf.silent)
       names(maf.data) <- gsub("Tumor_Sample_Barcode", "Tumor_Sample_Barcode.orig", names(maf.data))
       names(maf.data) <- gsub(samples_id_cols[i], "Tumor_Sample_Barcode", names(maf.data))
       
       ##### Now read the data with changess column names as a maf object
-      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
-      
+      if ( runGistic ) {
+        
+        mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = all.lesions, gisticAmpGenesFile = amp.genes, gisticDelGenesFile = del.genes, gisticScoresFile = scores.gis, verbose = FALSE)
+        
+      } else {
+        mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+      }
     } else {
       cat(paste0("\nColumn \"", samples_id_cols[i], "\" does not exist in MAF file ", mafFiles[i], "!\n\n"))
     }
+  }
+} else {
+  
+  ##### Add GISTIC results if defined by user
+  if ( runGistic ) {
+    
+    mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = all.lesions, gisticAmpGenesFile = amp.genes, gisticDelGenesFile = del.genes, gisticScoresFile = scores.gis, verbose = FALSE)
   }
 }
 
@@ -380,7 +418,13 @@ if ( !is.na(params$samples_list) ) {
     mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = as.vector(samples2keep), genes = NULL, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE, dropLevels=TRUE)
     
     ##### Now read the data subset as a maf object
-    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+    if ( runGistic ) {
+      
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = all.lesions, gisticAmpGenesFile = amp.genes, gisticDelGenesFile = del.genes, gisticScoresFile = scores.gis, verbose = FALSE)
+      
+    } else {
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+    }
   }
 }
 
@@ -399,7 +443,13 @@ if ( !is.na(params$samples_blacklist) ) {
     mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = as.vector(samples2keep), genes = NULL, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE, dropLevels=TRUE)
     
     ##### Now read the data subset as a maf object
-    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+    if ( runGistic ) {
+      
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = all.lesions, gisticAmpGenesFile = amp.genes, gisticDelGenesFile = del.genes, gisticScoresFile = scores.gis, verbose = FALSE)
+      
+    } else {
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+    }
   }
 }
 ```
@@ -420,7 +470,13 @@ if ( !is.na(params$genes_blacklist) ) {
     mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = NULL, genes = genes2keep, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE)
     
     ##### Now read the data subset as a maf object
-    mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+    if ( runGistic ) {
+      
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = all.lesions, gisticAmpGenesFile = amp.genes, gisticDelGenesFile = del.genes, gisticScoresFile = scores.gis, verbose = FALSE)
+      
+    } else {
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+    }
   }
 }
 ```
@@ -653,7 +709,7 @@ names(oncoplot_height) <- datasets.list
 for ( i in 1:length(mafFiles) ) {
   
   ##### Get mutation frequency for each gene
-  mut_freq[[i]] <- round(getGeneSummary(mafInfo[[i]])$AlteredSamples/as.numeric(mafInfo[[i]]@summary[3,"summary"])*100, digits=0)
+  mut_freq[[i]] <- round(getGeneSummary(mafInfo[[i]])$MutatedSamples/as.numeric(mafInfo[[i]]@summary[3,"summary"])*100, digits=0)
   names(mut_freq[[i]]) <- getGeneSummary(mafInfo[[i]])$Hugo_Symbol
   
   ##### Get the number of genes that have mutations in the defined minimal percentage of samples (4% as default)
@@ -745,10 +801,11 @@ Oncoplot(s) illustrating different types of mutations observed across samples fo
 for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
-  cat(paste(top_genes_no[[i]], "genes are mutated in at least", params$genes_min, "% of patients\n\n", sep=" "))
   
   ##### Generate oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
   if ( top_genes_no[[i]] > 1 ) {
+    
+    cat(paste(top_genes_no[[i]], "genes are mutated in at least", params$genes_min, "% of patients\n\n", sep=" "))
     
     ##### Save the plot as PNG
     png( file = paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_height[[i]], units = "px", res = 200 )
@@ -764,7 +821,7 @@ for ( i in 1:length(mafFiles) ) {
     cat("<br/><br/><br/>")
     
   } else {
-      cat(paste0("No genes are mutated in at least", params$genes_min, "% of patients.\n\n\n"))
+      cat(paste0("No genes are mutated in at least ", params$genes_min, "% of patients.\n\n\n"))
   }
 }
 ```
