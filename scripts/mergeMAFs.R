@@ -143,11 +143,14 @@ cat("\nReading MAF files...\n\n")
 mafInfo <- vector("list", length(mafFiles))
 mafFields <- NULL
 
+##### Create a list of variants to be considered as non-synonymous. Here, include all possible variant types, otherwise MAFs with no non-synonymous variants will be skipped. Moreover, we are interested in merging multiple MAFs rather than performing any analysis
+nonSyn_list <- c("Frame_Shift_Del", "Frame_Shift_Ins", "In_Frame_Del", "In_Frame_Ins", "Missense_Mutation", "Nonsense_Mutation", "Silent", "Splice_Site", "Translation_Start_Site", "Nonstop_Mutation", "3'UTR", "3'Flank", "5'UTR", "5'Flank", "IGR", "Intron", "RNA", "Targeted_Region", "De_novo_Start_InFrame", "De_novo_Start_OutOfFrame", "Splice_Region", "Unknown")
+
 for ( i in 1:length(mafFiles) ) {
   
   cat(paste0("\nProcessing MAF: ", mafFiles[i],"...\n\n"))
   
-  mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], verbose = FALSE)
+  mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], , vc_nonSyn = nonSyn_list , verbose = FALSE)
   mafFields <- c(mafFields, names(mafInfo[[i]]@data))
 }
 
@@ -170,7 +173,7 @@ if ( opt$maf_fields == "basic" ) {
     mafs.merged <- mafs.merged[, c(mafFields2rm):=NULL]
   }
 
-##### Keep only non-redundant columns, i.e. those which are present only in one dataset
+##### Keep only non-redundant columns, i.e. those which are present more than one dataset
 } else if ( opt$maf_fields == "nonredundant" ) {
 
   mafFields2rm <- unique(mafFields)[ table(mafFields) < 2 ]
