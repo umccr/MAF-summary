@@ -274,7 +274,7 @@ Argument | Description
 ------------ | ------------
 --maf_dir | Directory with MAF files to be merged
 --maf_files | List of MAF files to be merged. Each file name is expected to be separated by comma
---maf_fields | Fields to be kept in merged MAF. Options available: *All* (default), *Nonredundant* and *Basic*
+--maf_fields | Fields to be kept in merged MAF. Options available: *All* (default), *Nonredundant* (i.e. those which are present more than one dataset) and *Basic* (see [MAF field requirements](#maf-field-requirements) section)
 --output | Location and name for the merged MAF file
 
 <br />
