@@ -1,6 +1,6 @@
 # MAF-summary
 
-Set of scripts to **summarise**, **analyse** and **visualise** [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) (MAF) file(s) using *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* R package. The maftools manuscript is on [bioRxiv](http://dx.doi.org/10.1101/052662) and scripts are available on [GitHub](https://github.com/PoisonAlien/maftools). The downstream analyses include **selection analyses** and **cancer driver discovery**.
+Set of scripts to **summarise**, **analyse** and **visualise** [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) (MAF) file(s) using *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)* R package. The maftools manuscript is on [bioRxiv](http://dx.doi.org/10.1101/052662) and scripts are available on [GitHub](https://github.com/PoisonAlien/maftools). The downstream analyses include [cancer driver discovery](https://github.com/umccr/driver-analysis).
 
 
 ## Table of contents
