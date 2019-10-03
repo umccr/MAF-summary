@@ -16,6 +16,8 @@ channels:
 #install following packages in the conda environment
 dependencies:
         - vcf2maf
+        - tabix
+        - samtools
         - bioconductor-maftools
         - r-optparse
         - r-openxlsx
