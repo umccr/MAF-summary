@@ -1,0 +1,28 @@
+# usage: conda env create -p $(pwd)/miniconda/envs/maf-summary --file environment.yaml 
+# -p flag should point to your miniconda installation path.
+
+# name of the conda environment
+name: maf-summary
+
+#the paths that conda takes a look for packages. 
+#avoid using anaconda as we have experienced issues with it
+channels:
+        - conda-forge
+        - bioconda
+        - r
+        - plotly
+        - defaults
+
+#install following packages in the conda environment
+dependencies:
+        - vcf2maf
+        - bioconductor-maftools
+        - r-optparse
+        - r-openxlsx
+        - r-ggplot2
+        - r-dt
+        - r-magick
+        - r-plotly=4.9.0
+        - r-heatmaply
+        - r-tibble
+
