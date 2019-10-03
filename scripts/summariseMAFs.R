@@ -29,7 +29,8 @@
 #   nonSyn_list (optional):   List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants
 #	  remove_duplicated_variants (optional):		Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? Defulat value is "FALSE"
 #   gistic (optional):  Location of the corresponding GISTIC output files (including gisticAllLesionsFile, gisticAmpGenesFile, gisticDelGenesFile and gisticScoresFile). Each file name is expected to be separated by comma
-#   out_folder:      Name for the output folder that will be created within the directory with MAF files. If no output folder is specified the results will be saved in folder "MAF_summary_report"
+#   out_folder:   Name for the output folder that will be created within the directory with MAF files. If no output folder is specified the results will be saved in folder "MAF_summary_report"
+#   hide_code_btn : Hide the "Code" button allowing to show/hide code chunks in the final HTML report. Available options are: "TRUE" (default) and "FALSE"
 #
 ################################################################################
 
@@ -50,32 +51,34 @@ suppressMessages(library(optparse))
 #    Catching the arguments
 #===============================================================================
 option_list <- list(
-  make_option(c("-d", "--maf_dir"), action="store", default=NA, type='character',
+  make_option("--maf_dir", action="store", default=NA, type='character',
               help="Directory with MAF files"),
-  make_option(c("-m", "--maf_files"), action="store", default=NA, type='character',
+  make_option("--maf_files", action="store", default=NA, type='character',
               help="List of MAF files to be processed"),
-  make_option(c("-c", "--datasets"), action="store", default=NA, type='character',
+  make_option("--datasets", action="store", default=NA, type='character',
               help="Desired names of each dataset"),
-  make_option(c("-a", "--samples_id_cols"), action="store", default=NA, type='character',
+  make_option("--samples_id_cols", action="store", default=NA, type='character',
               help="The name(s) of MAF file(s) column containing samples' IDs"),
-  make_option(c("-g", "--genes_min"), action="store", default=NA, type='character',
+  make_option("--genes_min", action="store", default=NA, type='character',
               help="Minimal percentage of patients carrying mutations in individual genes to be included in the report"),
-  make_option(c("-l", "--genes_list"), action="store", default=NA, type='character',
+  make_option("--genes_list", action="store", default=NA, type='character',
               help="Location and name of a file listing genes of interest to be considered in the report"),
-  make_option(c("-r", "--genes_blacklist"), action="store", default=NA, type='character',
+  make_option("--genes_blacklist", action="store", default=NA, type='character',
               help="Location and name of a file listing genes to be excluded"),
-  make_option(c("-i", "--samples_list"), action="store", default=NA, type='character',
+  make_option("--samples_list", action="store", default=NA, type='character',
               help="Location and name of a file listing specific samples to be included"),
-  make_option(c("-s", "--samples_blacklist"), action="store", default=NA, type='character',
+  make_option("--samples_blacklist", action="store", default=NA, type='character',
               help="Location and name of a file listing samples to be excluded"),
-  make_option(c("-n", "--nonSyn_list"), action="store", default=NA, type='character',
+  make_option("--nonSyn_list", action="store", default=NA, type='character',
               help="List of variant classifications to be considered as non-synonymous"),
-  make_option(c("-v", "--remove_duplicated_variants"), action="store", default=NA, type='character',
+  make_option("--remove_duplicated_variants", action="store", default=NA, type='character',
               help="Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene?"),
-  make_option(c("-b", "--gistic"), action="store", default=NA, type='character',
+  make_option("--gistic", action="store", default=NA, type='character',
               help="Location of the corresponding GISTIC output files"),
-  make_option(c("-o", "--out_folder"), action="store", default=NA, type='character',
-              help="Output directory")
+  make_option("--out_folder", action="store", default=NA, type='character',
+              help="Output directory"),
+  make_option("--hide_code_btn", action="store", default=TRUE, type='logical',
+              help="Hide the \"Code\" button allowing to show/hide code chunks in the final HTML report")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
@@ -135,4 +138,4 @@ if ( tolower(opt$remove_duplicated_variants) != "true" && tolower(opt$remove_dup
 }
 
 ##### Pass the user-defined argumentas to the summariseMAFs.R markdown script and run the analysis
-rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, samples_id_cols = opt$samples_id_cols, genes_min = opt$genes_min, genes_list = opt$genes_list, genes_blacklist = opt$genes_blacklist, samples_list = opt$samples_list, samples_blacklist = opt$samples_blacklist, nonSyn_list = opt$nonSyn_list, remove_duplicated_variants = opt$remove_duplicated_variants, gistic = opt$gistic, out_folder = opt$out_folder))
+rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, samples_id_cols = opt$samples_id_cols, genes_min = opt$genes_min, genes_list = opt$genes_list, genes_blacklist = opt$genes_blacklist, samples_list = opt$samples_list, samples_blacklist = opt$samples_blacklist, nonSyn_list = opt$nonSyn_list, remove_duplicated_variants = opt$remove_duplicated_variants, gistic = opt$gistic, out_folder = opt$out_folder, hide_code_btn = opt$hide_code_btn))

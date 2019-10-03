@@ -5,6 +5,7 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
     theme: readable
+    css: RNAseq_report.css
     toc: true
     toc_float: true
     code_folding: hide
@@ -24,6 +25,7 @@ params:
   remove_duplicated_variants: 
   gistic: 
   out_folder: 'MAF_summary_report'
+  hide_code_btn: TRUE
 ---
 
 Mutation data summary for dataset(s) **`r gsub(",", ", ", params$datasets) `**
@@ -50,6 +52,15 @@ NOTE: by default, variants considered as non-synonymous are those with high/mode
 </details>
 
 ***
+
+```{r code_display, echo = FALSE}
+##### Include or exclude the "Code" buttom allowing to "show"/"hide" code chunks from the report 
+if ( params$hide_code_btn ) {
+  writeLines(".btn { display: none ;", con = "summariseMAFs.css")
+} else {
+  writeLines(" ", con = "summariseMAFs.css")
+}
+```
 
 ```{r define_functions, comment=NA, message=FALSE, warning=FALSE}
 ##### Define functions
