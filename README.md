@@ -6,6 +6,7 @@ Set of scripts to **summarise**, **analyse** and **visualise** [Mutation Annotat
 ## Table of contents
 
 <!-- vim-markdown-toc GFM -->
+* [Installation](#installation)
 * [MAF field requirements](#maf-field-requirements)
 * [Scripts summary](#scripts-summary)
 * [Converting VCF files to MAF files](#converting-vcf-files-to-maf-files)
@@ -22,6 +23,22 @@ Set of scripts to **summarise**, **analyse** and **visualise** [Mutation Annotat
 
 <!-- vim-markdown-toc -->
 <br>
+
+## Installation
+
+Run the [environment.yaml](envm/environment.yaml) file to create *conda* environment and install required packages. The `-p` flag should point to the *miniconda* installation path. For instance, to create `maf-summary` environment using *miniconda* installed in `/miniconda` directory run the following command:
+
+```
+conda env create -p /miniconda/envs/maf-summary --file envm/environment.yaml
+```
+
+Activate created `maf-summary` *conda* environment before running the pipeline
+
+```
+conda activate maf-summary
+```
+
+<br />
 
 ## MAF field requirements
 
@@ -318,10 +335,11 @@ Argument | Description
 --remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (OPTIONAL; defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them)
 --gistic | Location of the corresponding [GISTIC](http://software.broadinstitute.org/cancer/software/genepattern/modules/docs/GISTIC_2.0) output files (including *gisticAllLesionsFile*, *gisticAmpGenesFile*, *gisticDelGenesFile* and *gisticScoresFile*)
 --out_folder | Output folder
+--hide_code_btn | Hide the *Code* button allowing to show/hide code chunks in the final HTML report. Available options are: `TRUE` (default) and `FALSE` | No
 
 <br />
 
-**Packages**: *[maftools](https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html)*, *[openxlsx](https://cran.r-project.org/web/packages/openxlsx/openxlsx.pdf)*, *[optparse](https://cran.r-project.org/web/packages/optparse/optparse.pdf)*, *[knitr](https://cran.r-project.org/web/packages/knitr/knitr.pdf)*, *[DT](https://rstudio.github.io/DT/)*, *[plotly](https://plot.ly/r/)*, *[heatmaply](https://cran.r-project.org/web/packages/heatmaply/vignettes/heatmaply.html)*, *[ggplot2](https://cran.r-project.org/web/packages/ggplot2/ggplot2.pdf)*
+**Packages**: required packages are listed in [environment.yaml](envm/environment.yaml) file.
 
 **Command line use example**:
 
