@@ -5,7 +5,7 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
     theme: readable
-    css: RNAseq_report.css
+    css: summariseMAFs.css
     toc: true
     toc_float: true
     code_folding: hide
@@ -1650,7 +1650,7 @@ for ( i in 1:length(gisticFiles) ) {
 
 Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of amplified* and *deleted* regions (columns).
 
-```{r gistic_sample_summary, comment = NA, warning=FALSE}
+```{r gistic_sample_summary, comment = NA, warning=FALSE, eval = runGistic}
 ##### Present a sample table in the html report
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
@@ -1673,7 +1673,7 @@ widges.list <- htmltools::tagList()
 
 Table(s) summarising genes withing detected significantly amplified and deleted regions in individual datasets. Each table contains per-gene information (rows) about *number of amplified* and *deleted* regions (columns). The last column contains the *number of samples with alterations* in the corresponding gene.
 
-```{r gistic_gene_summary, warning=FALSE}
+```{r gistic_gene_summary, warning=FALSE, eval = runGistic}
 ##### Present a gene table in the html report
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
