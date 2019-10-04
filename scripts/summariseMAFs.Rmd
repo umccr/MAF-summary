@@ -293,8 +293,6 @@ suppressMessages(library(magick))
 
 ## Datasets
 
-This report summarises and visualises mutation data in [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat){target="_blank"} (MAF) files for the following dataset(s):
-
 ```{r datasets, comment = NA}
 ##### Present patient cohorts to be summarised
 ##### Split the string of MAF files and put them into a vector
@@ -1849,7 +1847,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 12, colbar_pathway = TRUE, removeNonMutated = FALSE)
+    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE)
   }
   
   ##### Drawing oncoplots for additional genes of interest (if specified)
@@ -1860,7 +1858,7 @@ for ( i in 1:length(mafFiles) ) {
       
       plot.new()
       par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list_goi[[i]], fontSize = 12, colbar_pathway = TRUE, removeNonMutated = FALSE)
+      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list_goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE)
     }
   }
   
