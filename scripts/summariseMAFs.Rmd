@@ -149,8 +149,7 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
   for ( dataset in datasets ) {
     
     ##### Check if the gene has any mutations in correspoding dataset
-    if ( nrow(subsetMaf(maf = mafInfo[[dataset]], includeSyn = TRUE, genes = gene, 
-        query = "Variant_Type != 'CNV'")) != 0 ) {
+    if ( nrow(subsetMaf(maf = mafInfo[[dataset]], includeSyn = TRUE, genes = gene, mafObj = FALSE, query = "Variant_Type != 'CNV'")) != 0 ) {
       
       ##### Drawing lollipop for the top 10 genes in each dataset
       ##### Check if the amino acid changes information is available in MAF provided files. The script expects column called "HGVSp_Short", which is produced with vcf2maf (https://github.com/mskcc/vcf2maf) when converting VCFs to MAFs (https://github.com/cBioPortal/cbioportal/issues/2996) and describes a mutation's amino acid change. The "aa_mutation" field used for annotation in ICGC samples is also acceptable. NOTE: other possibilities are: "Protein_Change", "AAChange""
@@ -159,8 +158,8 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
         
         ##### Make it plot to a dummy graphics device file (e.g. /dev/null) to avoid plotting to the console
-        pdf(file="/dev/null")
-        lollipopPlot.image <- capture.output(maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "HGVSp_Short", printCount = FALSE, showDomainLabel = FALSE, repel = FALSE, labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, fn = paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"))))
+        pdf(file=paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf"))
+        lollipopPlot.image <- capture.output(maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "HGVSp_Short", printCount = FALSE, showDomainLabel = FALSE, repel = FALSE, labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
         invisible(dev.off())
         
         ##### Export pdf to png
@@ -179,8 +178,8 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
         
         ##### Make it plot to a dummy graphics device file (e.g. /dev/null) to avoid plotting to the console
-        pdf(file="/dev/null")
-        lollipopPlot.image <- capture.output(maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "aa_mutation", printCount = FALSE, showDomainLabel = FALSE, repel = FALSE, labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE, fn = paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"))))
+        pdf(file=paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf"))
+        lollipopPlot.image <- capture.output(maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "aa_mutation", printCount = FALSE, showDomainLabel = FALSE, repel = FALSE, labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
         invisible(dev.off())
         
         ##### Export pdf to png
@@ -840,12 +839,12 @@ for ( i in 1:length(mafFiles) ) {
     cat(paste(top_genes_no[[i]], "genes are mutated in at least", params$genes_min, "% of patients\n\n", sep=" "))
     
     ##### Save the plot as PNG
-    png( file = paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_height[[i]], units = "px", res = 200 )
+    png( file = paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_height[[i]], units = "px", res = 200, type="cairo" )
       
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 12, colbar_pathway = TRUE, removeNonMutated = FALSE)
+    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE)
     dev.off()
     
     ##### Read in the oncoplots PNG files
@@ -886,12 +885,12 @@ if ( !is.na(params$genes_list) && length(goi) > 1 ) {
       cat(paste("<i>", top_genes_goi[[i]], "</i>", collapse = ", "), "\n\n")
       
       ##### Save the plot as PNG
-      png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height[[i]], units = "px", res = 200 )
+      png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height[[i]], units = "px", res = 200, type="cairo" )
         
       ##### Drawing oncoplots for the top mutated genes in each dataset
       plot.new()
       par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list_goi[[i]], fontSize = 12, colbar_pathway = TRUE, removeNonMutated = FALSE)
+      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list_goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE)
       dev.off()
       
       ##### Read in the oncoplots PNG files
@@ -1624,7 +1623,7 @@ for ( i in 1:length(gisticFiles) ) {
   if ( gisticInfo[[i]]$status ) {
     
     ##### Save the plot as PNG
-    png( file = paste(outDir, "/MAF_gisticOncoplot_", datasets.list[i], ".png", sep = ""), width = 1800, height = 1200, units = "px", res = 200 )
+    png( file = paste(outDir, "/MAF_gisticOncoplot_", datasets.list[i], ".png", sep = ""), width = 1800, height = 1200, units = "px", res = 200, type="cairo" )
       
     ##### Drawing oncoplot for each dataset
     plot.new()
