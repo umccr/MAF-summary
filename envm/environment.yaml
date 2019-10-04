@@ -19,6 +19,7 @@ dependencies:
         - tabix
         - samtools
         - bioconductor-maftools
+        - r-rmarkdown
         - r-optparse
         - r-openxlsx
         - r-ggplot2
