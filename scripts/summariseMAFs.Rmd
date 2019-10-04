@@ -28,7 +28,7 @@ params:
   hide_code_btn: TRUE
 ---
 
-Mutation data summary for dataset(s) **`r gsub(",", ", ", params$datasets) `**
+Report summarising and visualising mutation data in [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat){target="_blank"} (MAF) file(s) for the following dataset(s): **`r gsub(",", ", ", params$datasets) `**
 
 ***
 
@@ -148,18 +148,26 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
   ##### Create a list to store MAF info for individual datasets
   for ( dataset in datasets ) {
     
+    mut = subsetMaf(maf = mafInfo[[dataset]], includeSyn = TRUE, genes = gene, mafObj = FALSE, query = "Variant_Type != 'CNV'")
+    
     ##### Check if the gene has any mutations in correspoding dataset
-    if ( nrow(subsetMaf(maf = mafInfo[[dataset]], includeSyn = TRUE, genes = gene, mafObj = FALSE, query = "Variant_Type != 'CNV'")) != 0 ) {
+    if ( nrow(mut) != 0 ) {
       
       ##### Drawing lollipop for the top 10 genes in each dataset
       ##### Check if the amino acid changes information is available in MAF provided files. The script expects column called "HGVSp_Short", which is produced with vcf2maf (https://github.com/mskcc/vcf2maf) when converting VCFs to MAFs (https://github.com/cBioPortal/cbioportal/issues/2996) and describes a mutation's amino acid change. The "aa_mutation" field used for annotation in ICGC samples is also acceptable. NOTE: other possibilities are: "Protein_Change", "AAChange""
-       if ( "HGVSp_Short" %in% maftools::getFields(mafInfo[[dataset]]) && gene %in% mafInfo[[dataset]]@data$Hugo_Symbol ) {
+      pchange = c('HGVSp_Short', 'Protein_Change', 'AAChange')
+      
+      ##### Define the column with protein change info
+      pchange = pchange[pchange %in% colnames(mut)]
+      
+      ##### Check if the protein change field is not empty
+      if ( any(!is.na(as.data.frame(mut)[ , pchange  ]))  ) {
         
         cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
         
         ##### Make it plot to a dummy graphics device file (e.g. /dev/null) to avoid plotting to the console
         pdf(file=paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf"))
-        lollipopPlot.image <- capture.output(maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "HGVSp_Short", printCount = FALSE, showDomainLabel = FALSE, repel = FALSE, labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
+        lollipopPlot.image <- capture.output(maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = pchange, printCount = FALSE, showDomainLabel = FALSE, repel = FALSE, labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
         invisible(dev.off())
         
         ##### Export pdf to png
@@ -173,36 +181,12 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         ##### Remove redundant pdf plot
         file.remove(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""))
     
-      } else if ( "aa_mutation" %in% maftools::getFields(mafInfo[[dataset]]) && gene %in% mafInfo[[dataset]]@data$Hugo_Symbo ) {
-        
-        cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
-        
-        ##### Make it plot to a dummy graphics device file (e.g. /dev/null) to avoid plotting to the console
-        pdf(file=paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf"))
-        lollipopPlot.image <- capture.output(maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = "aa_mutation", printCount = FALSE, showDomainLabel = FALSE, repel = FALSE, labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
-        invisible(dev.off())
-        
-        ##### Export pdf to png
-        lollipopPlot.image <- image_read_pdf(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""), pages = NULL, density = 300)
-        image_write(lollipopPlot.image, path = paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".png", sep = ""), format = "png")
-        
-        ##### Read in the oncoplots PNG files
-        cat("![](",paste(paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_")), ".png", sep = ""),")")
-        cat("<br/><br/><br/>")
-        
-        ##### Remove redundant pdf plot
-        file.remove(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""))
-      
       ##### ...otherwise leave a message
       } else {
         
         ##### Check if the genes has any synonymous vatiants
-        if ( "HGVSp_Short" %in% names(mafInfo[[dataset]]@maf.silent) && gene %in% mafInfo[[dataset]]@maf.silent$Hugo_Symbol  ) {
+        if ( length(pchange[pchange %in% colnames(mafInfo[[dataset]]@maf.silent)]) > 0 && gene %in% mafInfo[[dataset]]@maf.silent$Hugo_Symbol && any(!is.na(as.data.frame(mafInfo[[dataset]]@maf.silent)[ , pchange  ])) ) {
         
-          cat(paste("This section was skipped for dataset", dataset, "since only synonymous variants were detected in", gene, "gene.\n\n\n\n", sep=" "))
-      
-        } else if ( "aa_mutation" %in% names(mafInfo[[dataset]]@maf.silent) && gene %in% mafInfo[[dataset]]@maf.silent$Hugo_Symbol  ) {
-          
           cat(paste("This section was skipped for dataset", dataset, "since only synonymous variants were detected in", gene, "gene.\n\n\n\n", sep=" "))
       
         } else {
@@ -210,7 +194,7 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         }
       }
         
-      } else {
+    } else {
         
       cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
       cat(paste("Gene <i>", gene, "</i> has no mutations reported in dataset", dataset, "\n\n\n\n", sep=" "))
