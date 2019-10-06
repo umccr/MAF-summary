@@ -1110,14 +1110,13 @@ for ( i in 1:length(mafFiles) ) {
 
 Enrichment of known oncogenic signaling pathways in [TCGA](https://cancergenome.nih.gov/){target="_blank"} cohorts (see paper [Oncogenic Signaling Pathways in The Cancer Genome Atlas](https://www.ncbi.nlm.nih.gov/pubmed/29625050){target="_blank"}).
 
-```{r oncogenic_pathways, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+```{r oncogenic_pathways, comment = NA, message=FALSE, warning=FALSE}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
   
-  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  cat(paste(datasets.list[i], "\n\n", sep=" "))
   
   try(OncogenicPathways(maf = mafInfo[[i]]), silent = TRUE)
-  cat("<br/><br/><br/>")
 }
 ```
 
@@ -1160,7 +1159,7 @@ for ( i in 1:length(mafFiles) ) {
 
 Extracted signatures are compared against known signatures derived from [Alexandrov *et al*](https://www.ncbi.nlm.nih.gov/pubmed/23945592){target="_blank"}, and cosine similarity is calculated to identify best match. The signatures are also compared against known and validated signatures from Sanger (see here for [list of validated signatures](https://cancer.sanger.ac.uk/cosmic/signatures){target="_blank"}). 
 
-```{r signature_analysis, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+```{r signature_analysis, comment = NA, message=FALSE, warning=FALSE}
 ##### Generate separate plot for each dataset
 ##### Create a list to store signature analysis results info for individual datasets
 mutextractSign <- vector("list", length(mafFiles))
@@ -1168,14 +1167,13 @@ names(mutextractSign) <- datasets.list
 
 ##### Run signature analysis for each dataset
 for ( i in 1:length(mafFiles) ) {
-  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  cat(paste(datasets.list[i], "\n\n", sep=" "))
   
   mutextractSign[[i]] = invisible(extractSignatures(mat = mutSign[[i]], nTry = 6, plotBestFitRes = FALSE))
   try(plotSignatures(mutextractSign[[i]], title_size = 0.8), silent = TRUE)
   cat("<br/><br/>")
   
   invisible(pheatmap::pheatmap(mat = mutextractSign[[i]]$coSineSimMat, cluster_rows = FALSE, main = "cosine similarity against validated signatures"))
-  cat("<br/><br/><br/>")
 }
 ```
 
@@ -1185,16 +1183,15 @@ for ( i in 1:length(mafFiles) ) {
 
 Signatures are assigned to samples and enrichment analysis are performed to detect mutations enriched in every signature identified.
 
-```{r signature_enrichment, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+```{r signature_enrichment, comment = NA, message=FALSE, warning=FALSE}
 ##### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
-  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  cat(paste(datasets.list[i], "\n\n", sep=" "))
   
   sign.enrichment = invisible(signatureEnrichment(maf = mafInfo[[i]], sig_res = mutextractSign[[i]]))
   cat("<br/><br/>")
   
   invisible(plotEnrichmentResults(enrich_res = sign.enrichment, pVal = 0.05))
-  cat("<br/><br/><br/>")
 }
 ```
 
