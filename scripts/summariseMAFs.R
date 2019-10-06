@@ -28,7 +28,9 @@
 #   samples_blacklist (optional):  Location and name of a file listing samples to be excluded. The ID of samples to be exdluded are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
 #   nonSyn_list (optional):   List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants
 #	  remove_duplicated_variants (optional):		Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? Defulat value is "FALSE"
-#   gistic (optional):  Location of the corresponding GISTIC output files (including gisticAllLesionsFile, gisticAmpGenesFile, gisticDelGenesFile and gisticScoresFile). Each file name is expected to be separated by comma
+#   gistic (optional):  Location of the corresponding GISTIC output files (including gisticAllLesionsFile, gisticAmpGenesFile, gisticDelGenesFile and gisticScoresFile). Each file name (for each dataset) is expected to be separated by comma
+#   clinical_info (optional):  Location of clinical data associated with each sample in MAF. Each file name (for each dataset) is expected to be separated by comma
+#   clinical_features (optional):  Columns names (separated by comma) from clinical data (specified by --clinical_info argument) to be drawn in the oncoplot(s). Note that the order matters
 #   out_folder:   Name for the output folder that will be created within the directory with MAF files. If no output folder is specified the results will be saved in folder "MAF_summary_report"
 #   hide_code_btn : Hide the "Code" button allowing to show/hide code chunks in the final HTML report. Available options are: "TRUE" (default) and "FALSE"
 #
@@ -73,8 +75,12 @@ option_list <- list(
               help="List of variant classifications to be considered as non-synonymous"),
   make_option("--remove_duplicated_variants", action="store", default=NA, type='character',
               help="Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene?"),
-  make_option("--gistic", action="store", default=NA, type='character',
+  make_option("--gistic", action="store", default="none", type='character',
               help="Location of the corresponding GISTIC output files"),
+  make_option("--clinical_info", action="store", default=NA, type='character',
+              help="Location of clinical data associated with each sample in MAF"),
+  make_option("--clinical_features", action="store", default=NA, type='character',
+              help="Columns names from clinical data to be drawn in the oncoplot(s)"),
   make_option("--out_folder", action="store", default=NA, type='character',
               help="Output directory"),
   make_option("--hide_code_btn", action="store", default=TRUE, type='logical',
@@ -86,6 +92,7 @@ opt <- parse_args(OptionParser(option_list=option_list))
 ##### Collect MAF files and correspondiong datasets names
 opt$maf_files <- gsub("\\s","", opt$maf_files)
 opt$gistic <- gsub("\\s","", opt$gistic)
+opt$clinical_info <- gsub("\\s","", opt$clinical_info)
 opt$datasets <- gsub("\\s","", opt$datasets)
 
 ##### Read in argument from command line and check if all were provide by the user
@@ -121,7 +128,7 @@ if ( is.na(opt$genes_min) ) {
 
 ##### Pre-define list of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants. Default uses Variant Classifications with High/Moderate variant consequences (http://asia.ensembl.org/Help/Glossary?id=535)
 if ( is.na(opt$nonSyn_list) ) {
-  opt$nonSyn_list<- c("Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation", "Nonstop_Mutation", "In_Frame_Del","In_Frame_Ins", "Missense_Mutation")
+  opt$nonSyn_list<- c("Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation")
 } else {
   opt$nonSyn_list <- unlist(strsplit(opt$nonSyn_list, split=',', fixed=TRUE))
 }
@@ -138,4 +145,4 @@ if ( tolower(opt$remove_duplicated_variants) != "true" && tolower(opt$remove_dup
 }
 
 ##### Pass the user-defined argumentas to the summariseMAFs.R markdown script and run the analysis
-rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, samples_id_cols = opt$samples_id_cols, genes_min = opt$genes_min, genes_list = opt$genes_list, genes_blacklist = opt$genes_blacklist, samples_list = opt$samples_list, samples_blacklist = opt$samples_blacklist, nonSyn_list = opt$nonSyn_list, remove_duplicated_variants = opt$remove_duplicated_variants, gistic = opt$gistic, out_folder = opt$out_folder, hide_code_btn = opt$hide_code_btn))
+rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, samples_id_cols = opt$samples_id_cols, genes_min = opt$genes_min, genes_list = opt$genes_list, genes_blacklist = opt$genes_blacklist, samples_list = opt$samples_list, samples_blacklist = opt$samples_blacklist, nonSyn_list = opt$nonSyn_list, remove_duplicated_variants = opt$remove_duplicated_variants, gistic = opt$gistic, clinical_info = opt$clinical_info, clinical_features = opt$clinical_features, out_folder = opt$out_folder, hide_code_btn = opt$hide_code_btn))
