@@ -23,11 +23,12 @@ params:
   samples_blacklist: '../example_samples_to_subset.txt'
   nonSyn_list: 'Frame_Shift_Del,Frame_Shift_Ins,Splice_Site,Translation_Start_Site,Nonsense_Mutation,Nonstop_Mutation,In_Frame_Del,In_Frame_Ins,Missense_Mutation'
   remove_duplicated_variants: TRUE
-  gistic: "none"
-  clinical_info: "none"
-  clinical_features: "none"
+  gistic: 'none'
+  clinical_info: 'none'
+  clinical_features: 'none'
   out_folder: 'MAF_summary_report'
   hide_code_btn: TRUE
+  ucsc_genome_assembly: 19
 ---
 
 Report summarising and visualising mutation data in [Mutation Annotation Format](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat){target="_blank"} (MAF) file(s) for the following dataset(s): **`r gsub(",", ", ", params$datasets) `**
@@ -287,10 +288,13 @@ tcgaCompare_mod <- function (maf, capture_size = NULL, cohortName = NULL, primar
 ```{r load_libraries, warning=FALSE}
 suppressMessages(library(knitr))
 suppressMessages(library(maftools))
+suppressMessages(library(pheatmap))
+suppressMessages(library(NMF))
 suppressMessages(library(openxlsx))
 suppressMessages(library(ggplot2))
 suppressMessages(library(DT))
 suppressMessages(library(magick))
+suppressMessages(library(package=paste0("BSgenome.Hsapiens.UCSC.hg", params$ucsc_genome_assembly), character.only = TRUE)) # required to get chromosomes lengts for fusionsBezierPlot function generating Bezier plot to present gene fusions in the genomics context
 ```
 
 ## Datasets
@@ -352,9 +356,9 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Add clinical information if provided
   if ( !is.na(clinicalInfo[[i]]) ){
-    mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = clinicalInfo[[i]])
+    mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = clinicalInfo[[i]])
   } else {
-    mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
+    mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
   }
 }
 
@@ -418,10 +422,10 @@ if ( !is.na(params$samples_id_cols) ) {
       ##### Now read the data with changess column names as a maf object
       if ( gisticInfo[[i]]$status ) {
         
-        mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
+        mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
         
       } else {
-        mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+        mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
       }
     } else {
       cat(paste0("\nColumn \"", samples_id_cols[i], "\" does not exist in MAF file ", mafFiles[i], "!\n\n"))
@@ -434,7 +438,7 @@ if ( !is.na(params$samples_id_cols) ) {
     
     if ( gisticInfo[[i]]$status ) {
       
-      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
     }
   }
 }
@@ -470,10 +474,10 @@ if ( !is.na(params$samples_list) ) {
     ##### Now read the data subset as a maf object
     if ( gisticInfo[[i]]$status ) {
       
-      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
       
     } else {
-      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
     }
   }
 }
@@ -495,10 +499,10 @@ if ( !is.na(params$samples_blacklist) ) {
     ##### Now read the data subset as a maf object
     if ( gisticInfo[[i]]$status ) {
       
-      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
       
     } else {
-      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
     }
   }
 }
@@ -522,10 +526,10 @@ if ( !is.na(params$genes_blacklist) ) {
     ##### Now read the data subset as a maf object
     if ( gisticInfo[[i]]$status ) {
       
-      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
       
     } else {
-      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
     }
   }
 }
@@ -546,7 +550,7 @@ for ( i in 1:length(mafFiles) ) {
   MAF_samples[[i]]$nonsyn <- unlist(maftools::getSampleSummary(mafInfo[[i]])[, "Tumor_Sample_Barcode"])
   MAF_samples[[i]]$silent <-  MAF_samples[[i]]$all[ MAF_samples[[i]]$all %!in% MAF_samples[[i]]$nonsyn  ]
   
-  ##### Check if there thre are any samples with no non-synonymours variants. If so, add them to data frame
+  ##### Check if there are any samples with no non-synonymours variants. If so, add them to data frame
   if ( length(MAF_samples[[i]]$silent) > 0 ) {
     for ( sample in MAF_samples[[i]]$silent ) {
       
@@ -689,7 +693,7 @@ if ( !is.na(params$samples_blacklist) ) {
 
 ***
 
-`r if ( clinical_info != "none" ) { c("#### Samples annotation") }`
+`r if ( params$clinical_info != "none" ) { c("#### Samples annotation") }`
 
 `r if ( params$clinical_info != "none" ) { c("Sample annotations for individual dataset(s).") }`
 
@@ -748,7 +752,7 @@ widges.list
 
 ***
 
-##### `r if ( !is.na(params$genes_blacklist) ) { c("Excluded genes") }`
+`r if ( !is.na(params$genes_blacklist) ) { c("##### Excluded genes") }`
 
 `r if ( !is.na(params$genes_blacklist) ) { c("List of genes excluded from the analysis.") }`
 
@@ -1097,6 +1101,117 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Compare mutation load against TCGA cohorts
   tcgaCompare_mod(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
+}
+```
+
+***
+
+#### Oncogenic Signaling Pathways
+
+Enrichment of known oncogenic signaling pathways in [TCGA](https://cancergenome.nih.gov/){target="_blank"} cohorts (see paper [Oncogenic Signaling Pathways in The Cancer Genome Atlas](https://www.ncbi.nlm.nih.gov/pubmed/29625050){target="_blank"}).
+
+```{r oncogenic_pathways, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+###### Generate separate plot for each dataset
+for ( i in 1:length(mafFiles) ) {
+  
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  
+  try(OncogenicPathways(maf = mafInfo[[i]]), silent = TRUE)
+  cat("<br/><br/><br/>")
+}
+```
+
+***
+
+`r if ( params$clinical_info != "none" ) { c("#### Clinical enrichment") }`
+
+`r if ( params$clinical_info != "none" ) { c("Various groupwise and pairwise comparisions are performed to identify enriched mutations for every category within provided clinical features.") }`
+
+```{r clinical_enrichment, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+###### Generate separate plot for each dataset
+for ( i in 1:length(mafFiles) ) {
+  
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  
+  clinical_enrichment = clinicalEnrichment(maf = mafInfo[[i]], clinicalFeature = clinicalFeatures[[i]])
+  try(plotEnrichmentResults(enrich_res = clinical_enrichment, pVal = 0.05), silent = TRUE)
+  cat("<br/><br/><br/>")
+}
+```
+
+***
+
+## Signature analysis {.tabset .tabset-fade}
+
+Every cancer, as it progresses leaves a signature characterized by specific pattern of nucleotide substitutions (see paper [Signatures of mutational processes in human cancer](https://www.ncbi.nlm.nih.gov/pubmed/23945592){target="_blank"} by Alexandrov *et al*). Such signatures are extracted by decomposing matrix of nucleotide substitutions, classified into 96 substitution classes based on immediate bases surrounding the mutated base.
+
+```{r mutational_sign, comment = NA, message=FALSE, warning=FALSE}
+##### Create a list to store signature analysis results info for individual datasets
+mutSign <- vector("list", length(mafFiles))
+names(mutSign) <- datasets.list
+
+##### Run signature analysis for each dataset
+for ( i in 1:length(mafFiles) ) {
+  mutSign[[i]] = invisible(trinucleotideMatrix(maf = mafInfo[[i]], prefix = 'chr', add = TRUE, ref_genome = "BSgenome.Hsapiens.UCSC.hg19"))
+}
+```
+
+### Mutational signatures {.tabset .tabset-fade}
+
+Extracted signatures are compared against known signatures derived from [Alexandrov *et al*](https://www.ncbi.nlm.nih.gov/pubmed/23945592){target="_blank"}, and cosine similarity is calculated to identify best match. The signatures are also compared against known and validated signatures from Sanger (see here for [list of validated signatures](https://cancer.sanger.ac.uk/cosmic/signatures){target="_blank"}). 
+
+```{r signature_analysis, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+##### Generate separate plot for each dataset
+##### Create a list to store signature analysis results info for individual datasets
+mutextractSign <- vector("list", length(mafFiles))
+names(mutextractSign) <- datasets.list
+
+##### Run signature analysis for each dataset
+for ( i in 1:length(mafFiles) ) {
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  
+  mutextractSign[[i]] = invisible(extractSignatures(mat = mutSign[[i]], nTry = 6, plotBestFitRes = FALSE))
+  try(plotSignatures(mutextractSign[[i]], title_size = 0.8), silent = TRUE)
+  cat("<br/><br/>")
+  
+  invisible(pheatmap::pheatmap(mat = mutextractSign[[i]]$coSineSimMat, cluster_rows = FALSE, main = "cosine similarity against validated signatures"))
+  cat("<br/><br/><br/>")
+}
+```
+
+***
+
+### Signatures enrichment {.tabset .tabset-fade}
+
+Signatures are assigned to samples and enrichment analysis are performed to detect mutations enriched in every signature identified.
+
+```{r signature_enrichment, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+##### Generate separate plot for each dataset
+for ( i in 1:length(mafFiles) ) {
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  
+  sign.enrichment = invisible(signatureEnrichment(maf = mafInfo[[i]], sig_res = mutextractSign[[i]]))
+  cat("<br/><br/>")
+  
+  invisible(plotEnrichmentResults(enrich_res = sign.enrichment, pVal = 0.05))
+  cat("<br/><br/><br/>")
+}
+```
+
+***
+
+### APOBEC signature
+
+APOBEC induced mutations are more frequent in solid tumors and are mainly associated with *C>T* transition events occurring in *TCW motif*. APOBEC enrichment scores are estimated using the method described by [Roberts *et al*](https://www.ncbi.nlm.nih.gov/pubmed/23852170){target="_blank"}. Briefly, enrichment of *C>T* mutations occurring within *TCW motif* over all of the *C>T* mutations in a given sample is compared to background *Cytosines* and *TCWs* occurring within 20bp of mutated bases.
+
+Samples in individual dataset(s) were classified into APOBEC enriched and non-APOBEC enriched groups, and the differences in mutational patterns between them were analysed to identify differentially altered genes.
+
+```{r APOBEC_enrichment, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+##### Generate separate plot for each dataset
+for ( i in 1:length(mafFiles) ) {
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  plotApobecDiff(tnm = mutSign[[i]], maf = mafInfo[[i]], pVal = 0.2)
+  cat("<br/><br/><br/>")
 }
 ```
 
@@ -1586,15 +1701,15 @@ cat("\n\n\n")
 
 ***
 
-## CN alterations {.tabset .tabset-fade}
+`r if ( runGistic ) { c("## CN alterations {.tabset .tabset-fade}") }`
 
 Information about copy-number (CN) alterations (based on  [*GISTIC*](http://software.broadinstitute.org/cancer/software/genepattern/modules/docs/GISTIC_2.0){target="_blank"} programme) is **`r if ( runGistic ) { c("AVAILABLE") } else { c("NOT AVAILABLE") }`**.
 
-### Plots {.tabset .tabset-fade}
+`r if ( runGistic ) { c("### Plots {.tabset .tabset-fade}") }`
 
-#### Genome plot
+`r if ( runGistic ) { c("Genome plot") }`
 
-Genome plot(s) with segments highlighting significant (*q-value* < 0.1) amplification (<span style="color:#ff0000">red</span> bars) and deletion (<span style="color:#0000ff">blue</span> bars) regions. *Y-axis* shows the *G-scores* that consider the amplitude of the aberration as well as the frequency of its occurrence across samples. 
+`r if ( runGistic ) { c("Genome plot(s) with segments highlighting significant (*q-value* < 0.1) amplification (<span style=\"color:#ff0000\">red</span> bars) and deletion (<span style=\"color:#0000ff\">blue</span> bars) regions. *Y-axis* shows the *G-scores* that consider the amplitude of the aberration as well as the frequency of its occurrence across samples.") }`
 
 ```{r gistic_genome_plot, comment = NA, message=FALSE, warning=FALSE, results="asis", eval = runGistic }
 for ( i in 1:length(gisticFiles) ) {
@@ -1622,9 +1737,9 @@ for ( i in 1:length(gisticFiles) ) {
 
 ***
 
-#### Bubble plot
+`r if ( runGistic ) { c("#### Bubble plot") }`
 
-Plot(s) presenting significantly altered cytobands as a function of number samples (*x-axis*) in which it is altered and number genes (*y-axis*) it contains. Size of each bubble is according to *-log10* transformed *q-values* (FDR). Significantly amplified and deleted cytobands are presented as <span style="color:#ff0000">red</span> and <span style="color:#0000ff">blue</span> bubbles, respectively.
+`r if ( runGistic ) { c("Plot(s) presenting significantly altered cytobands as a function of number samples (*x-axis*) in which it is altered and number genes (*y-axis*) it contains. Size of each bubble is according to *-log10* transformed *q-values* (FDR). Significantly amplified and deleted cytobands are presented as <span style=\"color:#ff0000\">red</span> and <span style=\"color:#0000ff\">blue</span> bubbles, respectively.") }`
 
 ```{r gistic_bubble_plot, comment = NA, message=FALSE, warning=FALSE, results="asis", eval = runGistic }
 for ( i in 1:length(gisticFiles) ) {
@@ -1652,9 +1767,9 @@ for ( i in 1:length(gisticFiles) ) {
 
 ***
 
-#### Oncoplot
+`r if ( runGistic ) { c("Oncoplot") }`
 
-Oncoplot(s) illustrating cytobands (labeled on the left side) altered across samples (columns). The frequency of alterations in corresponding cytobands are indicated on the rigth side. Significantly amplified and deleted cytobands are presented as <span style="color:#ff0000">red</span> and <span style="color:#02d653">green</span> cells, respectively.
+`r if ( runGistic ) { c("Oncoplot(s) illustrating cytobands (labeled on the left side) altered across samples (columns). The frequency of alterations in corresponding cytobands are indicated on the rigth side. Significantly amplified and deleted cytobands are presented as <span style=\"color:#ff0000\">red</span> and <span style=\"color:#02d653\">green</span> cells, respectively.") }`
 
 ```{r gistic_oncoplot, comment = NA, message=FALSE, warning=FALSE, results="asis", eval = runGistic }
 for ( i in 1:length(gisticFiles) ) {
@@ -1682,11 +1797,11 @@ for ( i in 1:length(gisticFiles) ) {
 
 ***
 
-### Tables {.tabset .tabset-fade}
+`r if ( runGistic ) { c("### Tables {.tabset .tabset-fade}") }`
 
-#### Samples summary
+`r if ( runGistic ) { c("#### Samples summary") }`
 
-Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of amplified* and *deleted* regions (columns).
+`r if ( runGistic ) { c("Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of amplified* and *deleted* regions (columns).") }`
 
 ```{r gistic_sample_summary, comment = NA, warning=FALSE, eval = runGistic}
 ##### Present a sample table in the html report
@@ -1707,9 +1822,9 @@ widges.list <- htmltools::tagList()
 
 ***
 
-#### Genes summary
+`r if ( runGistic ) { c("#### Genes summary") }`
 
-Table(s) summarising genes withing detected significantly amplified and deleted regions in individual datasets. Each table contains per-gene information (rows) about *number of amplified* and *deleted* regions (columns). The last column contains the *number of samples with alterations* in the corresponding gene.
+`r if ( runGistic ) { c("Table(s) summarising genes withing detected significantly amplified and deleted regions in individual datasets. Each table contains per-gene information (rows) about *number of amplified* and *deleted* regions (columns). The last column contains the *number of samples with alterations* in the corresponding gene.") }`
 
 ```{r gistic_gene_summary, warning=FALSE, eval = runGistic}
 ##### Present a gene table in the html report
@@ -1749,7 +1864,7 @@ for ( i in 1:length(mafFiles) ) {
 
   ##### Generate interactive heatmap
   p <- heatmaply(sampleSummary, main = datasets.list[i], Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Sample","Mutation_type","Count")) %>%
-  layout(width  = 900, height = 420, margin = list(l=150, r=10, b=80, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+  layout(width  = 900, height = 600, margin = list(l=150, r=10, b=80, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
 
   ##### Add plot to the list for htmlwidgets
   widges.list[[i]] <- as_widget(ggplotly(p))
@@ -1788,7 +1903,7 @@ for ( i in 1:length(mafFiles) ) {
 
   ##### Generate interactive heatmap
   p <- heatmaply(geneSummary, main = datasets.list[i], Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Mutation_type","Count")) %>%
-  layout(width  = 900, height = 420, margin = list(l=150, r=10, b=80, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+  layout(width  = 900, height = 600, margin = list(l=150, r=10, b=80, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
   
   ##### Add plot to the list for htmlwidgets
   widges.list[[i]] <- as_widget(ggplotly(p))
@@ -1805,9 +1920,9 @@ detach("package:plotly", unload=FALSE)
 widges.list
 ```
 
-***
-
 <!--This step is skipped for the moment as it is too computationally intensive.
+
+***
 
 ### Pair-wise comparisons
 
