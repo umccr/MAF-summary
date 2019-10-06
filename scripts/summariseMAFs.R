@@ -77,7 +77,7 @@ option_list <- list(
               help="Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene?"),
   make_option("--gistic", action="store", default="none", type='character',
               help="Location of the corresponding GISTIC output files"),
-  make_option("--clinical_info", action="store", default=NA, type='character',
+  make_option("--clinical_info", action="store", default="none", type='character',
               help="Location of clinical data associated with each sample in MAF"),
   make_option("--clinical_features", action="store", default=NA, type='character',
               help="Columns names from clinical data to be drawn in the oncoplot(s)"),
