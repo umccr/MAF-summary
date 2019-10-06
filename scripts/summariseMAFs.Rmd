@@ -15,15 +15,17 @@ params:
   maf_dir: 
   maf_files: 
   datasets: 
-  samples_id_cols: 
-  genes_min: 
-  genes_list: 
-  genes_blacklist: 
-  samples_list: 
-  samples_blacklist: 
-  nonSyn_list: 
-  remove_duplicated_variants: 
-  gistic: 
+  samples_id_cols: 'Tumor_Sample_Barcode'
+  genes_min: 4
+  genes_list: '../example_genes_to_subset.txt'
+  genes_blacklist: '../example_genes_blacklist.txt'
+  samples_list: '../example_samples_to_subset.txt'
+  samples_blacklist: '../example_samples_to_subset.txt'
+  nonSyn_list: 'Frame_Shift_Del,Frame_Shift_Ins,Splice_Site,Translation_Start_Site,Nonsense_Mutation,Nonstop_Mutation,In_Frame_Del,In_Frame_Ins,Missense_Mutation'
+  remove_duplicated_variants: TRUE
+  gistic: "none"
+  clinical_info: "none"
+  clinical_features: "none"
   out_folder: 'MAF_summary_report'
   hide_code_btn: TRUE
 ---
@@ -315,10 +317,45 @@ DT::datatable( data = datasets.df, filter = "none", extensions = 'Buttons', opti
 mafInfo <- vector("list", length(mafFiles))
 names(mafInfo) <- datasets.list
 
+##### Check if file with clinical information is provided
+clinicalInfo <- vector("list", length(mafFiles))
+names(clinicalInfo) <- datasets.list
+
+clinicalFeatures <- vector("list", length(mafFiles))
+names(clinicalFeatures) <- datasets.list
+
+if ( params$clinical_info != "none" ){
+  
+  clinicalFiles <- unlist(strsplit(params$clinical_info, split=',', fixed=TRUE))
+  
+  for ( i in 1:length(mafFiles) ) {
+    clinicalInfo[[i]] <- read.table(clinicalFiles[[i]], sep="\t", as.is=TRUE, header=TRUE, row.names=NULL, quote = "")
+    ##### Define columns to be drawn in the oncoplot(s)
+    if ( params$clinical_features != "none" ){
+    
+      clinicalFeatures[[i]] <- unlist(strsplit(params$clinical_features, split=',', fixed=TRUE))
+      
+      ##### Keep only those that are acrually present in provided clinical information file
+      clinicalFeatures[[i]] <- clinicalFeatures[[i]][ clinicalFeatures[[i]] %in% names(clinicalInfo[[i]]) ]
+    } else {
+      clinicalFeatures[[i]] <- ""
+    }
+  }
+} else {
+  for ( i in 1:length(mafFiles) ) {
+    clinicalInfo[[i]] <- NA
+  }
+} 
+
 ##### NOTE: maftools by default summarises only non-synonymous variants with high/moderate variant consequences and ignores silent variants (https://github.com/PoisonAlien/maftools/issues/63), which are stored in "maf.silent" slot of the class MAF object (mafInfo[[i]]@maf.silent)
 for ( i in 1:length(mafFiles) ) {
-
-  mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+  
+  ##### Add clinical information if provided
+  if ( !is.na(clinicalInfo[[i]]) ){
+    mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = clinicalInfo[[i]])
+  } else {
+    mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = params$nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
+  }
 }
 
 ##### Read in GISTIC output files if defined by user
@@ -328,7 +365,7 @@ runGistic <- FALSE
 gisticInfo <- vector("list", length(mafFiles))
 names(gisticInfo) <- datasets.list
   
-if ( !is.na(params$gistic) ){
+if ( params$gistic != "none" ){
   
   gisticFiles <- unlist(strsplit(params$gistic, split=',', fixed=TRUE))
   
@@ -522,9 +559,11 @@ for ( i in 1:length(mafFiles) ) {
 
 ***
 
-## Summary tables {.tabset}
+## Summary
 
-### Overall summary
+### Tables {.tabset}
+
+#### Overall summary
 
 Table(s) with basic information about each dataset based on data in corresponding MAF file(s).
 
@@ -578,11 +617,11 @@ saveWorkbook(wb, paste(outDir, "MAF_fields.xlsx", sep="/"), overwrite = TRUE)
 
 ***
 
-### Samples summary {.tabset}
+#### Samples summary {.tabset}
 
-#### Samples with non-synonymous variant(s)
+##### Samples with non-synonymous variant(s)
 
-Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file. Note, only **samples with detected non-synonymous variant(s)** are reported in the table below.
+Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file. Note, only samples with detected **non-synonymous variant(s)** are reported in the table below.
 
 ```{r sample_summary, comment = NA, warning=FALSE}
 ##### Write samples summary into a file
@@ -609,14 +648,11 @@ for ( i in 1:length(mafFiles) ) {
 
 ##### Print a list of htmlwidgets
 widges.list
-
-##### Create a list for htmlwidgets
-widges.list <- htmltools::tagList()
 ```
 
 ***
 
-#### Samples with no non-synonymous variants
+##### Samples with no non-synonymous variants
 
 The table below lists sample(s) in which **no non-synonymous variants** were detected and hence will not be included in the summary tables/plots.
 
@@ -637,9 +673,9 @@ cat("\n\n\n")
 
 ***
 
-#### `r if ( !is.na(params$samples_blacklist) ) { c("Excluded samples") }`
+##### `r if ( !is.na(params$samples_blacklist) ) { c("Excluded samples") }`
 
-List of samples excluded from the analysis.
+`r if ( !is.na(params$samples_blacklist) ) { c("List of samples excluded from the analysis.") }`
 
 ```{r excluded_samples_table, comment = NA, message=FALSE, warning=FALSE}
 ##### Present a samples table in the html report
@@ -648,16 +684,38 @@ if ( !is.na(params$samples_blacklist) ) {
   DT::datatable(data = exclsamples.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;'), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
       DT::formatStyle( columns = names(exclsamples.df), 'text-align' = 'center' )
   
-} else {
-  cat("No samples were excluded.\n\n\n")
 }
 ```
 
 ***
 
-### Genes summary {.tabset}
+`r if ( clinical_info != "none" ) { c("#### Samples annotation") }`
 
-#### Mutated genes
+`r if ( params$clinical_info != "none" ) { c("Sample annotations for individual dataset(s).") }`
+
+```{r samples_annot_table, comment = NA, message=FALSE, warning=FALSE}
+##### Present a samples table in the html report
+if ( params$clinical_info != "none" ) {
+    
+  ##### Present a sample table in the html report
+  ##### Create a list for htmlwidgets
+  widges.list <- htmltools::tagList()
+
+  for ( i in 1:length(mafFiles) ) {
+    widges.list[[i]] <- DT::datatable( data = clinicalInfo[[i]], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+          DT::formatStyle( columns = names(clinicalInfo[[i]]), 'text-align' = 'center' )
+  }
+  
+  ##### Print a list of htmlwidgets
+  widges.list
+}
+```
+
+***
+
+#### Genes summary {.tabset}
+
+##### Mutated genes
 
 Table(s) summarising mutated genes in individual datasets. Each table contains per-gene information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file. The last two columns contain the *number of samples with mutations/alterations* in the corresponding gene.
 
@@ -690,9 +748,9 @@ widges.list
 
 ***
 
-#### `r if ( !is.na(params$genes_blacklist) ) { c("Excluded genes") }`
+##### `r if ( !is.na(params$genes_blacklist) ) { c("Excluded genes") }`
 
-List of genes excluded from the analysis.
+`r if ( !is.na(params$genes_blacklist) ) { c("List of genes excluded from the analysis.") }`
 
 ```{r excluded_genes_table, comment = NA, message=FALSE, warning=FALSE}
 ##### Present a gene table in the html report
@@ -705,7 +763,6 @@ if ( !is.na(params$genes_blacklist) ) {
   cat("No genes were excluded.\n\n\n")
 }
 ```
-
 
 ```{r top_genes_threshold, warning=FALSE}
 ##### Check if the use-defined number of genes to present is not higher than the number of genes with non-synonymous mutations reported in individual MAFs
@@ -731,11 +788,11 @@ for ( i in 1:length(mafFiles) ) {
   ##### Set height for oncoplots
   if ( top_genes_no[[i]] > 100 ) {
     
-    oncoplot_height[[i]] <- 100*top_genes_no[[i]]/3
+    oncoplot_height[[i]] <- 100*top_genes_no[[i]]/2
     
   } else if ( top_genes_no[[i]] > 19 ) {
     
-    oncoplot_height[[i]] <- 100*top_genes_no[[i]]/2
+    oncoplot_height[[i]] <- 100*top_genes_no[[i]]/1.5
     
   } else {
     oncoplot_height[[i]] <- 900
@@ -782,11 +839,11 @@ if ( !is.na(params$genes_list) ) {
     ##### Set height for oncoplots
     if ( length(genes_list_goi[[i]]) > 100 ) {
       
-      oncoplot_goi_height[[i]] <- 100*length(genes_list_goi[[i]])/3
+      oncoplot_goi_height[[i]] <- 100*length(genes_list_goi[[i]])/2
       
     } else if  ( length(genes_list_goi[[i]]) > 19 ) {
       
-      oncoplot_goi_height[[i]] <- 100*length(genes_list_goi[[i]])/2
+      oncoplot_goi_height[[i]] <- 100*length(genes_list_goi[[i]])/1.5
       
     } else {
       oncoplot_goi_height[[i]] <- 900
@@ -800,13 +857,13 @@ cat("\n\n\n")
 
 ***
 
-## Summary plots {.tabset .tabset-fade}
+### Plots {.tabset}
 
-### Oncoplot {.tabset .tabset-fade}
+#### Oncoplot {.tabset}
 
-#### Recurrently mutated genes
+##### Recurrently mutated genes
 
-Oncoplot(s) illustrating different types of mutations observed across samples for the **most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
+Oncoplot(s) illustrating different types of mutations observed across samples for the **most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively. The bottom bar-plot illustrates the overall distribution of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*) across all samples in each dataset. `r if ( params$clinical_features != "none" ) { c("Sample annotations are also provided.") }`
 
 ```{r maf_oncoplot, comment = NA, results="asis"}
 ##### Save oncoplot into the file
@@ -826,7 +883,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE)
+    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE)
     dev.off()
     
     ##### Read in the oncoplots PNG files
@@ -841,7 +898,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ***
 
-#### Additional genes of interest
+##### Additional genes of interest
 
 Oncoplot(s) illustrating different types of mutations observed across samples for the **genes of interest** (if specified). The side and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
@@ -872,7 +929,7 @@ if ( !is.na(params$genes_list) && length(goi) > 1 ) {
       ##### Drawing oncoplots for the top mutated genes in each dataset
       plot.new()
       par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list_goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE)
+      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list_goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE)
       dev.off()
       
       ##### Read in the oncoplots PNG files
@@ -890,7 +947,7 @@ if ( !is.na(params$genes_list) && length(goi) > 1 ) {
 
 ***
 
-### MAF summary
+#### MAF summary
 
 A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r top_genes_no[[i]]` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
 
@@ -909,9 +966,9 @@ for ( i in 1:length(mafFiles) ) {
 
 ***
 
-### Transitions/transversions {.tabset .tabset-fade}
+#### Transitions/transversions {.tabset .tabset-fade}
 
-#### Plots {.tabset .tabset-fade}
+##### Plots {.tabset .tabset-fade}
 
 Plots presenting the transitions and transversions distribution in individual dataset(s). In each panel, the box-plots show the *overall distribution* of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*)(top-left), and the transitions and transversions *frequency* (top-right). The stacked bar-plot (bottom) displays the *fraction* of the six different conversions in each sample.
 
@@ -934,9 +991,9 @@ for ( i in 1:length(mafFiles) ) {
 
 ***
 
-#### Tables {.tabset .tabset-fade}
+##### Tables {.tabset .tabset-fade}
 
-##### Overall distribution
+###### Overall distribution
 
 Table(s) presenting the *overall distribution* of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*) across all samples in each dataset.
 
@@ -980,7 +1037,7 @@ cat("\n\n\n")
 
 ***
 
-##### Transitions/transversions frequency
+###### Transitions/transversions frequency
 
 Table(s) presenting the transitions and transversions *frequency* across all samples in each dataset.
 
@@ -1004,7 +1061,7 @@ cat("\n\n\n")
 
 ***
 
-##### Transitions/transversions fraction
+###### Transitions/transversions fraction
 
 Table(s) presenting the *fraction* of the six different conversions in each sample in individual dataset(s).
 
@@ -1028,7 +1085,7 @@ cat("\n\n\n")
 
 ***
 
-### Cross-cancers comparison
+#### Cross-cancers comparison
 
 Plot(s) illustrating the mutation load in investigated dataset(s) along with distribution of variants compiled from over 10,000 whole-exome sequencing samples across 33 [TCGA](https://cancergenome.nih.gov/){target="_blank"} landmark cohorts. Every dot represents a sample whereas the red horizontal lines are the median numbers of mutations in the respective cancer types. The vertical axis (log scaled) shows the number of mutations per megabase whereas the different cancer types are ordered on the horizontal axis based on their median numbers of somatic mutations. This plot is similar to the one described in the paper [Signatures of mutational processes in human cancer](https://www.ncbi.nlm.nih.gov/pubmed/23945592){target="_blank"} by Alexandrov *et al*.
 
@@ -1847,7 +1904,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE)
+    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE)
   }
   
   ##### Drawing oncoplots for additional genes of interest (if specified)
@@ -1858,7 +1915,7 @@ for ( i in 1:length(mafFiles) ) {
       
       plot.new()
       par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list_goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE)
+      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list_goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE)
     }
   }
   
