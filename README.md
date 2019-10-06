@@ -335,7 +335,10 @@ Argument | Description
 --remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (OPTIONAL; defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them)
 --gistic | Location of the corresponding [GISTIC](http://software.broadinstitute.org/cancer/software/genepattern/modules/docs/GISTIC_2.0) output files (including *gisticAllLesionsFile*, *gisticAmpGenesFile*, *gisticDelGenesFile* and *gisticScoresFile*)
 --out_folder | Output folder
---hide_code_btn | Hide the *Code* button allowing to show/hide code chunks in the final HTML report. Available options are: `TRUE` (default) and `FALSE` | No
+--clinical_info | Location of clinical data associated with each sample in individual MAF file. Each file name (for each dataset) is expected to be separated by comma
+--clinical_features | Columns names (separated by comma) from clinical data (specified by *--clinical_info* argument) to be drawn in oncoplot(s)
+--hide_code_btn | Hide the *Code* button allowing to show/hide code chunks in the final HTML report. Available options are: `TRUE` (default) and `FALSE`
+--ucsc_genome_assembly | Human reference genome version used for signature analysis. Available options are: `19` (default) and `38`
 
 <br />
 
