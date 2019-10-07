@@ -17,10 +17,10 @@ params:
   datasets: 
   samples_id_cols: 'Tumor_Sample_Barcode'
   genes_min: 4
-  genes_list: '../example_genes_to_subset.txt'
-  genes_blacklist: '../example_genes_blacklist.txt'
-  samples_list: '../example_samples_to_subset.txt'
-  samples_blacklist: '../example_samples_to_subset.txt'
+  genes_list: 'none'
+  genes_blacklist: 'none'
+  samples_list: 'none'
+  samples_blacklist: 'none'
   nonSyn_list: 'Frame_Shift_Del,Frame_Shift_Ins,Splice_Site,Translation_Start_Site,Nonsense_Mutation,Nonstop_Mutation,In_Frame_Del,In_Frame_Ins,Missense_Mutation'
   remove_duplicated_variants: TRUE
   gistic: 'none'
@@ -451,7 +451,7 @@ if ( !file.exists(params$out_folder) ){
 }
 
 ##### Read in list of genes of interest of specified
-if ( !is.na(params$genes_list) ){
+if ( params$genes_list != "none" ){
   
   goi <- unique(read.table(params$genes_list, sep="\t", as.is=TRUE, header=FALSE, row.names=NULL)[,1])
 }
@@ -459,7 +459,7 @@ if ( !is.na(params$genes_list) ){
 
 ```{r include_exclude_samples, comment=NA, message=FALSE, warning=FALSE, results='hide'}
 ##### Include user-derined samples(s) for the analysis
-if ( !is.na(params$samples_list) ) {
+if ( params$samples_list != "none" ) {
     
   for ( i in 1:length(mafFiles) ) {
       
@@ -482,7 +482,7 @@ if ( !is.na(params$samples_list) ) {
   }
 }
 
-if ( !is.na(params$samples_blacklist) ) {
+if ( params$samples_blacklist != "none" ) {
     
   for ( i in 1:length(mafFiles) ) {
       
@@ -510,7 +510,7 @@ if ( !is.na(params$samples_blacklist) ) {
 
 ```{r exclude_genes, comment=NA, message=FALSE, warning=FALSE}
 ##### Exclude user-derined gene(s) from the analysis
-if ( !is.na(params$genes_blacklist) ) {
+if ( params$genes_blacklist != "none" ) {
     
   for ( i in 1:length(mafFiles) ) {
     
@@ -677,13 +677,13 @@ cat("\n\n\n")
 
 ***
 
-##### `r if ( !is.na(params$samples_blacklist) ) { c("Excluded samples") }`
+##### `r if ( params$samples_blacklist != "none" ) { c("Excluded samples") }`
 
-`r if ( !is.na(params$samples_blacklist) ) { c("List of samples excluded from the analysis.") }`
+`r if ( params$samples_blacklist != "none" ) { c("List of samples excluded from the analysis.") }`
 
 ```{r excluded_samples_table, comment = NA, message=FALSE, warning=FALSE}
 ##### Present a samples table in the html report
-if ( !is.na(params$samples_blacklist) ) {
+if ( params$samples_blacklist != "none" ) {
     
   DT::datatable(data = exclsamples.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;'), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
       DT::formatStyle( columns = names(exclsamples.df), 'text-align' = 'center' )
@@ -752,13 +752,13 @@ widges.list
 
 ***
 
-`r if ( !is.na(params$genes_blacklist) ) { c("##### Excluded genes") }`
+`r if ( params$genes_blacklist != "none" ) { c("##### Excluded genes") }`
 
-`r if ( !is.na(params$genes_blacklist) ) { c("List of genes excluded from the analysis.") }`
+`r if ( params$genes_blacklist != "none" ) { c("List of genes excluded from the analysis.") }`
 
 ```{r excluded_genes_table, comment = NA, message=FALSE, warning=FALSE}
 ##### Present a gene table in the html report
-if ( !is.na(params$genes_blacklist) ) {
+if ( params$genes_blacklist != "none" ) {
     
   DT::datatable(data = data.frame(Gene = exclgenes), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;'), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
     DT::formatStyle( columns = "Gene", 'text-align' = 'center' )
@@ -807,7 +807,7 @@ for ( i in 1:length(mafFiles) ) {
 ```{r goi, warning=FALSE}
 ##### Deal with additional genes of interest (if specified)
 ##### Check if the use-defined genes of interest are already present withing the top most frequently mutated genes
-if ( !is.na(params$genes_list) ) {
+if ( params$genes_list != "none" ) {
   
   genes_list_goi <- vector("list", length(mafFiles))
   names(genes_list_goi) <- datasets.list
@@ -909,7 +909,7 @@ Oncoplot(s) illustrating different types of mutations observed across samples fo
 ```{r maf_oncoplot_goi, comment = NA, results="asis"}
 ##### Draw additional oncoplot if a list of genes of intereset was specified by user 
 ###### Generate separate plot for each dataset
-if ( !is.na(params$genes_list) && length(goi) > 1 ) {
+if ( params$genes_list != "none" && length(goi) > 1 ) {
   
   for ( i in 1:length(mafFiles) ) {
   
@@ -1227,7 +1227,7 @@ for ( i in 1:length(mafFiles) ) {
   genes.top <- maftools::getGeneSummary(mafInfo[[i]])[c(1:top_genes_no[[i]]), Hugo_Symbol]
   
   ##### Add genes of interest to the list (if specified)
-  if ( !is.na(params$genes_list) ){
+  if ( params$genes_list != "none" ){
     
     genes.top <- c(genes.top, genes_list_goi[[i]])
   }
@@ -1684,7 +1684,7 @@ cat("\n\n\n")
 ```{r details_mut_goi, comment = NA, message=FALSE, warning=FALSE}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
 
-if ( !is.na(params$genes_list) ) {
+if ( params$genes_list != "none" ) {
   
   mut.details.datasets(mafInfo, datasets.list, unlist(genes_list_goi), type = "nonsynonymous")
   
@@ -2020,7 +2020,7 @@ for ( i in 1:length(mafFiles) ) {
   }
   
   ##### Drawing oncoplots for additional genes of interest (if specified)
-  if ( !is.na(params$genes_list) && length(goi) > 1 ) {
+  if ( params$genes_list != "none" && length(goi) > 1 ) {
 
     ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
     if ( length(genes_list_goi[[i]]) > 1 ) {
