@@ -177,7 +177,7 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         lollipopPlot.image <- image_read_pdf(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""), pages = NULL, density = 300)
         image_write(lollipopPlot.image, path = paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".png", sep = ""), format = "png")
         
-        ##### Read in the oncoplots PNG files
+        ##### Read in the PNG files
         cat("![](",paste(paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_")), ".png", sep = ""),")")
         cat("<br/><br/><br/>")
         
@@ -416,8 +416,13 @@ if ( !is.na(params$samples_id_cols) ) {
       
       ##### Change the use-defined column with samples' IDs to "Tumor_Sample_Barcode". If this column name already exist, then renames it to "Tumor_Sample_Barcode.orig"
       maf.data <- rbind(mafInfo[[i]]@data, mafInfo[[i]]@maf.silent)
-      names(maf.data) <- gsub("Tumor_Sample_Barcode", "Tumor_Sample_Barcode.orig", names(maf.data))
-      names(maf.data) <- gsub(samples_id_cols[i], "Tumor_Sample_Barcode", names(maf.data))
+      
+      if ( samples_id_cols[i] %in% names(maf.data) ) {
+        names(maf.data) <- gsub("Tumor_Sample_Barcode", "Tumor_Sample_Barcode.orig", names(maf.data))
+        names(maf.data) <- gsub(samples_id_cols[i], "Tumor_Sample_Barcode", names(maf.data))
+      } else {
+        cat(paste0("\nColumn \"", samples_id_cols[i], "\" does not exist in MAF file ", mafFiles[i], "!\n\n"))
+      }
       
       ##### Now read the data with changess column names as a maf object
       if ( gisticInfo[[i]]$status ) {
@@ -427,8 +432,6 @@ if ( !is.na(params$samples_id_cols) ) {
       } else {
         mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
       }
-    } else {
-      cat(paste0("\nColumn \"", samples_id_cols[i], "\" does not exist in MAF file ", mafFiles[i], "!\n\n"))
     }
   }
 } else {
@@ -700,8 +703,7 @@ if ( params$samples_blacklist != "none" ) {
 ```{r samples_annot_table, comment = NA, message=FALSE, warning=FALSE}
 ##### Present a samples table in the html report
 if ( params$clinical_info != "none" ) {
-    
-  ##### Present a sample table in the html report
+  
   ##### Create a list for htmlwidgets
   widges.list <- htmltools::tagList()
 
@@ -892,7 +894,7 @@ for ( i in 1:length(mafFiles) ) {
     
     ##### Read in the oncoplots PNG files
     cat("![](",paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""),")")
-    cat("<br/><br/><br/>")
+    cat("<br/><br/>")
     
   } else {
       cat(paste0("No genes are mutated in at least ", params$genes_min, "% of patients.\n\n\n"))
@@ -938,7 +940,7 @@ if ( params$genes_list != "none" && length(goi) > 1 ) {
       
       ##### Read in the oncoplots PNG files
       cat("![](",paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""),")")
-      cat("<br/><br/><br/>")
+      cat("<br/><br/>")
 
     } else {
       cat(paste0("All genes of interest are among the top ", top_genes_no[[i]], " most frequently mutated genes (mutated in at least ", params$genes_min, "% of patients) or no non-synonymous variants were detected in ", datasets.list[i], " dataset.\n\n\n"))
@@ -955,16 +957,18 @@ if ( params$genes_list != "none" && length(goi) > 1 ) {
 
 A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r top_genes_no[[i]]` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
 
-```{r maf_summary_plot, comment = NA, fig.width = 9, fig.height = 10}
+```{r maf_summary_plot, comment = NA, fig.width = 9, fig.height = 10, results="asis"}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
 
-  cat(paste(datasets.list[i], "\n\n", sep=" "))
+  cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
   
   ##### Plotting MAF summary
   par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
   maftools::plotmafSummary(maf = mafInfo[[i]], top = top_genes_no[[i]], rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
   mtext("MAF summary", outer=TRUE,  cex=1, line=-0.5)
+  
+  cat("<br/><br/>")
 }
 ```
 
@@ -976,20 +980,22 @@ for ( i in 1:length(mafFiles) ) {
 
 Plots presenting the transitions and transversions distribution in individual dataset(s). In each panel, the box-plots show the *overall distribution* of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*)(top-left), and the transitions and transversions *frequency* (top-right). The stacked bar-plot (bottom) displays the *fraction* of the six different conversions in each sample.
 
-```{r maf_TiTv_plot, comment = NA}
+```{r maf_TiTv_plot, comment = NA, results="asis"}
 ###### Generate separate plot for each dataset
 ###### Create empty list for TiTv info from each dataset
 titv.info <- list()
 
 for ( i in 1:length(mafFiles) ) {
 
-  cat(paste(datasets.list[i], "\n\n", sep=" "))
+  cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
 
   ##### Drawing distribution plots of the transitions and transversions
   titv.info[[datasets.list[i]]] <- maftools::titv(maf = mafInfo[[i]], plot = FALSE, useSyn = TRUE)
 
   try(maftools::plotTiTv(res = titv.info[[datasets.list[i]]]), silent = TRUE)
   mtext("Transition and transversions distribution", outer=TRUE,  cex=1, line=-1.5)
+  
+  cat("<br/><br/>")
 }
 ```
 
@@ -1093,14 +1099,15 @@ cat("\n\n\n")
 
 Plot(s) illustrating the mutation load in investigated dataset(s) along with distribution of variants compiled from over 10,000 whole-exome sequencing samples across 33 [TCGA](https://cancergenome.nih.gov/){target="_blank"} landmark cohorts. Every dot represents a sample whereas the red horizontal lines are the median numbers of mutations in the respective cancer types. The vertical axis (log scaled) shows the number of mutations per megabase whereas the different cancer types are ordered on the horizontal axis based on their median numbers of somatic mutations. This plot is similar to the one described in the paper [Signatures of mutational processes in human cancer](https://www.ncbi.nlm.nih.gov/pubmed/23945592){target="_blank"} by Alexandrov *et al*.
 
-```{r maf_tcga_cohorts, comment = NA, message=FALSE, warning=FALSE}
+```{r maf_tcga_cohorts, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
   
-  cat(paste(datasets.list[i], "\n\n", sep=" "))
+  cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
   
   ##### Compare mutation load against TCGA cohorts
   tcgaCompare_mod(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
+  cat("<br/><br/>")
 }
 ```
 
@@ -1110,13 +1117,14 @@ for ( i in 1:length(mafFiles) ) {
 
 Enrichment of known oncogenic signaling pathways in [TCGA](https://cancergenome.nih.gov/){target="_blank"} cohorts (see paper [Oncogenic Signaling Pathways in The Cancer Genome Atlas](https://www.ncbi.nlm.nih.gov/pubmed/29625050){target="_blank"}).
 
-```{r oncogenic_pathways, comment = NA, message=FALSE, warning=FALSE}
+```{r oncogenic_pathways, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
   
-  cat(paste(datasets.list[i], "\n\n", sep=" "))
-  
-  try(OncogenicPathways(maf = mafInfo[[i]]), silent = TRUE)
+  cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
+
+  capture.output(OncogenicPathways(maf = mafInfo[[i]]))
+  cat("<br/><br/>")
 }
 ```
 
@@ -1124,7 +1132,7 @@ for ( i in 1:length(mafFiles) ) {
 
 `r if ( params$clinical_info != "none" ) { c("#### Clinical enrichment") }`
 
-`r if ( params$clinical_info != "none" ) { c("Various groupwise and pairwise comparisions are performed to identify enriched mutations for every category within provided clinical features.") }`
+`r if ( params$clinical_info != "none" ) { c("Plot(s) illustrating enrichment of individual mutations in every category within provided clinical features.") }`
 
 ```{r clinical_enrichment, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ###### Generate separate plot for each dataset
@@ -1132,9 +1140,9 @@ for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
-  clinical_enrichment = clinicalEnrichment(maf = mafInfo[[i]], clinicalFeature = clinicalFeatures[[i]])
+  clinical_enrichment = try(clinicalEnrichment(maf = mafInfo[[i]], clinicalFeature = clinicalFeatures[[i]]), silent = TRUE)
   try(plotEnrichmentResults(enrich_res = clinical_enrichment, pVal = 0.05), silent = TRUE)
-  cat("<br/><br/><br/>")
+  cat("<br/><br/>")
 }
 ```
 
@@ -1142,24 +1150,28 @@ for ( i in 1:length(mafFiles) ) {
 
 ## Signature analysis {.tabset .tabset-fade}
 
-Every cancer, as it progresses leaves a signature characterized by specific pattern of nucleotide substitutions (see paper [Signatures of mutational processes in human cancer](https://www.ncbi.nlm.nih.gov/pubmed/23945592){target="_blank"} by Alexandrov *et al*). Such signatures are extracted by decomposing matrix of nucleotide substitutions, classified into 96 substitution classes based on immediate bases surrounding the mutated base.
+Every cancer, as it progresses leaves a signature characterised by specific pattern of nucleotide substitutions (see paper [Signatures of mutational processes in human cancer](https://www.ncbi.nlm.nih.gov/pubmed/23945592){target="_blank"} by Alexandrov *et al*). Such signatures are extracted by decomposing matrix of nucleotide substitutions, classified into 96 substitution classes based on immediate bases surrounding the mutated base. The optimal number of detected singatures is defined by running *[non-negative matrix factorization](https://cran.r-project.org/web/packages/NMF/index.html){target="_blank"}* (NMF) function on a range of values and comparing individual *cophenetic correlation coefficients*.
 
-```{r mutational_sign, comment = NA, message=FALSE, warning=FALSE}
+```{r mutational_sign, comment = NA, message=FALSE, warning=FALSE, results="hide"}
 ##### Create a list to store signature analysis results info for individual datasets
 mutSign <- vector("list", length(mafFiles))
 names(mutSign) <- datasets.list
 
 ##### Run signature analysis for each dataset
 for ( i in 1:length(mafFiles) ) {
-  mutSign[[i]] = invisible(trinucleotideMatrix(maf = mafInfo[[i]], prefix = 'chr', add = TRUE, ref_genome = "BSgenome.Hsapiens.UCSC.hg19"))
+  mutSign[[i]] = trinucleotideMatrix(maf = mafInfo[[i]], prefix = 'chr', add = TRUE, ref_genome = "BSgenome.Hsapiens.UCSC.hg19")
 }
 ```
 
 ### Mutational signatures {.tabset .tabset-fade}
 
-Extracted signatures are compared against known signatures derived from [Alexandrov *et al*](https://www.ncbi.nlm.nih.gov/pubmed/23945592){target="_blank"}, and cosine similarity is calculated to identify best match. The signatures are also compared against known and validated signatures from Sanger (see here for [list of validated signatures](https://cancer.sanger.ac.uk/cosmic/signatures){target="_blank"}). 
+Extracted signatures were compared against known signatures derived from [Alexandrov *et al*](https://www.ncbi.nlm.nih.gov/pubmed/23945592){target="_blank"}, and cosine similarity is calculated to identify best match. The signatures were also compared against known and [validated signatures from COSMIC](https://cancer.sanger.ac.uk/cosmic/signatures){target="_blank"} (expand the "Comparison to all COSMIC signatures" to see comparison to all [COSMIC](https://cancer.sanger.ac.uk/cosmic/signatures){target="_blank"} signatures).
 
-```{r signature_analysis, comment = NA, message=FALSE, warning=FALSE}
+#### Plot
+
+Mutational signatures detected in individual dataset(s).
+
+```{r signature_analysis, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Generate separate plot for each dataset
 ##### Create a list to store signature analysis results info for individual datasets
 mutextractSign <- vector("list", length(mafFiles))
@@ -1167,41 +1179,126 @@ names(mutextractSign) <- datasets.list
 
 ##### Run signature analysis for each dataset
 for ( i in 1:length(mafFiles) ) {
-  cat(paste(datasets.list[i], "\n\n", sep=" "))
   
-  mutextractSign[[i]] = invisible(extractSignatures(mat = mutSign[[i]], nTry = 6, plotBestFitRes = FALSE))
+  cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
+  
+  ##### Save the plot as PNG
+  png( file = paste(outDir, "/MAF_NMF_cophenetic_metric_", datasets.list[i], ".png", sep = ""), width = 1200, height = 800, units = "px", res = 200, type="cairo" )
+  invisible(capture.output(mutextractSign[[i]] <- extractSignatures(mat = mutSign[[i]], nTry = 6, plotBestFitRes = FALSE)))
+  dev.off()
+  
+  ##### Plot detected signatures
   try(plotSignatures(mutextractSign[[i]], title_size = 0.8), silent = TRUE)
-  cat("<br/><br/>")
   
-  invisible(pheatmap::pheatmap(mat = mutextractSign[[i]]$coSineSimMat, cluster_rows = FALSE, main = "cosine similarity against validated signatures"))
+  cat("\n<details>\n")
+  cat("\n<summary>Plot legend</summary>\n")
+  cat("<br/>")
+  cat("Detected signatures are displayed according to the 96 substitution classification defined by the substitution class and sequence context immediately 3′ and 5′ to the mutated base. The probability bars for the six types of substitutions are displayed in different *colours*. The mutation types are on the *horizontal axes*, whereas *vertical axes* depict the percentage of mutations attributed to a specific mutation type.")
+  cat("\n</details>\n")
+  cat("<br/>")
+  cat("\n<details>\n")
+  cat("\n<summary>Comparison to all COSMIC signatures</summary>\n")
+  cat("<br/>")
+    pheatmap::pheatmap(mat = mutextractSign[[i]]$coSineSimMat, cluster_rows = FALSE, main = "Cosine similarity against validated signatures")
+  cat("\n</details>\n")
+  cat("<br/>")
 }
 ```
 
 ***
 
-### Signatures enrichment {.tabset .tabset-fade}
+#### Table
 
-Signatures are assigned to samples and enrichment analysis are performed to detect mutations enriched in every signature identified.
+Table(s) with detected signature contributions (*columns*) in each sample (*rows*) in individual dataset(s).
 
-```{r signature_enrichment, comment = NA, message=FALSE, warning=FALSE}
+```{r signature_analysis_table, comment = NA, message=FALSE, warning=FALSE}
+##### Present a sample table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- DT::datatable( data = t(round(mutextractSign[[i]]$contributions, digits=2)), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+      DT::formatStyle( columns = rownames(mutextractSign[[i]]$contributions), 'text-align' = 'center' )
+}
+  
+##### Print a list of htmlwidgets
+widges.list
+```
+
+***
+
+### Enrichment analysis {.tabset .tabset-fade}
+
+Signatures were assigned to samples and enrichment analysis were performed to detect mutations enriched in every signature identified.
+
+#### Per-signature
+
+Plot(s) illustrating exposures and mutation load of detected mutational signatures in individual dataset(s).
+
+```{r signature_enrichment, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+##### Generate separate plot for each dataset
+##### Create a list to store signature analysis results info for individual datasets
+sign.enrichment <- vector("list", length(mafFiles))
+names(sign.enrichment) <- datasets.list
+
+for ( i in 1:length(mafFiles) ) {
+  cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
+  
+  invisible(capture.output(sign.enrichment[[i]] <- signatureEnrichment(maf = mafInfo[[i]], sig_res = mutextractSign[[i]])))
+  cat("<br/><br/>")
+}
+```
+
+***
+
+#### Per-genes
+
+Plot(s) illustrating enrichment of individual genes in detected mutational signatures.
+
+```{r signature_enrichment_genes, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
-  cat(paste(datasets.list[i], "\n\n", sep=" "))
+  cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
   
-  sign.enrichment = invisible(signatureEnrichment(maf = mafInfo[[i]], sig_res = mutextractSign[[i]]))
+  plotEnrichmentResults(enrich_res = sign.enrichment[[i]], pVal = 0.05)
   cat("<br/><br/>")
-  
-  invisible(plotEnrichmentResults(enrich_res = sign.enrichment, pVal = 0.05))
 }
+```
+
+***
+
+#### Per-sample
+
+Table(s) with signatures (*columns*) assignment to samples (*rows*) in individual dataset(s).
+
+```{r signature_enrichment_samples, comment = NA, message=FALSE, warning=FALSE}
+##### Present a sample table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- DT::datatable( data = sign.enrichment[[i]]$Signature_Assignment, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+      DT::formatStyle( columns = names(sign.enrichment[[i]]$Signature_Assignment), 'text-align' = 'center' )
+}
+  
+##### Print a list of htmlwidgets
+widges.list
 ```
 
 ***
 
 ### APOBEC signature
 
-APOBEC induced mutations are more frequent in solid tumors and are mainly associated with *C>T* transition events occurring in *TCW motif*. APOBEC enrichment scores are estimated using the method described by [Roberts *et al*](https://www.ncbi.nlm.nih.gov/pubmed/23852170){target="_blank"}. Briefly, enrichment of *C>T* mutations occurring within *TCW motif* over all of the *C>T* mutations in a given sample is compared to background *Cytosines* and *TCWs* occurring within 20bp of mutated bases.
+APOBEC induced mutations are more frequent in solid tumors and are mainly associated with *C>T* transition events occurring in *TCW motif*. APOBEC enrichment scores were estimated using method described by [Roberts *et al*](https://www.ncbi.nlm.nih.gov/pubmed/23852170){target="_blank"} (see "APOBEC enrichment scores" below). Samples in individual dataset(s) were classified into *APOBEC enriched* and *non-APOBEC enriched* groups, and the differences in mutational patterns between them were analysed to identify differentially altered genes.
 
-Samples in individual dataset(s) were classified into APOBEC enriched and non-APOBEC enriched groups, and the differences in mutational patterns between them were analysed to identify differentially altered genes.
+<details>
+<summary>APOBEC enrichment scores</summary>
+<font size="2">
+
+Enrichment of *C>T* mutations occurring within *TCW motif* over all of the *C>T* mutations in a given sample was compared to background *cytosines* and *TCWs* occurring within 20bp of mutated bases.
+
+</font>
+</details>
 
 ```{r APOBEC_enrichment, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Generate separate plot for each dataset
