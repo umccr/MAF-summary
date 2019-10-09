@@ -796,7 +796,7 @@ cat("\n\n\n")
 
 Oncoplot(s) illustrating different types of mutations observed across samples for the **most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively. The bottom bar-plot illustrates the overall distribution of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*) across all samples in each dataset. `r if ( params$clinical_features != "none" ) { c("Sample annotations are also provided.") }`
 
-```{r maf_oncoplot, comment = NA, results="asis"}
+```{r maf_oncoplot, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Save oncoplot into the file
 ##### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
@@ -833,7 +833,7 @@ for ( i in 1:length(mafFiles) ) {
 
 Oncoplot(s) illustrating different types of mutations observed across samples for the **genes of interest** (if specified). The side and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
 
-```{r maf_oncoplot_goi, comment = NA, results="asis"}
+```{r maf_oncoplot_goi, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Draw additional oncoplot if a list of genes of intereset was specified by user 
 ###### Generate separate plot for each dataset
 if ( params$genes_list != "none" && length(goi) > 1 ) {
@@ -905,7 +905,7 @@ for ( i in 1:length(mafFiles) ) {
 
 Plots presenting the transitions and transversions distribution in individual dataset(s). In each panel, the box-plots show the *overall distribution* of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*)(top-left), and the transitions and transversions *frequency* (top-right). The stacked bar-plot (bottom) displays the *fraction* of the six different conversions in each sample.
 
-```{r maf_TiTv_plot, comment = NA, results="asis"}
+```{r maf_TiTv_plot, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ###### Generate separate plot for each dataset
 ###### Create empty list for TiTv info from each dataset
 titv.info <- list()
@@ -1083,17 +1083,18 @@ for ( i in 1:length(mafFiles) ) {
 
 ```{r clinical_enrichment, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ###### Generate separate plot for each dataset
-for ( i in 1:length(mafFiles) ) {
-  
-  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
-  
-  clinical_enrichment = try(clinicalEnrichment(maf = mafInfo[[i]], clinicalFeature = clinicalFeatures[[i]]), silent = TRUE)
-  try(plotEnrichmentResults(enrich_res = clinical_enrichment, pVal = 0.05), silent = TRUE)
-  cat("<br/><br/>")
+if ( params$clinical_info != "none" ) {
+  for ( i in 1:length(mafFiles) ) {
+    
+    cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+    
+    clinical_enrichment = try(clinicalEnrichment(maf = mafInfo[[i]], clinicalFeature = clinicalFeatures[[i]]), silent = TRUE)
+    try(plotEnrichmentResults(enrich_res = clinical_enrichment, pVal = 0.05), silent = TRUE)
+    cat("<br/><br/>")
+    cat("\n***\n")
+  }
 }
 ```
-
-***
 
 ## Signature analysis {.tabset .tabset-fade}
 
@@ -1129,9 +1130,9 @@ for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
   
-  ##### Save the plot as PNG
+  ##### Save the plot as PNG. NOTE: A small positive value (pConstant=0.1) is added to the matrix to avoid "non-conformable arrays" error.
   png( file = paste(outDir, "/MAF_NMF_cophenetic_metric_", datasets.list[i], ".png", sep = ""), width = 1200, height = 800, units = "px", res = 200, type="cairo" )
-  invisible(capture.output(mutextractSign[[i]] <- extractSignatures(mat = mutSign[[i]], nTry = 6, plotBestFitRes = FALSE)))
+  invisible(capture.output(mutextractSign[[i]] <- extractSignatures(mat = mutSign[[i]], nTry = 6, plotBestFitRes = FALSE, pConstant = 0.1)))
   dev.off()
   
   ##### Plot detected signatures
@@ -1325,7 +1326,7 @@ if ( pchangeStatus ) {
     cat("\n### ", names(mutRate.top.datasets)[i], "\n")
     if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[i]]) != 0 ) {
       try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[i]), silent = TRUE)
-      cat("\n***\n")
+      cat("\n\n***\n")
     } else {
       cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[i], "is not available\n\n\n\n", sep=" "))
       cat("\n***\n")
