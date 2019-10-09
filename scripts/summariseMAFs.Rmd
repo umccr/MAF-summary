@@ -16,7 +16,7 @@ params:
   maf_files: 
   datasets: 
   samples_id_cols: 'Tumor_Sample_Barcode'
-  genes_min: 4
+  genes_min: 5
   genes_list: 'none'
   genes_blacklist: 'none'
   samples_list: 'none'
@@ -35,7 +35,7 @@ Report summarising and visualising mutation data in [Mutation Annotation Format]
 
 ***
 
-NOTE: this report summarises **only non-synonymous variants** (see definitions below).
+<span style="color:#ff0000">NOTE</span>: this report summarises **only non-synonymous variants** (see definitions below).
 
 <details>
 <summary>Variants consequence definitions</summary>
@@ -205,83 +205,14 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
   }
 }
 
-##### Stop the maftools::tcgaCompare function from printing the summary table
-tcgaCompare_mod <- function (maf, capture_size = NULL, cohortName = NULL, primarySite = FALSE, 
-    col = c("gray70", "black"), medianCol = "red", fn = NULL, 
-    width = 8, height = 5, fontSize = 10) 
-{
-    tcga.cohort = system.file("extdata", "tcga_cohort.txt.gz", 
-        package = "maftools")
-    if (Sys.info()[["sysname"]] == "Windows") {
-        tcga.cohort.gz = gzfile(description = tcga.cohort, open = "r")
-        tcga.cohort <- suppressWarnings(data.table(read.csv(file = tcga.cohort.gz, 
-            header = TRUE, sep = "\t", stringsAsFactors = FALSE)))
-        close(tcga.cohort.gz)
-    }
-    else {
-        tcga.cohort = data.table::fread(input = paste("zcat <", 
-            tcga.cohort), sep = "\t", stringsAsFactors = FALSE)
-    }
-    if (primarySite) {
-        tcga.cohort = tcga.cohort[, .(Tumor_Sample_Barcode, total, 
-            site)]
-        colnames(tcga.cohort)[3] = "cohort"
-    }
-    else {
-        tcga.cohort = tcga.cohort[, .(Tumor_Sample_Barcode, total, 
-            cohort)]
-    }
-    maf.mutload = getSampleSummary(maf)[, .(Tumor_Sample_Barcode, 
-        total)]
-    if (is.null(cohortName)) {
-        cohortName = "Input"
-    }
-    maf.mutload[, `:=`(cohort, cohortName)]
-    tcga.cohort$total = as.numeric(as.character(tcga.cohort$total))
-    maf.mutload$total = as.numeric(as.character(maf.mutload$total))
-    if (!is.null(capture_size)) {
-        maf.mutload[, `:=`(total, total/capture_size)]
-        tcga.cohort[, `:=`(total, total/50)]
-    }
-    tcga.cohort = rbind(tcga.cohort, maf.mutload)
-    tcga.cohort.med = tcga.cohort[, .(.N, median(total)), cohort][order(V2, 
-        decreasing = TRUE)]
-    tcga.cohort$cohort = factor(x = tcga.cohort$cohort, levels = tcga.cohort.med$cohort)
-    colnames(tcga.cohort.med) = c("Cohort", "Cohort_Size", "Median_Mutations")
-    tcga.cohort$TCGA = ifelse(test = tcga.cohort$cohort %in% 
-        cohortName, yes = "Input", no = "TCGA")
-    tcga.cohort.gg = ggplot(data = tcga.cohort, aes(x = cohort, 
-        y = total, group = Tumor_Sample_Barcode, color = TCGA)) + 
-        geom_point(position = position_jitter(width = 0.3), size = 0.2, 
-            alpha = 0.8) + geom_point(data = tcga.cohort.med, 
-        aes(y = Median_Mutations, x = Cohort), shape = 95, inherit.aes = FALSE, 
-        color = medianCol, size = 6) + cowplot::theme_cowplot(font_size = fontSize, 
-        line_size = 1) + cowplot::background_grid(major = "x") + 
-        theme(axis.text.x = element_text(angle = 45, vjust = 1, 
-            hjust = 1, face = "bold"), legend.position = "none", 
-            axis.text.y = element_text(face = "bold", size = 10), 
-            axis.title.y = element_text(face = "bold", size = 12)) + 
-        scale_color_manual(values = rev(col))
-    if (is.null(capture_size)) {
-        tcga.cohort.gg = tcga.cohort.gg + scale_y_log10(breaks = c(0.01, 
-            0.1, 1, 10, 100, 1000, 10000)) + ylab("log10 (Mutations per sample)")
-    }
-    else {
-        tcga.cohort.gg = tcga.cohort.gg + expand_limits(y = c(0.01, 
-            1000)) + scale_y_log10(breaks = c(0.01, 0.1, 1, 10, 
-            100, 1000), labels = c(0.01, 0.1, 1, 10, 100, 1000)) + 
-            ylab("log10 (Mutations per MB)")
-    }
-    if (!is.null(fn)) {
-        cowplot::save_plot(filename = paste0(fn, ".pdf"), plot = tcga.cohort.gg, 
-            base_height = height, base_width = width)
-        write.table(tcga.cohort.med, file = paste0(fn, "_mutation_load.tsv"), 
-            sep = "\t", quote = FALSE, row.names = FALSE)
-    }
-    #message("Summary..")
-    #print(tcga.cohort.med)
-    print(tcga.cohort.gg)
-    return(tcga.cohort.gg)
+##### A wrapper to saveWidget which compensates for arguable BUG in saveWidget which requires `file` to be in current working directory (see post https://github.com/ramnathv/htmlwidgets/issues/299 )
+saveWidgetFix <- function ( widget, file, ...) {
+  wd<-getwd()
+  on.exit(setwd(wd))
+  outDir<-dirname(file)
+  file<-basename(file)
+  setwd(outDir);
+  htmlwidgets::saveWidget(widget,file=file,...)
 }
 ```
 
@@ -294,6 +225,8 @@ suppressMessages(library(openxlsx))
 suppressMessages(library(ggplot2))
 suppressMessages(library(DT))
 suppressMessages(library(magick))
+suppressMessages(library(htmltools))
+suppressMessages(library(htmlwidgets))
 suppressMessages(library(package=paste0("BSgenome.Hsapiens.UCSC.hg", params$ucsc_genome_assembly), character.only = TRUE)) # required to get chromosomes lengts for fusionsBezierPlot function generating Bezier plot to present gene fusions in the genomics context
 ```
 
@@ -793,13 +726,9 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Set height for oncoplots
   if ( top_genes_no[[i]] > 100 ) {
-    
     oncoplot_height[[i]] <- 100*top_genes_no[[i]]/2
-    
   } else if ( top_genes_no[[i]] > 19 ) {
-    
     oncoplot_height[[i]] <- 100*top_genes_no[[i]]/1.5
-    
   } else {
     oncoplot_height[[i]] <- 900
   }
@@ -844,13 +773,9 @@ if ( params$genes_list != "none" ) {
 
     ##### Set height for oncoplots
     if ( length(genes_list_goi[[i]]) > 100 ) {
-      
       oncoplot_goi_height[[i]] <- 100*length(genes_list_goi[[i]])/2
-      
     } else if  ( length(genes_list_goi[[i]]) > 19 ) {
-      
       oncoplot_goi_height[[i]] <- 100*length(genes_list_goi[[i]])/1.5
-      
     } else {
       oncoplot_goi_height[[i]] <- 900
     }
@@ -955,7 +880,7 @@ if ( params$genes_list != "none" && length(goi) > 1 ) {
 
 #### MAF summary
 
-A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r top_genes_no[[i]]` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
+A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
 
 ```{r maf_summary_plot, comment = NA, fig.width = 9, fig.height = 10, results="asis"}
 ###### Generate separate plot for each dataset
@@ -1095,7 +1020,9 @@ cat("\n\n\n")
 
 ***
 
-#### Cross-cancers comparison
+#### Cross-cancers comparison {.tabset .tabset-fade}
+
+##### Plot
 
 Plot(s) illustrating the mutation load in investigated dataset(s) along with distribution of variants compiled from over 10,000 whole-exome sequencing samples across 33 [TCGA](https://cancergenome.nih.gov/){target="_blank"} landmark cohorts. Every dot represents a sample whereas the red horizontal lines are the median numbers of mutations in the respective cancer types. The vertical axis (log scaled) shows the number of mutations per megabase whereas the different cancer types are ordered on the horizontal axis based on their median numbers of somatic mutations. This plot is similar to the one described in the paper [Signatures of mutational processes in human cancer](https://www.ncbi.nlm.nih.gov/pubmed/23945592){target="_blank"} by Alexandrov *et al*.
 
@@ -1106,14 +1033,34 @@ for ( i in 1:length(mafFiles) ) {
   cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
   
   ##### Compare mutation load against TCGA cohorts
-  tcgaCompare_mod(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
+  tcgaCompare.res <- tcgaCompare(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
   cat("<br/><br/>")
 }
 ```
 
 ***
 
-#### Oncogenic Signaling Pathways
+##### Table
+
+Tables(s) with median mutation load across the 33 [TCGA](https://cancergenome.nih.gov/){target="_blank"} landmark cohorts as well as the investigated dataset(s).
+
+```{r maf_tcga_cohorts_table, comment = NA, message=FALSE, warning=FALSE}
+##### Present a sample table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- DT::datatable( data = tcgaCompare.res, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE) ) %>%
+      DT::formatStyle( columns = names(tcgaCompare.res), 'text-align' = 'center' )
+}
+  
+##### Print a list of htmlwidgets
+widges.list
+```
+
+***
+
+#### Oncogenic signaling pathways
 
 Enrichment of known oncogenic signaling pathways in [TCGA](https://cancergenome.nih.gov/){target="_blank"} cohorts (see paper [Oncogenic Signaling Pathways in The Cancer Genome Atlas](https://www.ncbi.nlm.nih.gov/pubmed/29625050){target="_blank"}).
 
@@ -1313,19 +1260,32 @@ for ( i in 1:length(mafFiles) ) {
 
 ## Mutation maps {.tabset .tabset-fade}
 
-Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Presented lollipop plot(s) show mutation spots on protein structure for the **`r length(mutRate.top.datasets)` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) across all datasets.  ***Note***, plots are available only for MAF file(s) containing field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
+```{r pchange_field_check, comment = NA, message=FALSE, warning=FALSE}
+##### Check if the protein change field is present in any of the MAFs
+pchangeStatus <- FALSE
+
+for ( i in 1:length(mafFiles) ) {
+  pchange = c('HGVSp_Short', 'Protein_Change', 'AAChange')
+        
+  ##### Define the column with protein change info
+  pchange = pchange[pchange %in% colnames(mafInfo[[i]]@data)]
+  
+  ##### Check if the protein change field is not empty
+  if ( any(!is.na(as.data.frame(mafInfo[[i]]@data)[ , pchange  ]))  ) {
+    pchangeStatus <- TRUE
+  }
+}
+```
 
 ```{r top_mutated_genes, comment = NA, message=FALSE, warning=FALSE}
-##### Get the 30 most frequently mutated genes across all datasets
+##### Get the most frequently mutated genes across all datasets
 mutRate.top.datasets <- NULL
 
 for ( i in 1:length(mafFiles) ) {
-  
   genes.top <- maftools::getGeneSummary(mafInfo[[i]])[c(1:top_genes_no[[i]]), Hugo_Symbol]
   
   ##### Add genes of interest to the list (if specified)
   if ( params$genes_list != "none" ){
-    
     genes.top <- c(genes.top, genes_list_goi[[i]])
   }
     
@@ -1337,7 +1297,7 @@ for ( i in 1:length(mafFiles) ) {
   mutRate.top.datasets <- c( mutRate.top.datasets, mutRate.top)
 }
 
-mutRate.top.datasets <- sort(sort(mutRate.top.datasets, decreasing = TRUE)[unique(names(mutRate.top.datasets))], decreasing = TRUE)[c(1:top_genes_no[[i]])]
+mutRate.top.datasets <- sort(sort(mutRate.top.datasets, decreasing = TRUE)[unique(names(mutRate.top.datasets))], decreasing = TRUE)[c(1:sum(unlist(top_genes_no)))]
 
 ##### Create directory for pdf files
 mutationMapsDir <- paste0(normalizePath(outDir), "/", "MAF_mutation_maps")
@@ -1347,44 +1307,44 @@ if ( !file.exists(mutationMapsDir) ){
 }
 ```
 
-```{r prot_structre, comment = NA, message=FALSE, warning=FALSE}
+```{r prot_structre, comment = NA, message=FALSE, warning=FALSE, eval=pchangeStatus}
 ##### Get list of proteins for which structure is available within maftools
 gff = system.file('extdata', 'protein_domains.RDs', package = 'maftools')
 gff = readRDS(file = gff)
 ```
 
+Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Presented lollipop plot(s) show mutation spots on protein structure for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) across all datasets.  <span style="color:#ff0000">NOTE</span>, plots are available only for MAF file(s) containing field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
+
 ```{r lollipop_plots, echo=FALSE, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Generate lollipop plot for each dataset for top mutated genes
-output_plot <- list()
-
-##### For each gene generate CDF plot and add boxplot below to show the data variance for selected gene in individual groups
-for( i in 1:length(mutRate.top.datasets) ) {
-  if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[1]]) != 0 ) {
-    output_plot[[i]] <- try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[i]), silent = TRUE)
+if ( pchangeStatus ) {
+  
+  output_plot <- list()
+  
+  for( i in 1:length(mutRate.top.datasets) ){
+    cat("\n### ", names(mutRate.top.datasets)[i], "\n")
+    if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[i]]) != 0 ) {
+      try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[i]), silent = TRUE)
+      cat("\n***\n")
+    } else {
+      cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[i], "is not available\n\n\n\n", sep=" "))
+      cat("\n***\n")
+    }
   }
-}
+  
+  ##### Clean the space
+  rm(list = ls(pattern='^output*'))
 
-##### Now once the plots are ready show them in separate tabs
-for( i in 1:length(mutRate.top.datasets) ){
-  cat("\n#### ", names(mutRate.top.datasets)[i], "\n")
-  if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[1]]) != 0 ) {
-    cat(renderTags(output_plot[[i]])$html)
-    cat("\n***\n")
-  } else {
-    cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[i], "is not available\n\n\n\n", sep=" "))
-    cat("\n***\n")
-  }
+} else {
+  cat("\n***\n")
+  cat("\nThis section was skipped since the field with **amino acid changes details** in provided MAF(s) is **NOT AVAILABLE**!\n")
+  cat("\n***\n")
 }
-
-##### Clean the space
-rm(list = ls(pattern='^output*'))
 ```
-
-***
 
 ## Mutation details {.tabset .tabset-fade}
 
-Tables with detailed information, as as provided in corresponding MAF file(s), for the **`r length(mutRate.top.datasets)` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) across all datasets, as well as for the **genes of interest** (if specified).
+Tables with detailed information, as as provided in corresponding MAF file(s), for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) across all datasets, as well as for the **genes of interest** (if specified).
 
 ```{r details_mut_table, comment = NA, message=FALSE, warning=FALSE}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
@@ -1603,7 +1563,7 @@ for ( i in 1:length(mafFiles) ) {
   widges.list[[i]] <- as_widget(ggplotly(p))
 
   ##### Save the heatmap as html (PLOTLY)
-  htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_sample_summary_heatmap_", datasets.list[i], ".html"), selfcontained = TRUE)
+  saveWidgetFix(as_widget(p), paste0(outDir, "/MAF_sample_summary_heatmap_", datasets.list[i], ".html"), selfcontained = TRUE)
 }
 
 ##### Detach plotly package. Otherwise it clashes with other graphics devices
@@ -1618,7 +1578,7 @@ widges.list
 
 ### Genes
 
-Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. Note, for transparency only the **`r top_genes_no[[i]]` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) are presented.
+Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. Note, for transparency only the **`r length(unique(unlist(top_genes_no[[i]])))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) are presented.
 
 ```{r gene_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 8}
 suppressMessages(library(plotly))
@@ -1642,7 +1602,7 @@ for ( i in 1:length(mafFiles) ) {
   widges.list[[i]] <- as_widget(ggplotly(p))
 
   ##### Save the heatmap as html (PLOTLY)
-  htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_gene_summary_heatmap_", datasets.list[i], ".html"), selfcontained = TRUE)
+  saveWidgetFix(as_widget(p), paste0(outDir, "/MAF_gene_summary_heatmap_", datasets.list[i], ".html"), selfcontained = TRUE)
 }
 
 ##### Detach plotly package. Otherwise it clashes with other graphics devices
@@ -1722,7 +1682,7 @@ if ( length(mafFiles) != 1 ) {
   as_widget(ggplotly(p))
   p
   ##### Save the heatmap as html (PLOTLY)
-  htmlwidgets::saveWidget(as_widget(p), paste0(outDir, "/MAF_pair-wise_comparisons_heatmap.html"), selfcontained = TRUE)
+  saveWidgetFix(as_widget(p), paste0(outDir, "/MAF_pair-wise_comparisons_heatmap.html"), selfcontained = TRUE)
 
   ##### Detach plotly package. Otherwise it clashes with other graphics devices
   detach("package:heatmaply", unload=FALSE)
@@ -1774,7 +1734,7 @@ for ( i in 1:length(mafFiles) ) {
   mtext("Transition and transversions distribution", outer=TRUE,  cex=1, line=-1.5)
 
   ##### Compare mutation load against TCGA cohorts
-  tcgaCompare_mod(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
+  tcgaCompare(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
   mtext("Mutation load in TCGA cohorts", outer=TRUE,  cex=1, line=-0.5)
 }
 
