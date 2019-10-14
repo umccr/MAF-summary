@@ -81,13 +81,13 @@ To convert multiple VCF files into one collective MAF file use *[multi_vcf2maf.p
 **Script**: *[multi_vcf2maf.pl](./scripts/multi_vcf2maf.pl)*
 
 
-Argument | Description
------------- | ------------
---vcf_list | Full path with name of a file listing VCF files to be converted
---exons | Include exonic regions only: TRUE/T or FALSE/F (defualt)
---v2m | Full path to [vcf2maf.pl](https://github.com/mskcc/vcf2maf) script
---ref | Reference FASTA file
---maf_file | Name of the merged MAF file to be created
+Argument | Description | Required
+------------ | ------------ | ------------
+--vcf_list | Full path with name of a file listing VCF files to be converted | **Yes**
+--v2m | Full path to [vcf2maf.pl](https://github.com/mskcc/vcf2maf) script | **Yes**
+--ref | Reference FASTA file | **Yes**
+--maf_file | Name of the merged MAF file to be created | **Yes**
+--exons | Include exonic regions only: TRUE/T or FALSE/F (defualt) | No
 
 <br />
 
@@ -123,11 +123,11 @@ The publicly available ICGC mutation data is stored in [Simple Somatic Mutation 
 
 **Script**: *[icgcMutationToMAF.R](./scripts/icgcMutationToMAF.R)*
 
-Argument | Description
------------- | ------------
---icgc_file | ICGC Simple Somatic Mutation Format file to be converted
---remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (OPTIONAL; defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them)
---output | Output file name
+Argument | Description | Required
+------------ | ------------ | ------------
+--icgc_file | ICGC Simple Somatic Mutation Format file to be converted | **Yes**
+--remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (OPTIONAL; defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them) | No
+--output | Output file name | No
 
 <br />
 
@@ -161,9 +161,9 @@ NOTE: If one requires to subset [MAF](https://software.broadinstitute.org/softwa
 
 **Script**: *[exons_maf.pl](./scripts/exons_maf.pl)*
 
-Argument | Description
------------- | ------------
---maf | Full path with name of a MAF file to be converted
+Argument | Description | Required
+------------ | ------------ | ------------
+--maf | Full path with name of a MAF file to be converted | **Yes**
 
 <br />
 
@@ -186,10 +186,10 @@ To extract variants with specific consequences run the *[var_class_maf.pl](./scr
 
 **Script**: *[var_class_maf.pl](./scripts/var_class_maf.pl)*
 
-Argument | Description
------------- | ------------
---maf | Full path with name of a MAF file to be converted
---var_class | List of variants classifications to incude in the subet MAF. The default list includes exonic regions, i.e. marked as *Missense_Mutation, Nonsense_Mutation, Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Silent* and *Translation_Start_Site* in [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Variant_Classification* field
+Argument | Description | Required
+------------ | ------------ | ------------
+--maf | Full path with name of a MAF file to be converted | **Yes**
+--var_class | List of variants classifications to incude in the subet MAF. The default list includes exonic regions, i.e. marked as *Missense_Mutation, Nonsense_Mutation, Frame_Shift_Del, Frame_Shift_Ins, In_Frame_Del, In_Frame_Ins, Silent* and *Translation_Start_Site* in [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Variant_Classification* field | No
 
 <br />
 
@@ -215,11 +215,11 @@ To change sample names (as shown in [MAF's](https://software.broadinstitute.org/
 
 **Script**: *[MAFsamplesRename.R](./scripts/MAFsamplesRename.R)*
 
-Argument | Description
------------- | ------------
---maf_file | MAF file to be processed
---names_file | Name and path to a file listing samples to be renamed
---output | Name for the output MAF file
+Argument | Description | Required
+------------ | ------------ | ------------
+--maf_file | MAF file to be processed | **Yes**
+--names_file | Name and path to a file listing samples to be renamed | **Yes**
+--output | Name for the output MAF file | No
 
 <br />
 
@@ -249,13 +249,13 @@ To subset MAF based on a list of samples and/or genes run the *[subsetMAF.R](./s
 
 **Script**: *[subsetMAF.R](./scripts/subsetMAF.R)*
 
-Argument | Description
------------- | ------------
---maf_file | MAF file to be subsetted
---samples | Name and path to a file listing samples to be kept in the subsetted MAF. Sample names are expected to be separated by comma. Use ***all*** to keep all samples (OPTIONAL)
---genes | Name and path to a file listing genes to be kept in the subsetted MAF. Gene symbols are expected to be separated by comma. Use ***all*** to keep all genes (OPTIONAL)
---var_class | Classification of variants to be kept in the subsetted MAF (OPTIONAL). Available options are listed in [MAF field requirements](#maf-field-requirements) section
---output | Name for the subsetted MAF
+Argument | Description | Required
+------------ | ------------ | ------------
+--maf_file | MAF file to be subsetted | **Yes**
+--samples | Name and path to a file listing samples to be kept in the subsetted MAF. Sample names are expected to be separated by comma. Use ***all*** to keep all samples (OPTIONAL) | No
+--genes | Name and path to a file listing genes to be kept in the subsetted MAF. Gene symbols are expected to be separated by comma. Use ***all*** to keep all genes (OPTIONAL) | No
+--var_class | Classification of variants to be kept in the subsetted MAF (OPTIONAL). Available options are listed in [MAF field requirements](#maf-field-requirements) section | No
+--output | Name for the subsetted MAF | No
 
 <br />
 
@@ -287,12 +287,12 @@ To merge multiple MAFs run the *[mergeMAFs.R](./scripts/mergeMAFs.R)* script. It
 
 **Script**: *[mergeMAFs.R](./scripts/mergeMAFs.R)*
 
-Argument | Description
------------- | ------------
---maf_dir | Directory with MAF files to be merged
---maf_files | List of MAF files to be merged. Each file name is expected to be separated by comma
---maf_fields | Fields to be kept in merged MAF. Options available: *All* (default), *Nonredundant* (i.e. those which are present in more than one dataset) and *Basic* (see [MAF field requirements](#maf-field-requirements) section)
---output | Location and name for the merged MAF file
+Argument | Description | Required
+------------ | ------------ | ------------
+--maf_dir | Directory with MAF files to be merged | **Yes**
+--maf_files | List of MAF files to be merged. Each file name is expected to be separated by comma | **Yes**
+--maf_fields | Fields to be kept in merged MAF. Options available: *All* (default), *Nonredundant* (i.e. those which are present in more than one dataset) and *Basic* (see [MAF field requirements](#maf-field-requirements) section) | No
+--output | Location and name for the merged MAF file | No
 
 <br />
 
@@ -320,27 +320,27 @@ NOTE: Only non-synonymous variants with high/moderate variant consequences, incl
 
 **Script**: *[summariseMAFs.R](./scripts/summariseMAFs.R)*
 
-Argument | Description
------------- | ------------
---maf_dir | Directory with *MAF* file(s)
---maf_files | List of *MAF* file(s) to be processed. Each file name is expected to be separated by comma
---datasets | Desired names of each dataset. The names are expected to be in the same order as provided *MAF* files
---samples_id_cols | The name(s) of MAF file(s) column containing samples' IDs (OPTIONAL). One column name is expected for a single file, and each separated by comma. The defualt samples' ID column is `Tumor_Sample_Barcode`
---genes_min | Minimal percentage of patients carrying mutations in individual genes to be included in the report (OPTIONAL; default is `4`)
---genes_list | Location and name of a file listing genes of interest to be considered in the report (OPTIONAL)
---genes_blacklist | Location and name of a file listing genes to be excluded (OPTIONAL). Header is not expected and the genes should be listed in separate lines
---samples_list | Location and name of a file listing specific samples to be included (OPTIONAL). All other samples will be ignored. The ID of samples to be included are expected to be listed in column named `Tumor_Sample_Barcode`. Additional columns are also allowed
---samples_blacklist | Location and name of a file listing samples to be excluded (OPTIONAL). The ID of samples to be excluded are expected to be listed in column named `Tumor_Sample_Barcode`. Additional columns are allowed
---nonSyn_list | List of variant classifications to be considered as non-synonymous (OPTIONAL). Rest will be considered as silent variants. Default uses [Variant Classifications](http://asia.ensembl.org/Help/Glossary?id=535) with `High/Moderate variant consequences`
---remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (OPTIONAL; defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them)
---gistic | Location of the corresponding [GISTIC](http://software.broadinstitute.org/cancer/software/genepattern/modules/docs/GISTIC_2.0) output files (including *gisticAllLesionsFile*, *gisticAmpGenesFile*, *gisticDelGenesFile* and *gisticScoresFile*) (OPTIONAL)
---out_folder | Output folder
---clinical_info | Location of clinical data associated with each sample in individual MAF file. Each file name (for each dataset) is expected to be separated by comma (OPTIONAL)
---clinical_features | Columns names (separated by comma) from clinical data (specified by *--clinical_info* argument) to be drawn in oncoplot(s) (OPTIONAL)
---clinical_enrichment_p | P-value threshold for clinical enrichment analysis (OPTIONAL; defulat is `0.05`)
---signature_enrichment_p | P-value threshold for reporting significant enrichment of genes in detected mutational signatures (OPTIONAL; defulat is `0.05`)
---hide_code_btn | Hide the *Code* button allowing to show/hide code chunks in the final HTML report. Available options are: `TRUE` (default) and `FALSE`
---ucsc_genome_assembly | Human reference genome version used for signature analysis. Available options are: `19` (default) and `38`
+Argument | Description | Required
+------------ | ------------ | ------------
+--maf_dir | Directory with *MAF* file(s) | **Yes**
+--maf_files | List of *MAF* file(s) to be processed. Each file name is expected to be separated by comma | **Yes**
+--datasets | Desired names of each dataset. The names are expected to be in the same order as provided *MAF* files | **Yes**
+--samples_id_cols | The name(s) of MAF file(s) column containing samples' IDs. One column name is expected for a single file, and each separated by comma. The defualt samples' ID column is `Tumor_Sample_Barcode` | No
+--genes_min | Minimal percentage of patients carrying mutations in individual genes to be included in the report (default is `4`) | No
+--genes_list | Location and name of a file listing genes of interest to be considered in the report (OPTIONAL) | No
+--genes_blacklist | Location and name of a file listing genes to be excluded (OPTIONAL). Header is not expected and the genes should be listed in separate lines | No
+--samples_list | Location and name of a file listing specific samples to be included (OPTIONAL). All other samples will be ignored. The ID of samples to be included are expected to be listed in column named `Tumor_Sample_Barcode`. Additional columns are also allowed | No
+--samples_blacklist | Location and name of a file listing samples to be excluded (OPTIONAL). The ID of samples to be excluded are expected to be listed in column named `Tumor_Sample_Barcode`. Additional columns are allowed | No
+--nonSyn_list | List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants. Default uses [Variant Classifications](http://asia.ensembl.org/Help/Glossary?id=535) with `High/Moderate variant consequences` | No
+--remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them) | No
+--gistic | Location of the corresponding [GISTIC](http://software.broadinstitute.org/cancer/software/genepattern/modules/docs/GISTIC_2.0) output files (including *gisticAllLesionsFile*, *gisticAmpGenesFile*, *gisticDelGenesFile* and *gisticScoresFile*) (OPTIONAL) | No
+--clinical_info | Location of clinical data associated with each sample in individual MAF file. Each file name (for each dataset) is expected to be separated by comma (OPTIONAL) | No
+--clinical_features | Columns names (separated by comma) from clinical data (specified by *--clinical_info* argument) to be drawn in oncoplot(s) (OPTIONAL) | No
+--clinical_enrichment_p | P-value threshold for clinical enrichment analysis (OPTIONAL; defulat is `0.05`) | No
+--signature_enrichment_p | P-value threshold for reporting significant enrichment of genes in detected mutational signatures (OPTIONAL; defulat is `0.05`) | No
+--out_folder | Output folder | No
+--hide_code_btn | Hide the *Code* button allowing to show/hide code chunks in the final HTML report. Available options are: `TRUE` (default) and `FALSE` | No
+--ucsc_genome_assembly | Human reference genome version used for signature analysis. Available options are: `19` (default) and `38` | No
 
 <br />
 
@@ -375,13 +375,13 @@ Make sure that *[X11](https://www.xquartz.org/)* is installed, as this is requir
 
 **Script**: *[summariseMAFsGenes.R](./scripts/summariseMAFsGenes.R)*
 
-Argument | Description
------------- | ------------
---maf_dir | Directory with *MAF* file(s)
---maf_files | List of *MAF* file(s) to be processed. Each file name is expected to be separated by comma
---datasets | Desired names of each dataset. The names are expected to be in the same order as provided *MAF* files
---genes | Genes to query in each *MAF* file
---out_folder | Output folder
+Argument | Description | Required
+------------ | ------------ | ------------
+--maf_dir | Directory with *MAF* file(s) | **Yes**
+--maf_files | List of *MAF* file(s) to be processed. Each file name is expected to be separated by comma | **Yes**
+--datasets | Desired names of each dataset. The names are expected to be in the same order as provided *MAF* files | **Yes**
+--genes | Genes to query in each *MAF* file | **Yes**
+--out_folder | Output folder | No
 
 <br />
 
