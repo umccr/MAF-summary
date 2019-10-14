@@ -1092,7 +1092,7 @@ for ( i in 1:length(mafFiles) ) {
 
 `r if ( params$clinical_info != "none" ) { c("Plot(s) illustrating enrichment of individual mutations in every category within provided clinical features.") }`
 
-```{r clinical_enrichment, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+```{r clinical_enrichment, comment = NA, message=FALSE, warning=FALSE, fig.width = 8, fig.height = 4, results="asis"}
 ##### Generate separate plot for each dataset
 ##### Create a list to store clinical enrichment analysis results info for individual datasets
 clinical.enrichment <- vector("list", length(mafFiles))
@@ -1124,7 +1124,7 @@ if ( params$clinical_info != "none" ) {
       cat("<br/><br/>")
     }
   }
-  cat("\n***\n")
+  cat("\n\n***\n")
 }
 ```
 
@@ -1172,21 +1172,22 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Drawing heatmap comparison to all COSMIC signatures
   ##### Save the plot as PNG
-  png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], "COSMIC_signatures_comp.png", sep = ""), width = 1200, height = 1200, units = "px", res = 200, type="cairo" )
-  plot.new()
+  png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], "_COSMIC_signatures_comp.png", sep = ""), width = 1200, height = 1200, units = "px", res = 200, type="cairo" )
   par(mar=c(2,4,2,0.5), oma=c(1.5,2,2,1))
   pheatmap::pheatmap(mat = mutextractSign[[i]]$coSineSimMat, cluster_rows = FALSE, main = "Cosine similarity against validated signatures")
   dev.off()
   
   cat("\n<details>\n")
   cat("\n<summary>Plot legend</summary>\n")
+  cat("<br/>")
   cat("Detected signatures are displayed according to the 96 substitution classification defined by the substitution class and sequence context immediately 3′ and 5′ to the mutated base. The probability bars for the six types of substitutions are displayed in different *colours*. The mutation types are on the *horizontal axes*, whereas *vertical axes* depict the percentage of mutations attributed to a specific mutation type.")
   cat("\n</details>\n")
   cat("<br/>")
   cat("\n<details>\n")
   cat("\n<summary>Comparison to all COSMIC signatures</summary>\n")
-  cat("![](",paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], "COSMIC_signatures_comp.png", sep = ""),")\n")
   cat("<br/>")
+  cat("![](",paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], "_COSMIC_signatures_comp.png", sep = ""),")\n")
+  cat("<br/><br/>")
   cat("\n</details>\n")
 }
 ```
@@ -1221,7 +1222,7 @@ Signatures were assigned to samples and enrichment analysis were performed to de
 
 Plot(s) illustrating exposures and mutation load of detected mutational signatures in individual dataset(s).
 
-```{r signature_enrichment, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+```{r signature_enrichment, comment = NA, message=FALSE, warning=FALSE, fig.width = 8, fig.height = 4, results="asis"}
 ##### Generate separate plot for each dataset
 ##### Create a list to store signature analysis results info for individual datasets
 sign.enrichment <- vector("list", length(mafFiles))
@@ -1241,7 +1242,7 @@ for ( i in 1:length(mafFiles) ) {
 
 Plot(s) illustrating enrichment of individual genes in detected mutational signatures.
 
-```{r signature_enrichment_genes, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+```{r signature_enrichment_genes, comment = NA, message=FALSE, warning=FALSE, fig.width = 8, fig.height = 4, results="asis"}
 ##### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
   cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
@@ -1295,7 +1296,7 @@ Enrichment of *C>T* mutations occurring within *TCW motif* over all of the *C>T*
 ```{r APOBEC_enrichment, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
-  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  cat(paste("\n\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
   ##### Check if any of the samples are enriched for APOBEC
   sub.tbl <- mutSign[[i]]$APOBEC_scores
