@@ -20,14 +20,14 @@
 #   maf_dir:      Directory with MAF files
 #   maf_files:    List of MAF files to be processed. Each file name is expected to be separated by comma
 #   datasets:     Desired names of each dataset. The names are expected to be in the same order as provided MAF files and should be separated by comma
-#   samples_id_cols (optional):  The name(s) of MAF file(s) column containing samples' IDs. One column name is expected for a single file, and each separated by comma. The defualt samples' ID column is "Tumor_Sample_Barcode"
-#   genes_min (optional):  Minimal percentage of patients carrying mutations in individual genes to be included in the report
+#   samples_id_cols:  The name(s) of MAF file(s) column containing samples' IDs. One column name is expected for a single file, and each separated by comma. The defualt samples' ID column is "Tumor_Sample_Barcode"
+#   genes_min:  Minimal percentage of patients carrying mutations in individual genes to be included in the report
 #   genes_list (optional):  Location and name of a file listing genes of interest to be considered in the report. The genes are expected to be listed in first column
 #   genes_blacklist (optional):  Location and name of a file listing genes to be excluded. Header is not expected and the genes should be listed in separate lines
 #   samples_list (optional):  Location and name of a file listing specific samples to be included. All other samples will be ignored. The ID of samples to be included are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
 #   samples_blacklist (optional):  Location and name of a file listing samples to be excluded. The ID of samples to be exdluded are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
-#   nonSyn_list (optional):   List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants
-#	  remove_duplicated_variants (optional):		Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? Defulat value is "FALSE"
+#   nonSyn_list:   List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants
+#	  remove_duplicated_variants:		Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? Defulat value is "FALSE"
 #   gistic (optional):  Location of the corresponding GISTIC output files (including gisticAllLesionsFile, gisticAmpGenesFile, gisticDelGenesFile and gisticScoresFile). Each file name (for each dataset) is expected to be separated by comma
 #   clinical_info (optional):  Location of clinical data associated with each sample in MAF. Each file name (for each dataset) is expected to be separated by comma
 #   clinical_features (optional):  Columns names (separated by comma) from clinical data (specified by --clinical_info argument) to be drawn in the oncoplot(s). Note that the order matters
