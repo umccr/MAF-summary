@@ -31,6 +31,8 @@
 #   gistic (optional):  Location of the corresponding GISTIC output files (including gisticAllLesionsFile, gisticAmpGenesFile, gisticDelGenesFile and gisticScoresFile). Each file name (for each dataset) is expected to be separated by comma
 #   clinical_info (optional):  Location of clinical data associated with each sample in MAF. Each file name (for each dataset) is expected to be separated by comma
 #   clinical_features (optional):  Columns names (separated by comma) from clinical data (specified by --clinical_info argument) to be drawn in the oncoplot(s). Note that the order matters
+#   clinical_enrichment_p (optional):   P-value threshold for clinical enrichment analysis. Defualt values is 0.05
+#   signature_enrichment_p (optional):   P-value threshold for reporting significant enrichment of genes in detected mutational signatures. Defualt values is 0.05
 #   out_folder:   Name for the output folder that will be created within the directory with MAF files. If no output folder is specified the results will be saved in folder "MAF_summary_report"
 #   hide_code_btn : Hide the "Code" button allowing to show/hide code chunks in the final HTML report. Available options are: "TRUE" (default) and "FALSE"
 #   ucsc_genome_assembly :  Human reference genome version used for signature analysis (default is "19")
@@ -82,6 +84,10 @@ option_list <- list(
               help="Location of clinical data associated with each sample in MAF"),
   make_option("--clinical_features", action="store", default="none", type='character',
               help="Columns names from clinical data to be drawn in the oncoplot(s)"),
+  make_option("--clinical_enrichment_p", action="store", default=0.05, type='double',
+              help="P-value threshold for clinical enrichment analysis"),
+  make_option("--signature_enrichment_p", action="store", default=0.05, type='double',
+              help="P-value threshold for reporting significant enrichment of genes in detected mutational signatures"),
   make_option("--out_folder", action="store", default=NA, type='character',
               help="Output directory"),
   make_option("--hide_code_btn", action="store", default=TRUE, type='logical',
@@ -153,4 +159,4 @@ if ( tolower(opt$remove_duplicated_variants) != "true" && tolower(opt$remove_dup
 }
 
 ##### Pass the user-defined argumentas to the summariseMAFs.R markdown script and run the analysis
-rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, samples_id_cols = opt$samples_id_cols, genes_min = opt$genes_min, genes_list = opt$genes_list, genes_blacklist = opt$genes_blacklist, samples_list = opt$samples_list, samples_blacklist = opt$samples_blacklist, nonSyn_list = opt$nonSyn_list, remove_duplicated_variants = opt$remove_duplicated_variants, gistic = opt$gistic, clinical_info = opt$clinical_info, clinical_features = opt$clinical_features, out_folder = opt$out_folder, hide_code_btn = opt$hide_code_btn, ucsc_genome_assembly = as.numeric(opt$ucsc_genome_assembly)))
+rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, "Report", sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, samples_id_cols = opt$samples_id_cols, genes_min = opt$genes_min, genes_list = opt$genes_list, genes_blacklist = opt$genes_blacklist, samples_list = opt$samples_list, samples_blacklist = opt$samples_blacklist, nonSyn_list = opt$nonSyn_list, remove_duplicated_variants = opt$remove_duplicated_variants, gistic = opt$gistic, clinical_info = opt$clinical_info, clinical_features = opt$clinical_features, clinical_enrichment_p = opt$clinical_enrichment_p, signature_enrichment_p = opt$signature_enrichment_p, out_folder = opt$out_folder, hide_code_btn = opt$hide_code_btn, ucsc_genome_assembly = as.numeric(opt$ucsc_genome_assembly)))

@@ -333,10 +333,12 @@ Argument | Description
 --samples_blacklist | Location and name of a file listing samples to be excluded (OPTIONAL). The ID of samples to be excluded are expected to be listed in column named `Tumor_Sample_Barcode`. Additional columns are allowed
 --nonSyn_list | List of variant classifications to be considered as non-synonymous (OPTIONAL). Rest will be considered as silent variants. Default uses [Variant Classifications](http://asia.ensembl.org/Help/Glossary?id=535) with `High/Moderate variant consequences`
 --remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (OPTIONAL; defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them)
---gistic | Location of the corresponding [GISTIC](http://software.broadinstitute.org/cancer/software/genepattern/modules/docs/GISTIC_2.0) output files (including *gisticAllLesionsFile*, *gisticAmpGenesFile*, *gisticDelGenesFile* and *gisticScoresFile*)
+--gistic | Location of the corresponding [GISTIC](http://software.broadinstitute.org/cancer/software/genepattern/modules/docs/GISTIC_2.0) output files (including *gisticAllLesionsFile*, *gisticAmpGenesFile*, *gisticDelGenesFile* and *gisticScoresFile*) (OPTIONAL)
 --out_folder | Output folder
---clinical_info | Location of clinical data associated with each sample in individual MAF file. Each file name (for each dataset) is expected to be separated by comma
---clinical_features | Columns names (separated by comma) from clinical data (specified by *--clinical_info* argument) to be drawn in oncoplot(s)
+--clinical_info | Location of clinical data associated with each sample in individual MAF file. Each file name (for each dataset) is expected to be separated by comma (OPTIONAL)
+--clinical_features | Columns names (separated by comma) from clinical data (specified by *--clinical_info* argument) to be drawn in oncoplot(s) (OPTIONAL)
+--clinical_enrichment_p | P-value threshold for clinical enrichment analysis (OPTIONAL; defulat is `0.05`)
+--signature_enrichment_p | P-value threshold for reporting significant enrichment of genes in detected mutational signatures (OPTIONAL; defulat is `0.05`)
 --hide_code_btn | Hide the *Code* button allowing to show/hide code chunks in the final HTML report. Available options are: `TRUE` (default) and `FALSE`
 --ucsc_genome_assembly | Human reference genome version used for signature analysis. Available options are: `19` (default) and `38`
 
