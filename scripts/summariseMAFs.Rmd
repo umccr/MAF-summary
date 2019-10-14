@@ -26,6 +26,8 @@ params:
   gistic: 'none'
   clinical_info: 'none'
   clinical_features: 'none'
+  clinical_enrichment_p: 0.05
+  signature_enrichment_p: 0.05
   out_folder: 'MAF_summary_report'
   hide_code_btn: TRUE
   ucsc_genome_assembly: 19
@@ -1082,16 +1084,35 @@ for ( i in 1:length(mafFiles) ) {
 `r if ( params$clinical_info != "none" ) { c("Plot(s) illustrating enrichment of individual mutations in every category within provided clinical features.") }`
 
 ```{r clinical_enrichment, comment = NA, message=FALSE, warning=FALSE, results="asis"}
-###### Generate separate plot for each dataset
+##### Generate separate plot for each dataset
+##### Create a list to store clinical enrichment analysis results info for individual datasets
+clinical.enrichment <- vector("list", length(mafFiles))
+names(clinical.enrichment) <- datasets.list
+
 if ( params$clinical_info != "none" ) {
   for ( i in 1:length(mafFiles) ) {
     
     cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
     
-    clinical_enrichment = try(clinicalEnrichment(maf = mafInfo[[i]], clinicalFeature = clinicalFeatures[[i]]), silent = TRUE)
-    try(plotEnrichmentResults(enrich_res = clinical_enrichment, pVal = 0.05), silent = TRUE)
-    cat("<br/><br/>")
-    cat("\n***\n")
+    ##### First make sure that there are >1 class of tested annotation fields
+    for ( j in 1:length(clinicalFeatures[[i]]) )  {
+      if ( length(unique(as.data.frame(mafInfo[[i]]@clinical.data)[, names(mafInfo[[i]]@clinical.data) %in% clinicalFeatures[[i]][j]])) < 2  ) {
+        clinicalFeatures2rm <- clinicalFeatures[[i]][j]
+      }
+    } 
+    clinicalFeatures[[i]] <- clinicalFeatures[[i]][ clinicalFeatures[[i]] %!in% clinicalFeatures2rm ]
+    
+    clinical.enrichment[[i]] = try(clinicalEnrichment(maf = mafInfo[[i]], clinicalFeature = clinicalFeatures[[i]]), silent = TRUE)
+    
+    ##### Check any gene in given dataset passed the user-defined threshold
+    if ( any(clinical.enrichment[[i]]$groupwise_comparision$p_value < params$clinical_enrichment_p) ) {
+      try(plotEnrichmentResults(enrich_res = clinical.enrichment, pVal = params$clinical_enrichment_p), silent = TRUE)
+      cat("<br/><br/>")
+      cat("\n***\n")
+    } else {
+      cat(paste0("No significant associations found at p-value < ", params$clinical_enrichment_p))
+      cat("<br/><br/>")
+    }
   }
 }
 ```
@@ -1208,8 +1229,14 @@ Plot(s) illustrating enrichment of individual genes in detected mutational signa
 for ( i in 1:length(mafFiles) ) {
   cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
   
-  plotEnrichmentResults(enrich_res = sign.enrichment[[i]], pVal = 0.05)
-  cat("<br/><br/>")
+  ##### Check any gene in given dataset passed the user-defined threshold
+  if ( any(sign.enrichment[[i]]$groupwise_comparision$p_value < params$signature_enrichment_p) ) {
+    plotEnrichmentResults(enrich_res = sign.enrichment[[i]], pVal = params$signature_enrichment_p)
+    cat("<br/><br/>")
+  } else {
+    cat(paste0("No significant associations found at p-value < ", params$signature_enrichment_p))
+    cat("<br/><br/>")
+  }
 }
 ```
 
@@ -1252,8 +1279,20 @@ Enrichment of *C>T* mutations occurring within *TCW motif* over all of the *C>T*
 ##### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
-  plotApobecDiff(tnm = mutSign[[i]], maf = mafInfo[[i]], pVal = 0.2)
-  cat("<br/><br/><br/>")
+  
+  ##### Check if any of the samples are enriched for APOBEC
+  sub.tbl <- mutSign[[i]]$APOBEC_scores
+  sub.tbl$APOBEC_Enriched = factor(sub.tbl$APOBEC_Enriched, levels = c("yes", "no"))
+  
+  if ( nrow(sub.tbl[!is.na(APOBEC_Enriched), mean(fraction_APOBEC_mutations), 
+        APOBEC_Enriched][APOBEC_Enriched %in% "yes"]) == 0 ) {
+    cat("None of the samples are enriched for APOBEC.")
+    cat("<br/><br/><br/>")
+    
+  } else {
+    plotApobecDiff(tnm = mutSign[[i]], maf = mafInfo[[i]], pVal = 0.2)
+    cat("<br/><br/><br/>")
+  }
 }
 ```
 
