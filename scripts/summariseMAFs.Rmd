@@ -1618,7 +1618,7 @@ for ( i in 1:length(mafFiles) ) {
 
   ##### Generate interactive heatmap
   p <- heatmaply(sampleSummary, main = datasets.list[i], Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Sample","Mutation_type","Count")) %>%
-  layout(width  = 900, height = 600, margin = list(l=150, r=10, b=80, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+  layout(width  = 900, height = 400, margin = list(l=150, r=10, b=80, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
 
   ##### Add plot to the list for htmlwidgets
   widges.list[[i]] <- as_widget(ggplotly(p))
@@ -1657,7 +1657,7 @@ for ( i in 1:length(mafFiles) ) {
 
   ##### Generate interactive heatmap
   p <- heatmaply(geneSummary, main = datasets.list[i], Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Mutation_type","Count")) %>%
-  layout(width  = 900, height = 600, margin = list(l=150, r=10, b=80, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
+  layout(width  = 900, height = 400, margin = list(l=150, r=10, b=80, t=50, pad=2), titlefont = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
   
   ##### Add plot to the list for htmlwidgets
   widges.list[[i]] <- as_widget(ggplotly(p))
