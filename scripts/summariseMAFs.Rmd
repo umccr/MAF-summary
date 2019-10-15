@@ -241,7 +241,7 @@ suppressMessages(library(package=paste0("BSgenome.Hsapiens.UCSC.hg", params$ucsc
 
 ## Datasets
 
-```{r datasets, comment = NA}
+```{r datasets, comment = NA, message=FALSE, warning=FALSE}
 ##### Present patient cohorts to be summarised
 ##### Split the string of MAF files and put them into a vector
 mafFiles <- unlist(strsplit(params$maf_files, split=',', fixed=TRUE))
@@ -549,7 +549,7 @@ widges.list
 cat("\n\n\n")
 ```
 
-```{r maf_fields, warning=FALSE}
+```{r maf_fields, comment = NA, message=FALSE, warning=FALSE}
 ##### Additionally ceate an excel spreadsheet listing all fields (columns) in the individaul MAF files
 ##### Create a new workbook
 wb <- createWorkbook("MAF_fields.xlsx")
@@ -572,7 +572,7 @@ saveWorkbook(wb, paste(outDir, "MAF_fields.xlsx", sep="/"), overwrite = TRUE)
 
 Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file. Note, only samples with detected **non-synonymous variant(s)** are reported in the table below.
 
-```{r sample_summary, comment = NA, warning=FALSE}
+```{r sample_summary, comment = NA, message=FALSE, warning=FALSE}
 ##### Write samples summary into a file
 ##### Create a new workbook
 wb <- createWorkbook("MAF_sample_summary.xlsx")
@@ -605,7 +605,7 @@ widges.list
 
 The table below lists sample(s) in which **no non-synonymous variants** were detected and hence will not be included in the summary tables/plots.
 
-```{r sample_no_nonsynonymous, comment = NA, warning=FALSE}
+```{r sample_no_nonsynonymous, comment = NA, message=FALSE, warning=FALSE}
 ##### report samples with no non-synonymous variants according to corresponding MAF file
 if ( !is.null(MAF_samples.silent.df) ) {
 
@@ -667,7 +667,7 @@ if ( params$clinical_info != "none" ) {
 
 Table(s) summarising mutated genes in individual datasets. Each table contains per-gene information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file. The last two columns contain the *number of samples with mutations/alterations* in the corresponding gene.
 
-```{r gene_summary, warning=FALSE}
+```{r gene_summary, comment = NA, message=FALSE, warning=FALSE}
 ##### Write gene summary into a file
 ##### Create a new workbook
 wb <- createWorkbook("MAF_gene_summary.xlsx")
@@ -712,7 +712,7 @@ if ( params$genes_blacklist != "none" ) {
 }
 ```
 
-```{r top_genes_threshold, warning=FALSE}
+```{r top_genes_threshold, comment = NA, message=FALSE, warning=FALSE}
 ##### Check if the use-defined number of genes to present is not higher than the number of genes with non-synonymous mutations reported in individual MAFs
 top_genes_no <- vector("list", length(mafFiles))
 names(top_genes_no) <- datasets.list
@@ -744,7 +744,7 @@ for ( i in 1:length(mafFiles) ) {
 }
 ```
 
-```{r goi, warning=FALSE}
+```{r goi, comment = NA, message=FALSE, warning=FALSE}
 ##### Deal with additional genes of interest (if specified)
 ##### Check if the use-defined genes of interest are already present withing the top most frequently mutated genes
 if ( params$genes_list != "none" ) {
@@ -891,7 +891,7 @@ if ( params$genes_list != "none" && length(goi) > 1 ) {
 
 A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
 
-```{r maf_summary_plot, comment = NA, fig.width = 9, fig.height = 10, results="asis"}
+```{r maf_summary_plot, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 10, results="asis"}
 ###### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
 
@@ -941,7 +941,7 @@ for ( i in 1:length(mafFiles) ) {
 
 Table(s) presenting the *overall distribution* of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*) across all samples in each dataset.
 
-```{r maf_TiTv_tables_xlsx}
+```{r maf_TiTv_tables_xlsx, comment = NA, message=FALSE, warning=FALSE}
 ##### Write per-sample transitions and transversions distribution into a file
 ##### Create a new workbook
 wb <- createWorkbook("MAF_summary_titv.xlsx")
@@ -962,7 +962,7 @@ for ( i in 1:length(mafFiles) ) {
 saveWorkbook(wb, paste(outDir, "MAF_summary_titv.xlsx", sep="/"), overwrite = TRUE)
 ```
 
-```{r maf_TiTv_table_overall_dist}
+```{r maf_TiTv_table_overall_dist, comment = NA, message=FALSE, warning=FALSE}
 ##### Generate tables with the overall distribution of the six different conversions (C>A, C>G, C>T, T>C, T>A and T>G)
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
@@ -985,7 +985,7 @@ cat("\n\n\n")
 
 Table(s) presenting the transitions and transversions *frequency* across all samples in each dataset.
 
-```{r maf_TiTv_table_frequency}
+```{r maf_TiTv_table_frequency, comment = NA, message=FALSE, warning=FALSE}
 ##### Generate tables with transitions and transversions frequency in individual datasets
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
@@ -1009,7 +1009,7 @@ cat("\n\n\n")
 
 Table(s) presenting the *fraction* of the six different conversions in each sample in individual dataset(s).
 
-```{r maf_TiTv_table_fraction}
+```{r maf_TiTv_table_fraction, comment = NA, message=FALSE, warning=FALSE}
 ##### Generate tables with transitions and transversions frequency in individual datasets
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
@@ -1073,7 +1073,7 @@ widges.list
 
 #### Oncogenic signaling pathways
 
-Enrichment of known oncogenic signaling pathways in [TCGA](https://cancergenome.nih.gov/){target="_blank"} cohorts (see paper [Oncogenic Signaling Pathways in The Cancer Genome Atlas](https://www.ncbi.nlm.nih.gov/pubmed/29625050){target="_blank"}).
+Enrichment of known oncogenic signaling pathways reported in [TCGA](https://cancergenome.nih.gov/){target="_blank"} cohorts (see paper [Oncogenic Signaling Pathways in The Cancer Genome Atlas](https://www.ncbi.nlm.nih.gov/pubmed/29625050){target="_blank"}).
 
 ```{r oncogenic_pathways, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ###### Generate separate plot for each dataset
@@ -1151,7 +1151,7 @@ Extracted signatures were compared against known signatures derived from [Alexan
 
 Mutational signatures detected in individual dataset(s).
 
-```{r signature_analysis, comment = NA, message=FALSE, warning=FALSE, fig.width = 8, fig.height = 6, results="asis"}
+```{r signature_analysis, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Generate separate plot for each dataset
 ##### Create a list to store signature analysis results info for individual datasets
 mutextractSign <- vector("list", length(mafFiles))
@@ -1168,14 +1168,16 @@ for ( i in 1:length(mafFiles) ) {
   invisible(dev.off())
   
   ##### Plot detected signatures
-  plotSignatures(mutextractSign[[i]], title_size = 0.8)
+  png( file = paste(outDir, "/MAF_mutational signatures_", datasets.list[i], ".png", sep = ""), width = 1200, height = nrow(mutextractSign[[i]]$contributions)*300, units = "px", res = 200, type="cairo" )
+  try(plotSignatures(mutextractSign[[i]], title_size = 0.8), silent = TRUE)
+  invisible(dev.off())
+  
+  cat("![](",paste(outDir, "/MAF_mutational signatures_", datasets.list[i], ".png", sep = ""),")\n")
   
   ##### Drawing heatmap comparison to all COSMIC signatures
   ##### Save the plot as PNG
-  png( file = paste(outDir, "/MAF_COSMIC_signatures_comp_", datasets.list[i], ".png", sep = ""), width = 1000, height = 1000, units = "px", res = 200, type="cairo" )
   par(mar=c(2,4,2,0.5), oma=c(1.5,2,2,1))
-  invisible(capture.output(pheatmap.res <- pheatmap::pheatmap(mat = mutextractSign[[i]]$coSineSimMat, cluster_rows = FALSE, main = "Cosine similarity against validated signatures")))
-  invisible(dev.off())
+  invisible(capture.output(pheatmap::pheatmap(mat = mutextractSign[[i]]$coSineSimMat, cluster_rows = FALSE, main = "Cosine similarity against validated signatures", cellheight = 10, filename = paste(outDir, "/MAF_COSMIC_signatures_comp_", datasets.list[i], ".png", sep = ""))))
   
   cat("\n<details>\n")
   cat("\n<summary>Plot legend</summary>\n")
@@ -1183,14 +1185,12 @@ for ( i in 1:length(mafFiles) ) {
   cat("Detected signatures are displayed according to the 96 substitution classification defined by the substitution class and sequence context immediately 3\' and 5\' to the mutated base. The probability bars for the six types of substitutions are displayed in different *colours*. The mutation types are on the *horizontal axes*, whereas *vertical axes* depict the percentage of mutations attributed to a specific mutation type.")
   cat("\n</details>\n")
   cat("<br />")
-  cat("![](",paste(outDir, "/MAF_COSMIC_signatures_comp_", datasets.list[i], ".png", sep = ""),")")
-  cat("\n\n")
-  #cat("\n<details>\n")
-  #cat("\n<summary>Comparison to all COSMIC signatures</summary>\n")
-  #cat("<br/>")
-  #cat("![](",paste(outDir, "/MAF_COSMIC_signatures_comp_", datasets.list[i], ".png", sep = ""),")\n")
-  #cat("<br />")
-  #cat("\n</details>\n")
+  cat("\n<details>\n")
+  cat("\n<summary>Comparison to all COSMIC signatures</summary>\n")
+  cat("<br/>")
+  cat("![](",paste(outDir, "/MAF_COSMIC_signatures_comp_", datasets.list[i], ".png", sep = ""),")\n")
+  cat("<br />")
+  cat("\n</details>\n")
 }
 ```
 
@@ -1299,7 +1299,7 @@ Enrichment of *C>T* mutations occurring within *TCW motif* over all of the *C>T*
 ##### Generate separate plot for each dataset
 for ( i in 1:length(mafFiles) ) {
   cat("<br/>")
-  cat(paste("\n\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
   ##### Check if any of the samples are enriched for APOBEC
   sub.tbl <- mutSign[[i]]$APOBEC_scores
@@ -1557,7 +1557,7 @@ for ( i in 1:length(gisticFiles) ) {
 
 `r if ( runGistic ) { c("Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of amplified* and *deleted* regions (columns).") }`
 
-```{r gistic_sample_summary, comment = NA, warning=FALSE, eval = runGistic}
+```{r gistic_sample_summary, comment = NA, message=FALSE, warning=FALSE, eval = runGistic}
 ##### Present a sample table in the html report
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
@@ -1580,7 +1580,7 @@ widges.list <- htmltools::tagList()
 
 `r if ( runGistic ) { c("Table(s) summarising genes withing detected significantly amplified and deleted regions in individual datasets. Each table contains per-gene information (rows) about *number of amplified* and *deleted* regions (columns). The last column contains the *number of samples with alterations* in the corresponding gene.") }`
 
-```{r gistic_gene_summary, warning=FALSE, eval = runGistic}
+```{r gistic_gene_summary, comment = NA, message=FALSE, warning=FALSE, eval = runGistic}
 ##### Present a gene table in the html report
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
@@ -1602,7 +1602,7 @@ widges.list
 
 Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *samples* (rows). Samples are ordered by the number of mutations to facilitate identification of individuals with extreme mutation burden. 
 
-```{r sample_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 9}
+```{r sample_summary_heatmap, comment = NA, message=FALSE, warning=FALSE, fig.width = 6, fig.height = 9}
 suppressMessages(library(plotly))
 suppressMessages(library(heatmaply))
 
@@ -1641,7 +1641,7 @@ widges.list
 
 Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. Note, for transparency only the **`r length(unique(unlist(top_genes_no[[i]])))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) are presented.
 
-```{r gene_summary_heatmap, message = FALSE, warning=FALSE, fig.width = 6, fig.height = 8}
+```{r gene_summary_heatmap, comment = NA, message=FALSE, warning=FALSE, fig.width = 6, fig.height = 8}
 suppressMessages(library(plotly))
 suppressMessages(library(heatmaply))
 
@@ -1755,7 +1755,7 @@ if ( length(mafFiles) != 1 ) {
 }
 ```
 
-```{r maf_visualisation_pdf, comment=NA, message=FALSE, warning=FALSE}
+```{r maf_visualisation_pdf, comment = NA, message=FALSE, warning=FALSE, warning=FALSE}
 ###### Save plots into PDF files
 ###### Generate separate file with plots for each dataset
 for ( i in 1:length(mafFiles) ) {
