@@ -28,6 +28,8 @@ params:
   clinical_features: 'none'
   clinical_enrichment_p: 0.05
   signature_enrichment_p: 0.05
+  maf_comp_p: 0.05
+  maf_comp_fdr: 1
   out_folder: 'MAF_summary_report'
   hide_code_btn: TRUE
   ucsc_genome_assembly: 19
@@ -116,7 +118,6 @@ mut.details.datasets <- function(mafInfo, datasets, genes, type = "nonsynonymous
         mut.details.genes <- mafInfo[[datasets[i]]]@data[ mafInfo[[datasets[i]]]@data[, Hugo_Symbol] %in% genes, ]
     }
     
-    
     if ( nrow(mut.details.genes) != 0 ) {
       
       ##### Sort table by gene symbol and then by sample ID
@@ -171,7 +172,7 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
         
         ##### Make it plot to a dummy graphics device file (e.g. /dev/null) to avoid plotting to the console
-        pdf(file=paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf"))
+        pdf(file=paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf"), width = 8, height = 5)
         lollipopPlot.image <- capture.output(maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = pchange, printCount = FALSE, showDomainLabel = FALSE, repel = FALSE, labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
         invisible(dev.off())
         
@@ -304,6 +305,13 @@ for ( i in 1:length(mafFiles) ) {
   }
 }
 
+##### If two datasets are provided then also perform cohorts comparison with mafCompare() function
+if ( length(mafFiles) == 2 ) {
+  runMafCompare <- TRUE
+} else {
+  runMafCompare <- FALSE
+}
+
 ##### Read in GISTIC output files if defined by user
 runGistic <- FALSE
 
@@ -396,9 +404,15 @@ if ( !file.exists(params$out_folder) ){
 }
 
 ##### Read in list of genes of interest of specified
+goi <- vector("list", length(mafFiles))
+names(goi) <- datasets.list
+
 if ( params$genes_list != "none" ){
+  genes_lists <- unlist(strsplit(params$genes_list, split=',', fixed=TRUE))
   
-  goi <- unique(read.table(params$genes_list, sep="\t", as.is=TRUE, header=FALSE, row.names=NULL)[,1])
+  for ( i in 1:length(mafFiles) ) {
+    goi[[i]] <- unique(read.table(genes_lists[i], sep="\t", as.is=TRUE, header=FALSE, row.names=NULL)[,1])
+  }
 }
 ```
 
@@ -636,7 +650,7 @@ if ( params$samples_blacklist != "none" ) {
 }
 ```
 
-***
+`r if ( params$samples_blacklist != "none" ) { c("***") }`
 
 `r if ( params$clinical_info != "none" ) { c("#### Samples annotation") }`
 
@@ -771,20 +785,20 @@ if ( params$genes_list != "none" ) {
     top_genes[[i]] <- maftools::getGeneSummary(mafInfo[[i]])$Hugo_Symbol[1:top_genes_no[[i]]]
     
     ##### Record genes of interest that are not present in the MAF file
-    goi_absent[[i]] <- goi[ goi %!in% maftools::getGeneSummary(mafInfo[[i]])$Hugo_Symbol ]
+    goi_absent[[i]] <- goi[[i]][ goi[[i]] %!in% maftools::getGeneSummary(mafInfo[[i]])$Hugo_Symbol ]
     
     ##### Keep the genes of interest and most frequently mutated genes separately
-    top_genes_goi[[i]] <- goi[ goi %in% top_genes[[i]] ]
-    genes_list_goi[[i]] <- goi[ goi %!in% top_genes[[i]] ]
+    top_genes_goi[[i]] <- goi[[i]][ goi[[i]] %in% top_genes[[i]] ]
+    genes_list_goi[[i]] <- goi[[i]][ goi[[i]] %!in% top_genes[[i]] ]
     
     ##### Remove genes absent in MAF from the genes of interest list
     genes_list_goi[[i]] <- genes_list_goi[[i]][ genes_list_goi[[i]] %!in% goi_absent[[i]] ]
 
     ##### Set height for oncoplots
-    if ( length(genes_list_goi[[i]]) > 100 ) {
-      oncoplot_goi_height[[i]] <- 100*length(genes_list_goi[[i]])/2
-    } else if  ( length(genes_list_goi[[i]]) > 19 ) {
-      oncoplot_goi_height[[i]] <- 100*length(genes_list_goi[[i]])/1.5
+    if ( length(goi[[i]]) > 100 ) {
+      oncoplot_goi_height[[i]] <- 100*length(goi[[i]])/2
+    } else if  ( length(goi[[i]]) > 19 ) {
+      oncoplot_goi_height[[i]] <- 100*length(goi[[i]])/1.5
     } else {
       oncoplot_goi_height[[i]] <- 900
     }
@@ -798,6 +812,27 @@ cat("\n\n\n")
 ***
 
 ### Plots {.tabset}
+
+#### Summary
+
+A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
+
+```{r maf_summary_plot, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 10, results="asis"}
+###### Generate separate plot for each dataset
+for ( i in 1:length(mafFiles) ) {
+
+  cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
+  
+  ##### Plotting MAF summary
+  par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
+  maftools::plotmafSummary(maf = mafInfo[[i]], top = top_genes_no[[i]], rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
+  mtext("MAF summary", outer=TRUE,  cex=1, line=-0.5)
+  
+  cat("<br/><br/>")
+}
+```
+
+***
 
 #### Oncoplot {.tabset}
 
@@ -838,71 +873,52 @@ for ( i in 1:length(mafFiles) ) {
 
 ***
 
-##### Additional genes of interest
+##### Genes of interest
 
-Oncoplot(s) illustrating different types of mutations observed across samples for the **genes of interest** (if specified). The side and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
+Oncoplot(s) illustrating different types of mutations observed across samples for the **genes of interest** (if specified). The side and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively. NOTE, the top column bar illustrates the total number of alterations detected only in the genes of interest. 
 
 ```{r maf_oncoplot_goi, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Draw additional oncoplot if a list of genes of intereset was specified by user 
 ###### Generate separate plot for each dataset
-if ( params$genes_list != "none" && length(goi) > 1 ) {
-  
+if ( params$genes_list != "none" ) {
   for ( i in 1:length(mafFiles) ) {
   
-    cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
-    
-    ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
-    if ( length(genes_list_goi[[i]]) > 1 ) {
-    
-      ##### Report genes missing in individual MAFs, as well as those which are within the list of genes of interest and are also among the most frequently mutated genes
-      cat(paste("* The following genes from provided gene list are missing from", datasets.list[i], "MAF:\n\n", sep=" "))
+    if ( length(goi[[i]]) > 1 ) {
       
-      cat(paste("<i>", goi_absent[[i]], "</i>", collapse = ", "))
+      cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
       
-      cat(paste("\n\n* The following genes from provided gene list are also among the top", top_genes_no[[i]], "most frequently mutated genes and are ignored in this oncoplot:\n\n", sep=" "))
+      ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
+      if ( length(goi[[i]]) > 1 ) {
       
-      cat(paste("<i>", top_genes_goi[[i]], "</i>", collapse = ", "), "\n\n")
-      
-      ##### Save the plot as PNG
-      png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height[[i]], units = "px", res = 200, type="cairo" )
+        ##### Report genes missing in individual MAFs, as well as those which are within the list of genes of interest and are also among the most frequently mutated genes
+        cat(paste("* The following genes from provided gene list are missing from", datasets.list[i], "MAF:\n\n", sep=" "))
         
-      ##### Drawing oncoplots for the top mutated genes in each dataset
-      plot.new()
-      par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list_goi[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE)
-      dev.off()
-      
-      ##### Read in the oncoplots PNG files
-      cat("![](",paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""),")")
-      cat("<br/>")
-
-    } else {
-      cat(paste0("All genes of interest are among the top ", top_genes_no[[i]], " most frequently mutated genes (mutated in at least ", params$genes_min, "% of patients) or no non-synonymous variants were detected in ", datasets.list[i], " dataset.\n\n\n"))
+        cat(paste("<i>", goi_absent[[i]], "</i>", collapse = ", "))
+        
+        cat(paste("\n\n* The following genes from provided gene list are also among the top", top_genes_no[[i]], "most frequently mutated genes:\n\n", sep=" "))
+        
+        cat(paste("<i>", top_genes_goi[[i]], "</i>", collapse = ", "), "\n\n")
+        
+        ##### Save the plot as PNG
+        png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height[[i]], units = "px", res = 200, type="cairo" )
+          
+        ##### Drawing oncoplots for the top mutated genes in each dataset
+        plot.new()
+        par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
+        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE)
+        dev.off()
+        
+        ##### Read in the oncoplots PNG files
+        cat("![](",paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""),")")
+        cat("<br/>")
+  
+      } else {
+        cat(paste0("All genes of interest are among the top ", top_genes_no[[i]], " most frequently mutated genes (mutated in at least ", params$genes_min, "% of patients) or no non-synonymous variants were detected in ", datasets.list[i], " dataset.\n\n\n"))
+      }
     }
   }
 } else {
   cat("No list with genes of interest was provided\n\n\n\n")
-}
-```
-
-***
-
-#### MAF summary
-
-A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
-
-```{r maf_summary_plot, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 10, results="asis"}
-###### Generate separate plot for each dataset
-for ( i in 1:length(mafFiles) ) {
-
-  cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
-  
-  ##### Plotting MAF summary
-  par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-  maftools::plotmafSummary(maf = mafInfo[[i]], top = top_genes_no[[i]], rmOutlier = TRUE, addStat = 'median', dashboard = TRUE, titvRaw = FALSE)
-  mtext("MAF summary", outer=TRUE,  cex=1, line=-0.5)
-  
-  cat("<br/><br/>")
 }
 ```
 
@@ -1128,6 +1144,25 @@ if ( params$clinical_info != "none" ) {
 }
 ```
 
+#### Gene cloud
+
+Word cloud plot for **most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients). *Size* of each gene is proportional to the total *number of samples* in which it is altered.
+
+```{r gene_cloud, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+###### Generate separate plot for each dataset
+for ( i in 1:length(mafFiles) ) {
+
+  cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
+  
+  par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
+  maftools::geneCloud(input = mafInfo[[i]], minMut = 3, top = top_genes_no[[i]])
+  
+  cat("<br/><br/>")
+}
+```
+
+***
+
 ## Signature analysis {.tabset .tabset-fade}
 
 Every cancer, as it progresses leaves a signature characterised by specific pattern of nucleotide substitutions (see paper [Signatures of mutational processes in human cancer](https://www.ncbi.nlm.nih.gov/pubmed/23945592){target="_blank"} by Alexandrov *et al*). Such signatures are extracted by decomposing matrix of nucleotide substitutions, classified into 96 substitution classes based on immediate bases surrounding the mutated base. The optimal number of detected singatures is defined by running *[non-negative matrix factorization](https://cran.r-project.org/web/packages/NMF/index.html){target="_blank"}* (NMF) function on a range of values and comparing individual *cophenetic correlation coefficients*.
@@ -1307,14 +1342,316 @@ for ( i in 1:length(mafFiles) ) {
   
   if ( nrow(sub.tbl[!is.na(APOBEC_Enriched), mean(fraction_APOBEC_mutations), 
         APOBEC_Enriched][APOBEC_Enriched %in% "yes"]) == 0 ) {
-    cat("**None of the samples are enriched for APOBEC.**")
+    cat("**None of the samples are enriched for APOBEC**")
     cat("<br/><br/><br/>")
     
   } else {
-    plotApobecDiff(tnm = mutSign[[i]], maf = mafInfo[[i]], pVal = 0.2)
+    try(plotApobecDiff(tnm = mutSign[[i]], maf = mafInfo[[i]], pVal = 0.2), silent = TRUE)
     cat("<br/><br/><br/>")
   }
 }
+```
+
+***
+
+## Somatic interactions {.tabset .tabset-fade}
+
+Many disease causing genes in cancer are co-occurring or show strong exclusiveness in their mutation pattern. These **mutually exclusive** or **co-occurring set of genes** were detected using *pair-wise Fisher’s Exact test*. NOTE, only top 25 most frequently mutated genes were considered in the analysis.
+
+### Pair-wise plot
+
+Heatmap of observed pairwise mutation patterns. <span style="color:#48d47d">Green</span> colours denote preferential co-mutation, while <span style="color:#b3408b">pink</span> colours indicate mutual exclusivity. 
+
+```{r som_interactions_plot, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+##### Run Somatic Interactions analysis for each dataset
+##### Create a list to store signature analysis results info for individual datasets
+somInter <- vector("list", length(mafFiles))
+names(somInter) <- datasets.list
+
+for ( i in 1:length(mafFiles) ) {
+  
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  
+  ##### Exclusive/co-occurance event analysis on top 25 mutated genes
+  somInter[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], top = 25, pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
+  
+  cat("<br/><br/>")
+}
+```
+
+***
+
+### Pair-wise table
+
+Table with *pair-wise Fisher’s Exact test* results indicating **mutual exclusivity** and **co-occurrance** of genes in individual dataset(s). 
+
+```{r som_interactions_table, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  
+  somInter.table <- as.data.frame(somInter[[i]]$pairs)[, colnames(somInter[[i]]$pairs) %!in% c("00","11","01","10") ]
+  
+  widges.list[[i]] <- DT::datatable( data = somInter.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
+      DT::formatStyle( columns = names(somInter.table), 'text-align' = 'center' ) %>%
+      DT::formatRound(columns = c("pValue", "oddsRatio"), 1)
+}
+  
+##### Print a list of htmlwidgets
+widges.list
+```
+
+***
+
+### Oncostrip
+
+[Oncoplot]s illustrating **mutually exclusive or co-occurring** set of **genes** (*P-value* < 0.05) in individual dataset(s).
+
+```{r som_interactions_oncostrip, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+##### Generate oncostrip plot for each dataset
+for ( i in 1:length(mafFiles) ) {
+  
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  
+  genes <- unique( unlist(as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene1" ]) )
+  
+  maftools::oncostrip(maf = mafInfo[[i]], genes = genes, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+  
+  cat("<br/><br/>")
+}
+```
+
+`r if ( runGistic ) { c("\n***\n## CN alterations {.tabset .tabset-fade}") }`
+
+`r if ( runGistic ) { c("Summary of copy-number (CN) alterations data from  *[GISTIC](http://software.broadinstitute.org/cancer/software/genepattern/modules/docs/GISTIC_2.0){target=\"_blank\"}* programme).") }`
+
+`r if ( runGistic ) { c("### Plots {.tabset .tabset-fade}") }`
+
+`r if ( runGistic ) { c("#### Genome plot") }`
+
+`r if ( runGistic ) { c("Genome plot(s) with segments highlighting significant (*q-value* < 0.1) amplification (<span style=\"color:#ff0000\">red</span> bars) and deletion (<span style=\"color:#0000ff\">blue</span> bars) regions. *Y-axis* shows the *G-scores* that consider the amplitude of the aberration as well as the frequency of its occurrence across samples.") }`
+
+```{r gistic_genome_plot, comment = NA, message=FALSE, warning=FALSE, results="asis", eval = runGistic }
+for ( i in 1:length(gisticFiles) ) {
+  
+  if ( gisticInfo[[i]]$status ) {
+    
+    ##### Save the genome plot as PDF for each dataset
+    maftools::gisticChromPlot(gistic = gisticInfo[[i]]$summary, markBands = "all", file = paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], sep = ""), width = 12, height = 5)
+    
+    ##### Export pdf to png
+    gisticChromPlot.image <- image_read_pdf(paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".pdf", sep = ""), pages = NULL, density = 300)
+    image_write(gisticChromPlot.image, path = paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".png", sep = ""), format = "png")
+
+    file.remove(paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".pdf", sep = ""))
+    
+    ##### Read in the genome plots PNG files
+    cat("![](",paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".png", sep = ""),")")
+    cat("<br/><br/><br/>")
+    
+  } else {
+   cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n\n\n", sep=" "))
+  }
+}
+```
+
+`r if ( runGistic ) { c("\n***\n#### Bubble plot") }`
+
+`r if ( runGistic ) { c("Plot(s) presenting significantly altered cytobands as a function of number samples (*x-axis*) in which it is altered and number genes (*y-axis*) it contains. Size of each bubble is according to *-log10* transformed *q-values* (FDR). Significantly amplified and deleted cytobands are presented as <span style=\"color:#ff0000\">red</span> and <span style=\"color:#0000ff\">blue</span> bubbles, respectively.") }`
+
+```{r gistic_bubble_plot, comment = NA, message=FALSE, warning=FALSE, results="asis", eval = runGistic }
+for ( i in 1:length(gisticFiles) ) {
+  
+  if ( gisticInfo[[i]]$status ) {
+    
+    ##### Save the bubble plot as PDF for each dataset
+    maftools::gisticBubblePlot(gistic = gisticInfo[[i]]$summary, file = paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], sep = ""), width = 8, height = 5)
+
+    ##### Export pdf to png
+    gisticBubblePlot.image <- image_read_pdf(paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".pdf", sep = ""), pages = NULL, density = 300)
+    image_write(gisticBubblePlot.image, path = paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".png", sep = ""), format = "png")
+
+    file.remove(paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".pdf", sep = ""))
+    
+    ##### Read in the bubble plot PNG files
+    cat("![](",paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".png", sep = ""),")")
+    cat("<br/><br/><br/>")
+
+  } else {
+   cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n\n\n", sep=" "))
+  }
+}
+```
+
+`r if ( runGistic ) { c("\n***\n#### Oncoplot") }`
+
+`r if ( runGistic ) { c("Oncoplot(s) illustrating cytobands (labeled on the left side) altered across samples (columns). The frequency of alterations in corresponding cytobands are indicated on the rigth side. Significantly amplified and deleted cytobands are presented as <span style=\"color:#ff0000\">red</span> and <span style=\"color:#02d653\">green</span> cells, respectively.") }`
+
+```{r gistic_oncoplot, comment = NA, message=FALSE, warning=FALSE, results="asis", eval = runGistic }
+for ( i in 1:length(gisticFiles) ) {
+  
+  if ( gisticInfo[[i]]$status ) {
+    
+    ##### Save the plot as PNG
+    png( file = paste(outDir, "/MAF_gisticOncoplot_", datasets.list[i], ".png", sep = ""), width = 1800, height = 1200, units = "px", res = 200, type="cairo" )
+      
+    ##### Drawing oncoplot for each dataset
+    plot.new()
+    par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
+    maftools::gisticOncoPlot(gistic = gisticInfo[[i]]$summary)
+    dev.off()
+    
+    ##### Read in the oncoplot PNG files
+    cat("![](",paste(outDir, "/MAF_gisticOncoplot_", datasets.list[i], ".png", sep = ""),")")
+    cat("<br/><br/><br/>")
+    
+  } else {
+   cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n\n\n", sep=" "))
+  }
+}
+```
+
+`r if ( runGistic ) { c("\n***\n### Tables {.tabset .tabset-fade}") }`
+
+`r if ( runGistic ) { c("#### Samples summary") }`
+
+`r if ( runGistic ) { c("Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of amplified* and *deleted* regions (columns).") }`
+
+```{r gistic_sample_summary, comment = NA, message=FALSE, warning=FALSE, eval = runGistic}
+##### Present a sample table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- DT::datatable( data = maftools::getSampleSummary(gisticInfo[[i]]$summary), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
+        DT::formatStyle( columns = names(maftools::getSampleSummary(gisticInfo[[i]]$summary)), 'text-align' = 'center' )
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+```
+
+`r if ( runGistic ) { c("\n***\n#### Genes summary") }`
+
+`r if ( runGistic ) { c("Table(s) summarising genes withing detected significantly amplified and deleted regions in individual datasets. Each table contains per-gene information (rows) about *number of amplified* and *deleted* regions (columns). The last column contains the *number of samples with alterations* in the corresponding gene.") }`
+
+```{r gistic_gene_summary, comment = NA, message=FALSE, warning=FALSE, eval = runGistic}
+##### Present a gene table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- DT::datatable(data = maftools::getGeneSummary(gisticInfo[[i]]$summary), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
+        DT::formatStyle( columns = names(maftools::getGeneSummary(gisticInfo[[i]]$summary)), 'text-align' = 'center' )
+}
+
+##### Print a list of htmlwidgets
+widges.list
+```
+
+***
+
+## Drug-gene interactions {.tabset .tabset-fade}
+
+Drug–gene interactions and gene druggability information compiled from [Drug Gene Interaction database](http://www.dgidb.org/){target="_blank"} (see paper [DGIdb: mining the druggable genome](https://www.ncbi.nlm.nih.gov/pubmed/24122041){target="_blank"} by Griffith *et al*).
+
+### Plot
+
+Plot(s) illustrating potential druggable gene categories along with up to top 5 genes involved in them.
+ 
+```{r drug_gene_interactions_plot, comment = NA, message=FALSE, warning=FALSE, results = 'asis'}
+##### Check for drug–gene interactions and gene druggability information compiled from Drug Gene Interaction database (http://www.dgidb.org/).
+##### Create a list to store drug-gene interaction info
+dgi <- vector("list", length(mafFiles))
+names(dgi) <- datasets.list
+
+for ( i in 1:length(mafFiles) ) {
+  
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  
+  dgi[[i]] = drugInteractions(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.75)
+  
+  cat("<br/><br/>")
+}
+```
+
+***
+
+### Table
+
+Table(s) with known/reported drugs to interact with potential druggable genes.
+ 
+```{r drug_gene_interactions_table, comment = NA, message=FALSE, warning=FALSE}
+##### Extract results for known/reported drugs to interact with specified genes
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  
+  dgi.table <- as.data.frame(dgi[[i]])[, colnames(dgi[[i]]) %!in% "gene_long_name" ]
+  
+  widges.list[[i]] <- DT::datatable(data = dgi.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
+        DT::formatStyle( columns = names(dgi.table), 'text-align' = 'center' )
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+```
+
+`r if ( runMafCompare ) { c("\n***\n## Cohorts comparison {.tabset .tabset-fade}") }`
+
+`r if ( runMafCompare ) { c(paste0("The two cohorts, **", gsub(",", ", ", params$datasets) , "**, were compared to evaluate differences in their mutation patterns. *Fisher’s exact test* was performed to detect differentially mutated genes.")) }`
+
+```{r runMafCompare, comment = NA, message=FALSE, warning=FALSE, eval = runMafCompare }
+##### Considering only genes which are mutated in at-least in 5 samples in one of the cohort to avoid bias due to genes mutated in single sample
+mafCompare.res <- maftools::mafCompare(m1 = mafInfo[[1]], m2 = mafInfo[[2]], m1Name = datasets.list[1], m2Name = datasets.list[2], minMut = 5)
+```
+
+`r if ( runMafCompare ) { c("### Forest plot") }`
+
+`r if ( runMafCompare ) { c(paste0("*[Forest plot](https://en.wikipedia.org/wiki/Forest_plot){target=\"_blank\"}* presenting *Fisher’s exact test* results for significantly (*P-value* < ", params$maf_comp_p, " and *FDR* < ", params$maf_comp_fdr, ") differentially mutated genes. *Y-axis* shows differentially mutated genes and *X-axis* shows corresponding log10 converted *odds ratio* values. \\* *p* < 0.001;  \\*\\* *p* < 0.01;  \\*\\*\\* *p* < 0.05")) }`
+
+```{r forest_plot, comment = NA, message=FALSE, warning=FALSE, eval = runMafCompare }
+##### Considering only genes which are mutated in at-least in 5 samples in one of the cohort to avoid bias due to genes mutated in single sample
+try(maftools::forestPlot(mafCompareRes = mafCompare.res, pVal = params$maf_comp_p, color = c('royalblue', 'maroon'), geneFontSize = 0.8), silent = TRUE)
+```
+
+`r if ( runMafCompare ) { c("\n***\n### Co-onco plots") }`
+
+`r if ( runMafCompare ) { c(paste0("Side by side [Oncoplot]s illustrating different types of mutations observed in significantly (*P-value* < ", params$maf_comp_p, " and *FDR* < ", params$maf_comp_fdr, ") differentially mutated genes across samples in individual datasets.")) }`
+
+```{r Coonco_plots, comment = NA, message=FALSE, warning=FALSE, eval = runMafCompare }
+##### Considering only genes which are mutated in at-least in 5 samples in one of the cohort to avoid bias due to genes mutated in single sample
+genes = mafCompare.res$results$Hugo_Symbol[ mafCompare.res$results$pval < params$maf_comp_p ]
+
+maftools::coOncoplot(m1 = mafInfo[[1]], m2 = mafInfo[[2]], m1Name = datasets.list[1], m2Name = datasets.list[2], genes = genes, removeNonMutated = TRUE, clinicalFeatures1 = clinicalFeatures[[1]], clinicalFeatures2 = clinicalFeatures[[2]], sortByAnnotation1 = TRUE, sortByAnnotation2 = TRUE, titleFontSize = 1.2)
+```
+
+`r if ( runMafCompare ) { c("\n***\n### Table") }`
+
+`r if ( runMafCompare ) { c("Table with *Fisher’s exact test* results including *P-values*, *odds ratio* (*OR*), *lower/upper confidence interval* (*CI*) and *false positive rate* (*FDR*) values.") }`
+
+```{r maf_compare_table, comment = NA, message=FALSE, warning=FALSE, eval = runMafCompare }
+DT::datatable(data = mafCompare.res$results, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;'), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
+        DT::formatStyle( columns = names(mafCompare.res$results), 'text-align' = 'center' ) %>%
+        DT::formatRound(columns = c("or", "ci.up", "ci.low"), 1) %>%
+        DT::formatRound(columns = c("pval", "adjPval"), 6)
+```
+
+```{r maf_compare_table_legend, comment = NA, message=FALSE, warning=FALSE, eval = runMafCompare, results = 'asis'}
+cat("\n<details>\n")
+cat("\n<summary>Table legend</summary>\n")
+cat("*pval* - *P-value*\n")
+cat("*or* - *odds ratio* (*OR*)\n")
+cat("*ci.up* - *upper confidence interval* (*CI*)\n")
+cat("*ci.low* - *lower CI*\n")
+cat("*adjPval* - *false positive rate* (*FDR*)")
+cat("\n</details>\n")
 ```
 
 ***
@@ -1405,7 +1742,7 @@ if ( pchangeStatus ) {
 
 ## Mutation details {.tabset .tabset-fade}
 
-Tables with detailed information, as as provided in corresponding MAF file(s), for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) across all datasets, as well as for the **genes of interest** (if specified).
+Tables with detailed information, as as provided in corresponding MAF file(s), for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) across all datasets, as well as for the **genes of interest** (if specified) in individual dataset(s).
 
 ```{r details_mut_table, comment = NA, message=FALSE, warning=FALSE}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
@@ -1416,7 +1753,7 @@ wb <- createWorkbook("MAF_top_mutations_details.xlsx")
 for ( i in 1:length(mafFiles) ) {
   
   ##### Extract mutation details
-  mut.details <- mafInfo[[i]]@data[ mafInfo[[i]]@data[, Hugo_Symbol] %in% names(mutRate.top.datasets), ]
+  mut.details <- mafInfo[[i]]@data[ mafInfo[[i]]@data[, Hugo_Symbol] %in% maftools::getGeneSummary(mafInfo[[i]])$Hugo_Symbol[1:top_genes_no[[i]]], ]
 
   addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
   writeData(wb, sheet = i, mut.details[ order(mut.details$Hugo_Symbol) , ])
@@ -1429,169 +1766,42 @@ saveWorkbook(wb, paste(outDir, "MAF_top_mutations_details.xlsx", sep="/"), overw
 
 ```{r details_mut, comment = NA, message=FALSE, warning=FALSE}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
-mut.details.datasets(mafInfo, datasets.list, names(mutRate.top.datasets)[c(1:max(unlist(top_genes_no[[i]])))], type = "nonsynonymous")
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- mut.details.datasets(mafInfo[i], datasets.list[i], maftools::getGeneSummary(mafInfo[[i]])$Hugo_Symbol[1:top_genes_no[[i]]], type = "nonsynonymous")
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
 
 ***
 
-### Additional genes of interest
+### Genes of interest
 
 ```{r details_mut_goi, comment = NA, message=FALSE, warning=FALSE}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
 
 if ( params$genes_list != "none" ) {
-  
-  mut.details.datasets(mafInfo, datasets.list, unlist(genes_list_goi), type = "nonsynonymous")
-  
+  for ( i in 1:length(mafFiles) ) {
+    widges.list[[i]] <- mut.details.datasets(mafInfo[i], datasets.list[i], goi[[i]], type = "nonsynonymous")
+  }
 } else {
   cat("No list with genes of interest was provided\n\n\n\n")
 }
 
+##### Print a list of htmlwidgets
+widges.list
+
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
-```
-
-***
-
-`r if ( runGistic ) { c("## CN alterations {.tabset .tabset-fade}") }`
-
-Information about copy-number (CN) alterations (based on  [*GISTIC*](http://software.broadinstitute.org/cancer/software/genepattern/modules/docs/GISTIC_2.0){target="_blank"} programme) is **`r if ( runGistic ) { c("AVAILABLE") } else { c("NOT AVAILABLE") }`**.
-
-`r if ( runGistic ) { c("### Plots {.tabset .tabset-fade}") }`
-
-`r if ( runGistic ) { c("Genome plot") }`
-
-`r if ( runGistic ) { c("Genome plot(s) with segments highlighting significant (*q-value* < 0.1) amplification (<span style=\"color:#ff0000\">red</span> bars) and deletion (<span style=\"color:#0000ff\">blue</span> bars) regions. *Y-axis* shows the *G-scores* that consider the amplitude of the aberration as well as the frequency of its occurrence across samples.") }`
-
-```{r gistic_genome_plot, comment = NA, message=FALSE, warning=FALSE, results="asis", eval = runGistic }
-for ( i in 1:length(gisticFiles) ) {
-  
-  if ( gisticInfo[[i]]$status ) {
-    
-    ##### Save the genome plot as PDF for each dataset
-    maftools::gisticChromPlot(gistic = gisticInfo[[i]]$summary, markBands = "all", file = paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], sep = ""), width = 12, height = 5)
-    
-    ##### Export pdf to png
-    gisticChromPlot.image <- image_read_pdf(paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".pdf", sep = ""), pages = NULL, density = 300)
-    image_write(gisticChromPlot.image, path = paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".png", sep = ""), format = "png")
-
-    file.remove(paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".pdf", sep = ""))
-    
-    ##### Read in the genome plots PNG files
-    cat("![](",paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".png", sep = ""),")")
-    cat("<br/><br/><br/>")
-    
-  } else {
-   cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n\n\n", sep=" "))
-  }
-}
-```
-
-***
-
-`r if ( runGistic ) { c("#### Bubble plot") }`
-
-`r if ( runGistic ) { c("Plot(s) presenting significantly altered cytobands as a function of number samples (*x-axis*) in which it is altered and number genes (*y-axis*) it contains. Size of each bubble is according to *-log10* transformed *q-values* (FDR). Significantly amplified and deleted cytobands are presented as <span style=\"color:#ff0000\">red</span> and <span style=\"color:#0000ff\">blue</span> bubbles, respectively.") }`
-
-```{r gistic_bubble_plot, comment = NA, message=FALSE, warning=FALSE, results="asis", eval = runGistic }
-for ( i in 1:length(gisticFiles) ) {
-  
-  if ( gisticInfo[[i]]$status ) {
-    
-    ##### Save the bubble plot as PDF for each dataset
-    maftools::gisticBubblePlot(gistic = gisticInfo[[i]]$summary, file = paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], sep = ""), width = 8, height = 5)
-
-    ##### Export pdf to png
-    gisticBubblePlot.image <- image_read_pdf(paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".pdf", sep = ""), pages = NULL, density = 300)
-    image_write(gisticBubblePlot.image, path = paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".png", sep = ""), format = "png")
-
-    file.remove(paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".pdf", sep = ""))
-    
-    ##### Read in the bubble plot PNG files
-    cat("![](",paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".png", sep = ""),")")
-    cat("<br/><br/><br/>")
-
-  } else {
-   cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n\n\n", sep=" "))
-  }
-}
-```
-
-***
-
-`r if ( runGistic ) { c("Oncoplot") }`
-
-`r if ( runGistic ) { c("Oncoplot(s) illustrating cytobands (labeled on the left side) altered across samples (columns). The frequency of alterations in corresponding cytobands are indicated on the rigth side. Significantly amplified and deleted cytobands are presented as <span style=\"color:#ff0000\">red</span> and <span style=\"color:#02d653\">green</span> cells, respectively.") }`
-
-```{r gistic_oncoplot, comment = NA, message=FALSE, warning=FALSE, results="asis", eval = runGistic }
-for ( i in 1:length(gisticFiles) ) {
-  
-  if ( gisticInfo[[i]]$status ) {
-    
-    ##### Save the plot as PNG
-    png( file = paste(outDir, "/MAF_gisticOncoplot_", datasets.list[i], ".png", sep = ""), width = 1800, height = 1200, units = "px", res = 200, type="cairo" )
-      
-    ##### Drawing oncoplot for each dataset
-    plot.new()
-    par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::gisticOncoPlot(gistic = gisticInfo[[i]]$summary)
-    dev.off()
-    
-    ##### Read in the oncoplot PNG files
-    cat("![](",paste(outDir, "/MAF_gisticOncoplot_", datasets.list[i], ".png", sep = ""),")")
-    cat("<br/><br/><br/>")
-    
-  } else {
-   cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n\n\n", sep=" "))
-  }
-}
-```
-
-***
-
-`r if ( runGistic ) { c("### Tables {.tabset .tabset-fade}") }`
-
-`r if ( runGistic ) { c("#### Samples summary") }`
-
-`r if ( runGistic ) { c("Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of amplified* and *deleted* regions (columns).") }`
-
-```{r gistic_sample_summary, comment = NA, message=FALSE, warning=FALSE, eval = runGistic}
-##### Present a sample table in the html report
-##### Create a list for htmlwidgets
-widges.list <- htmltools::tagList()
-
-for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable( data = maftools::getSampleSummary(gisticInfo[[i]]$summary), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
-        DT::formatStyle( columns = names(maftools::getSampleSummary(gisticInfo[[i]]$summary)), 'text-align' = 'center' )
-}
-
-##### Print a list of htmlwidgets
-widges.list
-
-##### Create a list for htmlwidgets
-widges.list <- htmltools::tagList()
-```
-
-***
-
-`r if ( runGistic ) { c("#### Genes summary") }`
-
-`r if ( runGistic ) { c("Table(s) summarising genes withing detected significantly amplified and deleted regions in individual datasets. Each table contains per-gene information (rows) about *number of amplified* and *deleted* regions (columns). The last column contains the *number of samples with alterations* in the corresponding gene.") }`
-
-```{r gistic_gene_summary, comment = NA, message=FALSE, warning=FALSE, eval = runGistic}
-##### Present a gene table in the html report
-##### Create a list for htmlwidgets
-widges.list <- htmltools::tagList()
-
-for ( i in 1:length(mafFiles) ) {
-  widges.list[[i]] <- DT::datatable(data = maftools::getGeneSummary(gisticInfo[[i]]$summary), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
-        DT::formatStyle( columns = names(maftools::getGeneSummary(gisticInfo[[i]]$summary)), 'text-align' = 'center' )
-}
-
-##### Print a list of htmlwidgets
-widges.list
 ```
 
 ***
@@ -1777,14 +1987,14 @@ for ( i in 1:length(mafFiles) ) {
   }
   
   ##### Drawing oncoplots for additional genes of interest (if specified)
-  if ( params$genes_list != "none" && length(goi) > 1 ) {
+  if ( params$genes_list != "none" && length(goi[[i]]) > 1 ) {
 
     ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
-    if ( length(genes_list_goi[[i]]) > 1 ) {
+    if ( length(goi[[i]]) > 1 ) {
       
       plot.new()
       par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-      maftools::oncoplot(maf = mafInfo[[i]], genes = genes_list_goi[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE)
+      maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE)
     }
   }
   
