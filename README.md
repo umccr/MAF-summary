@@ -338,6 +338,8 @@ Argument | Description | Required
 --clinical_features | Columns names (separated by comma) from clinical data (specified by *--clinical_info* argument) to be drawn in oncoplot(s) (OPTIONAL) | No
 --clinical_enrichment_p | P-value threshold for clinical enrichment analysis (OPTIONAL; defulat is `0.05`) | No
 --signature_enrichment_p | P-value threshold for reporting significant enrichment of genes in detected mutational signatures (OPTIONAL; defulat is `0.05`) | No
+--maf_comp_p | P-value threshold for reporting significant differences between cohorts (OPTIONAL; defulat is `0.05`) | No
+--maf_comp_fdr | FDR threshold for reporting significant differences between cohorts (OPTIONAL; defulat is `1`) | No
 --out_folder | Output folder | No
 --hide_code_btn | Hide the *Code* button allowing to show/hide code chunks in the final HTML report. Available options are: `TRUE` (default) and `FALSE` | No
 --ucsc_genome_assembly | Human reference genome version used for signature analysis. Available options are: `19` (default) and `38` | No
