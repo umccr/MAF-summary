@@ -34,4 +34,5 @@ dependencies:
         - r-tibble
         - r-htmltools
         - r-htmlwidgets
+        - r-devtools
 
