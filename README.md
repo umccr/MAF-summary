@@ -17,9 +17,7 @@ Set of scripts to **summarise**, **analyse** and **visualise** [Mutation Annotat
 * [Subsetting MAF](#subsetting-maf)
 * [Merging MAFs](#merging-mafs)
 * [Summarising and visualising MAF file(s)](#summarising-and-visualising-maf-files)
-  * [Example output](#example-output)
 * [Summarising and visualising MAF file(s) for selected genes](#summarising-and-visualising-maf-files-for-selected-genes)
-  * [Example output](#example-output)
 
 <!-- vim-markdown-toc -->
 <br>
@@ -37,6 +35,8 @@ Activate created `maf-summary` *conda* environment before running the pipeline
 ```
 conda activate maf-summary
 ```
+
+Additionally, [vcf2maf](https://github.com/mskcc/vcf2maf) tool available on [GitHub](https://github.com/mskcc/vcf2maf) is required for [Converting VCF files to MAF files](#converting-vcf-files-to-maf-files).
 
 <br />
 
@@ -78,34 +78,32 @@ Script | Description
 
 To convert multiple VCF files into one collective MAF file use *[multi_vcf2maf.pl](./scripts/multi_vcf2maf.pl)* script. It requires a file with listed [VCF](http://www.internationalgenome.org/wiki/Analysis/vcf4.0/) files to be converted into corresponding MAF files (see an example [here](./examples/example_vcf_list.txt)). The individual MAF files are then merged into one collective MAF file, which is saved in the same directory as the files listing VCF files.
 
+###### Note
+
+The following are required
+
+* [vcf2maf](https://github.com/mskcc/vcf2maf) tool available on [GitHub](https://github.com/mskcc/vcf2maf) (see [Installation](#installation) section).
+* Reference FASTA file (e.g. [GRCh37](ftp://ftp.ncbi.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/special_requests/GRCh37-lite.fa.gz) available on [ncbi.nih.gov](ftp://ftp.ncbi.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/special_requests/GRCh37-lite.fa.gz) *FTP* site)
+
 **Script**: *[multi_vcf2maf.pl](./scripts/multi_vcf2maf.pl)*
 
 
 Argument | Description | Required
 ------------ | ------------ | ------------
 --vcf_list | Full path with name of a file listing VCF files to be converted | **Yes**
---v2m | Full path to [vcf2maf.pl](https://github.com/mskcc/vcf2maf) script | **Yes**
---ref | Reference FASTA file | **Yes**
---maf_file | Name of the merged MAF file to be created | **Yes**
 --exons | Include exonic regions only: TRUE/T or FALSE/F (defualt) | No
+--v2m | Full path to [vcf2maf.pl](https://github.com/mskcc/vcf2maf) script | **Yes**
+--ref | Reference FASTA file (e.g. [GRCh37](ftp://ftp.ncbi.nih.gov/genomes/archive/old_genbank/Eukaryotes/vertebrates_mammals/Homo_sapiens/GRCh37/special_requests/GRCh37-lite.fa.gz)) | **Yes**
+--maf_file | Name of the merged MAF file to be created | **Yes**
 
 <br />
 
 NOTE: The definition of **exonic regions** is based on the [MAF's](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) *Variant_Classification* field and is described in [Extracting variants within exonic regions](#extracting-variants-within-exonic-regions) section. If one requires to subset generated [MAF](https://software.broadinstitute.org/software/igv/MutationAnnotationFormat) file based on different *Variant_Classification* categories, then one can run the *[var_class_maf.pl](./scripts/var_class_maf.pl)* script, which allows define *Variant_Classification* categories of interest using ```--var_class``` parameter.
 
-
-NOTE: *Samtools* and *tabix* are required to run this script. These can be loaded on [Spartan](https://dashboard.hpc.unimelb.edu.au/) with *module load* commnand:
-
-```
-module load SAMtools/1.9-intel-2018.u4
-
-module load tabix/0.2.6-intel-2017.u2
-```
-
 **Command line use example**:
 
 ```
-perl multi_vcf2maf.pl  -l /examples/example_vcf_list.txt  -e FALSE  -s /tools/vcf2maf.pl  -r /reference/GRCh37-lite.fa  -m example.maf
+perl scripts/multi_vcf2maf.pl  --vcf_list examples/example_vcf_list.txt  --exons FALSE  --v2m /path/to/vcf2maf.pl  --ref /path/to/reference/GRCh37-lite.fa  --maf_file example.maf
 ```
 
 <br>
@@ -136,7 +134,9 @@ Argument | Description | Required
 **Command line use example**:
 
 ```
-Rscript icgcMutationToMAF.R --icgc_file /data/simple_somatic_mutation.open.PACA-AU.tsv --output simple_somatic_mutation.open.PACA-AU.maf
+gunzip examples/simple_somatic_mutation.open.PACA-AU.tsv.gz
+
+Rscript scripts/icgcMutationToMAF.R --icgc_file examples/simple_somatic_mutation.open.PACA-AU.tsv --output simple_somatic_mutation.open.PACA-AU.maf
 ```
 <br>
 
@@ -170,7 +170,7 @@ Argument | Description | Required
 **Command line use example**:
 
 ```
-perl exons_maf.pl --maf /data/simple_somatic_mutation.open.PACA-AU.maf
+perl scripts/exons_maf.pl --maf examples/simple_somatic_mutation.open.PACA-AU.maf
 ```
 
 <br>
@@ -196,7 +196,7 @@ Argument | Description | Required
 **Command line use example**:
 
 ```
-perl var_class_maf.pl --maf /data/simple_somatic_mutation.open.PACA-AU.maf --var_class Missense_Mutation,Nonsense_Mutation
+perl scripts/var_class_maf.pl --maf examples/simple_somatic_mutation.open.PACA-AU.maf --var_class Missense_Mutation,Nonsense_Mutation
 ```
 
 <br>
@@ -228,7 +228,7 @@ Argument | Description | Required
 **Command line use example**:
 
 ```
-Rscript MAFsamplesRename.R --maf_file /data/simple_somatic_mutation.open.PACA-AU.maf --names_file /examples/example_samples_to_rename.txt --output /data/simple_somatic_mutation.open.PACA-AU_samples_renamed.maf
+Rscript scripts/MAFsamplesRename.R --maf_file examples/simple_somatic_mutation.open.PACA-AU.maf --names_file examples/example_samples_to_rename.txt --output examples/simple_somatic_mutation.open.PACA-AU_samples_renamed.maf
 ```
 
 <br>
@@ -268,7 +268,7 @@ NOTE: The available variants types for *var_class* parameter are listed in *Vari
 **Command line use example**:
 
 ```
-Rscript subsetMAF.R --maf_file /data/simple_somatic_mutation.open.PACA-AU.maf --samples /examples/example_samples_to_subset.txt --genes /examples/example_ genes_to_subset.txt --var_class Missense_Mutation --output /data/simple_somatic_mutation.open.PACA-AU_subset.maf
+Rscript scripts/subsetMAF.R --maf_file examples/simple_somatic_mutation.open.PACA-AU.maf --samples examples/example_samples_to_subset.txt --genes examples/example_ genes_to_subset.txt --var_class Missense_Mutation --output examples/simple_somatic_mutation.open.PACA-AU_subset.maf
 ```
 
 <br>
@@ -301,7 +301,7 @@ Argument | Description | Required
 **Command line use example**:
 
 ```
-Rscript mergeMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --maf_fields All --output /data/icgc.simple_somatic_mutation.merged.maf
+Rscript scripts/mergeMAFs.R --maf_dir examples --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --maf_fields All --output examples/icgc.simple_somatic_mutation.merged.maf
 ```
 
 <br>
@@ -351,19 +351,14 @@ Argument | Description | Required
 **Command line use example**:
 
 ```
-Rscript summariseMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --out_folder MAF_summary_report
+cd scripts
+
+Rscript summariseMAFs.R --maf_dir ../examples --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --out_folder ../examples/MAF_summary_report
 ```
 <br>
 
-This will generate *[summariseMAFs.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)* report with interactive summary tables and heatmaps within *MAF_summary_report* folder. It will also create a folder with user-defined name containing output tables and plots described [here](README_output_files.md).
+This will generate *[summariseMAFs.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html)* report with interactive summary tables and heatmaps within *examples / MAF_summary_report* folder. It will also create `results` folder with user-defined name containing output tables and plots described [here](README_output_files.md).
 
-### Example output
-
-Some example MAF files are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/) cluster and are described in [Pancreatic-data-harmonization](https://github.com/umccr/Pancreatic-data-harmonization) repository.<br>
-
-* [ICGC PACA-CA dataset](./examples/ICGC_PACA-CA_MAF_summary) &nbsp; ( <img src="img/flag-of-Canada.png" width="2.5%"> ) - includes descrition for output tables and plots
-* [TCGA PAAD dataset](./examples/TCGA_PAAD_MAF_summary) &nbsp; ( <img src="img/flag-of-United-States-of-America.png" width="2.5%"> ) - highlihts sample demonstrating extremely high mutation burden
-* [HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFs.html) - R html report for all datasets
 
 <br />
 
@@ -392,16 +387,12 @@ Argument | Description | Required
 **Command line use example**:
 
 ```
-Rscript summariseMAFsGenes.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes KRAS,SMAD4,TP53,CDKN2A,ARID1A,BRCA1,BRCA2 --out_folder MAF_summary
+cd scripts
+
+Rscript summariseMAFsGenes.R --maf_dir ../examples --maf_files simple_somatic_mutation.open.PACA-AU.maf,simple_somatic_mutation.open.PACA-CA.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes KRAS,SMAD4,TP53,CDKN2A,ARID1A,BRCA1,BRCA2 --out_folder ../examples/MAF_summary_report_genes
 ```
 <br>
 
 This will generate *[summariseMAFsGenes.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html)* report with interactive summary tables and heatmaps within *MAF_summary* folder. It will also create a folder with user-defined name containing output tables and plots described [here](README_output_files.md).
-
-### Example output
-
-Some example MAF files are located on [Spartan](https://dashboard.hpc.unimelb.edu.au/) cluster and are described in [Pancreatic-data-harmonization](https://github.com/umccr/Pancreatic-data-harmonization) repository.<br>
-
-* [HTML report](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html) - R html report for all datasets
 
 <br>
