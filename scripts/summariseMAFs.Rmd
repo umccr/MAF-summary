@@ -140,8 +140,11 @@ mut.details.datasets <- function(mafInfo, datasets, genes, type = "nonsynonymous
   
   ##### Report datasets with no mutations reported in selected genes
   if ( length(datasets.noMut) != 0 ) {
-    
-    cat(paste("Note, queried gene(s)", genes, "have no non-synonymous variants reported in the following dataset(s):", paste(datasets.noMut, collapse = ", "), "\n\n\n\n", sep=" "))
+    if ( type == "nonsynonymous" ) {
+      cat(paste("Note, none of queried gene(s) have non-synonymous variants reported in the following dataset(s):", paste(datasets.noMut, collapse = ", "), "\n\n", sep=" "))
+    } else if ( type == "silent" ) {
+      cat(paste("Note, none of queried gene(s) have silent variants reported in the following dataset(s):", paste(datasets.noMut, collapse = ", "), "\n\n", sep=" "))
+    }
   }
   
   ##### Print a list of htmlwidgets
@@ -193,17 +196,17 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         ##### Check if the genes has any synonymous vatiants
         if ( length(pchange[pchange %in% colnames(mafInfo[[dataset]]@maf.silent)]) > 0 && gene %in% mafInfo[[dataset]]@maf.silent$Hugo_Symbol && any(!is.na(as.data.frame(mafInfo[[dataset]]@maf.silent)[ , pchange  ])) ) {
         
-          cat(paste("This section was skipped for dataset", dataset, "since only synonymous variants were detected in", gene, "gene.\n\n\n\n", sep=" "))
+          cat(paste("This section was skipped for dataset", dataset, "since only synonymous variants were detected in", gene, "gene.\n\n", sep=" "))
       
         } else {
-          cat(paste("This section was skipped for dataset", dataset, "since the corresponding MAF does not contain field with amino acid changes details!\n\n\n\n", sep=" "))
+          cat(paste("This section was skipped for dataset", dataset, "since the corresponding MAF does not contain field with amino acid changes details!\n\n", sep=" "))
         }
       }
         
     } else {
         
       cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
-      cat(paste("Gene <i>", gene, "</i> has no mutations reported in dataset", dataset, "\n\n\n\n", sep=" "))
+      cat(paste("Gene <i>", gene, "</i> has no mutations reported in dataset", dataset, "\n\n", sep=" "))
     }
   }
 }
@@ -397,9 +400,8 @@ if ( !is.na(params$samples_id_cols) ) {
 }
 
 ##### Create directory for output files
-outDir <- paste(params$maf_dir, params$out_folder, sep = "/")
+outDir <- paste(params$maf_dir, params$out_folder, "results", sep = "/")
 if ( !file.exists(params$out_folder) ){
-
   dir.create(outDir, recursive=TRUE)
 }
 
@@ -584,7 +586,7 @@ saveWorkbook(wb, paste(outDir, "MAF_fields.xlsx", sep="/"), overwrite = TRUE)
 
 ##### Samples with non-synonymous variant(s)
 
-Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file. Note, only samples with detected **non-synonymous variant(s)** are reported in the table below.
+Table(s) summarising samples in individual datasets. Each table contains per-sample information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file. <span style="color:#ff0000">NOTE</span>, only samples with detected **non-synonymous variant(s)** are reported in the table below.
 
 ```{r sample_summary, comment = NA, message=FALSE, warning=FALSE}
 ##### Write samples summary into a file
@@ -613,11 +615,11 @@ for ( i in 1:length(mafFiles) ) {
 widges.list
 ```
 
-***
+`r if ( !is.null(MAF_samples.silent.df) ) { c("***") }`
 
-##### Samples with no non-synonymous variants
+`r if ( !is.null(MAF_samples.silent.df) ) { c("##### Samples with no non-synonymous variants") }`
 
-The table below lists sample(s) in which **no non-synonymous variants** were detected and hence will not be included in the summary tables/plots.
+`r if ( !is.null(MAF_samples.silent.df) ) { c("The table below lists sample(s) in which **no non-synonymous variants** were detected and hence will not be included in the summary tables/plots.") }`
 
 ```{r sample_no_nonsynonymous, comment = NA, message=FALSE, warning=FALSE}
 ##### report samples with no non-synonymous variants according to corresponding MAF file
@@ -626,17 +628,16 @@ if ( !is.null(MAF_samples.silent.df) ) {
   DT::datatable( data = MAF_samples.silent.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong("Samples with no non-synonymours variants detected")), filter = "top", extensions = 'Buttons', options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')), width = 800,  escape = FALSE ) %>%
         DT::formatStyle( columns = names(MAF_samples.silent.df), 'text-align' = 'center' )
   
-} else {
-  cat("Non-synonymous variants were detected in all samples.\n\n\n")
 }
 
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
 cat("\n\n\n")
 ```
 
-***
 
-##### `r if ( params$samples_blacklist != "none" ) { c("Excluded samples") }`
+`r if ( params$samples_blacklist != "none" ) { c("***") }`
+
+`r if ( params$samples_blacklist != "none" ) { c("##### Excluded samples") }`
 
 `r if ( params$samples_blacklist != "none" ) { c("List of samples excluded from the analysis.") }`
 
@@ -646,11 +647,10 @@ if ( params$samples_blacklist != "none" ) {
     
   DT::datatable(data = exclsamples.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;'), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
       DT::formatStyle( columns = names(exclsamples.df), 'text-align' = 'center' )
-  
 }
 ```
 
-`r if ( params$samples_blacklist != "none" ) { c("***") }`
+`r if ( params$clinical_info != "none" ) { c("***") }`
 
 `r if ( params$clinical_info != "none" ) { c("#### Samples annotation") }`
 
@@ -720,9 +720,6 @@ if ( params$genes_blacklist != "none" ) {
     
   DT::datatable(data = data.frame(Gene = exclgenes), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;'), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
     DT::formatStyle( columns = "Gene", 'text-align' = 'center' )
-  
-} else {
-  cat("No genes were excluded.\n\n\n")
 }
 ```
 
@@ -875,7 +872,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ##### Genes of interest
 
-Oncoplot(s) illustrating different types of mutations observed across samples for the **genes of interest** (if specified). The side and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively. NOTE, the top column bar illustrates the total number of alterations detected only in the genes of interest. 
+Oncoplot(s) illustrating different types of mutations observed across samples for the **genes of interest** (if specified). The side and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively. <span style="color:#ff0000">NOTE</span>, the top column bar illustrates the total number of alterations detected only in the genes of interest. 
 
 ```{r maf_oncoplot_goi, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Draw additional oncoplot if a list of genes of intereset was specified by user 
@@ -918,7 +915,7 @@ if ( params$genes_list != "none" ) {
     }
   }
 } else {
-  cat("No list with genes of interest was provided\n\n\n\n")
+  cat("No list with genes of interest was provided\n\n")
 }
 ```
 
@@ -1451,7 +1448,7 @@ for ( i in 1:length(gisticFiles) ) {
     cat("<br/><br/><br/>")
     
   } else {
-   cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n\n\n", sep=" "))
+   cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n", sep=" "))
   }
 }
 ```
@@ -1479,7 +1476,7 @@ for ( i in 1:length(gisticFiles) ) {
     cat("<br/><br/><br/>")
 
   } else {
-   cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n\n\n", sep=" "))
+   cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n", sep=" "))
   }
 }
 ```
@@ -1507,7 +1504,7 @@ for ( i in 1:length(gisticFiles) ) {
     cat("<br/><br/><br/>")
     
   } else {
-   cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n\n\n", sep=" "))
+   cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n", sep=" "))
   }
 }
 ```
@@ -1671,6 +1668,13 @@ for ( i in 1:length(mafFiles) ) {
   ##### Check if the protein change field is not empty
   if ( any(!is.na(as.data.frame(mafInfo[[i]]@data)[ , pchange  ]))  ) {
     pchangeStatus <- TRUE
+    
+    ##### Create directory for pdf files
+    mutationMapsDir <- paste0(normalizePath(outDir), "/", "MAF_mutation_maps")
+    
+    if ( !file.exists(mutationMapsDir) ){
+      dir.create(mutationMapsDir, recursive=TRUE)
+    }
   }
 }
 ```
@@ -1696,13 +1700,6 @@ for ( i in 1:length(mafFiles) ) {
 }
 
 mutRate.top.datasets <- sort(sort(mutRate.top.datasets, decreasing = TRUE)[unique(names(mutRate.top.datasets))], decreasing = TRUE)[c(1:sum(unlist(top_genes_no)))]
-
-##### Create directory for pdf files
-mutationMapsDir <- paste0(normalizePath(outDir), "/", "MAF_mutation_maps")
-
-if ( !file.exists(mutationMapsDir) ){
-  dir.create(mutationMapsDir, recursive=TRUE)
-}
 ```
 
 ```{r prot_structre, comment = NA, message=FALSE, warning=FALSE, eval=pchangeStatus}
@@ -1711,7 +1708,7 @@ gff = system.file('extdata', 'protein_domains.RDs', package = 'maftools')
 gff = readRDS(file = gff)
 ```
 
-Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Presented lollipop plot(s) show mutation spots on protein structure for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) across all datasets.  <span style="color:#ff0000">NOTE</span>, plots are available only for MAF file(s) containing field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
+Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Presented lollipop plot(s) show mutation spots on protein structure for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) across all datasets. <span style="color:#ff0000">NOTE</span>, plots are available only for MAF file(s) containing field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
 
 ```{r lollipop_plots, echo=FALSE, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Generate lollipop plot for each dataset for top mutated genes
@@ -1725,7 +1722,7 @@ if ( pchangeStatus ) {
       try(lollipops.datasets(mafInfo = mafInfo, datasets  = datasets.list, gene  = names(mutRate.top.datasets)[i]), silent = TRUE)
       cat("\n\n***\n")
     } else {
-      cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[i], "is not available\n\n\n\n", sep=" "))
+      cat(paste("The protein structure for protein encoded by", names(mutRate.top.datasets)[i], "is not available\n\n", sep=" "))
       cat("\n***\n")
     }
   }
@@ -1794,7 +1791,7 @@ if ( params$genes_list != "none" ) {
     widges.list[[i]] <- mut.details.datasets(mafInfo[i], datasets.list[i], goi[[i]], type = "nonsynonymous")
   }
 } else {
-  cat("No list with genes of interest was provided\n\n\n\n")
+  cat("No list with genes of interest was provided\n\n")
 }
 
 ##### Print a list of htmlwidgets
@@ -1849,7 +1846,7 @@ widges.list
 
 ### Genes
 
-Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. Note, for transparency only the **`r length(unique(unlist(top_genes_no[[i]])))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) are presented.
+Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. NOTE, for transparency only the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r params$genes_min` % of patients) are presented.
 
 ```{r gene_summary_heatmap, comment = NA, message=FALSE, warning=FALSE, fig.width = 6, fig.height = 8}
 suppressMessages(library(plotly))
