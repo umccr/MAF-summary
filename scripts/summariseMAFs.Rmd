@@ -188,7 +188,8 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         
         ##### Remove redundant pdf plot
         file.remove(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""))
-    
+        dev.off()
+        
       ##### ...otherwise leave a message
       } else {
         
@@ -843,7 +844,6 @@ for ( i in 1:length(mafFiles) ) {
     ##### Read in the oncoplots PNG files
     cat("![](",paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""),")")
     cat("<br/>")
-    
   } else {
       cat(paste0("No genes are mutated in at least ", params$genes_min, "% of patients.\n\n\n"))
   }
@@ -1143,7 +1143,6 @@ for ( i in 1:length(mafFiles) ) {
   
   par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
   maftools::geneCloud(input = mafInfo[[i]], minMut = 3, top = top_genes_no[[i]])
-  
   cat("<br/><br/>")
 }
 ```
@@ -1331,7 +1330,6 @@ for ( i in 1:length(mafFiles) ) {
         APOBEC_Enriched][APOBEC_Enriched %in% "yes"]) == 0 ) {
     cat("**None of the samples are enriched for APOBEC**")
     cat("<br/><br/><br/>")
-    
   } else {
     try(plotApobecDiff(tnm = mutSign[[i]], maf = mafInfo[[i]], pVal = 0.2), silent = TRUE)
     cat("<br/><br/><br/>")
@@ -1361,7 +1359,6 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Exclusive/co-occurance event analysis on top 25 mutated genes
   somInter[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], top = 25, pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
-  
   cat("<br/><br/>")
 }
 ```
@@ -1404,7 +1401,6 @@ for ( i in 1:length(mafFiles) ) {
   genes <- unique( unlist(as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene1" ]) )
   
   maftools::oncostrip(maf = mafInfo[[i]], genes = genes, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
-  
   cat("<br/><br/>")
 }
 ```
@@ -1421,7 +1417,6 @@ for ( i in 1:length(mafFiles) ) {
 
 ```{r gistic_genome_plot, comment = NA, message=FALSE, warning=FALSE, results="asis", eval = runGistic }
 for ( i in 1:length(gisticFiles) ) {
-  
   if ( gisticInfo[[i]]$status ) {
     
     ##### Save the genome plot as PDF for each dataset
@@ -1436,7 +1431,6 @@ for ( i in 1:length(gisticFiles) ) {
     ##### Read in the genome plots PNG files
     cat("![](",paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".png", sep = ""),")")
     cat("<br/><br/><br/>")
-    
   } else {
    cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n", sep=" "))
   }
@@ -1449,7 +1443,6 @@ for ( i in 1:length(gisticFiles) ) {
 
 ```{r gistic_bubble_plot, comment = NA, message=FALSE, warning=FALSE, results="asis", eval = runGistic }
 for ( i in 1:length(gisticFiles) ) {
-  
   if ( gisticInfo[[i]]$status ) {
     
     ##### Save the bubble plot as PDF for each dataset
@@ -1464,7 +1457,6 @@ for ( i in 1:length(gisticFiles) ) {
     ##### Read in the bubble plot PNG files
     cat("![](",paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".png", sep = ""),")")
     cat("<br/><br/><br/>")
-
   } else {
    cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n", sep=" "))
   }
@@ -1477,7 +1469,6 @@ for ( i in 1:length(gisticFiles) ) {
 
 ```{r gistic_oncoplot, comment = NA, message=FALSE, warning=FALSE, results="asis", eval = runGistic }
 for ( i in 1:length(gisticFiles) ) {
-  
   if ( gisticInfo[[i]]$status ) {
     
     ##### Save the plot as PNG
@@ -1492,7 +1483,6 @@ for ( i in 1:length(gisticFiles) ) {
     ##### Read in the oncoplot PNG files
     cat("![](",paste(outDir, "/MAF_gisticOncoplot_", datasets.list[i], ".png", sep = ""),")")
     cat("<br/><br/><br/>")
-    
   } else {
    cat(paste("Information about copy-number alterations for", datasets.list[i], "is not available\n\n", sep=" "))
   }
@@ -1561,7 +1551,6 @@ for ( i in 1:length(mafFiles) ) {
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
   dgi[[i]] = drugInteractions(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.75)
-  
   cat("<br/><br/>")
 }
 ```
@@ -1578,7 +1567,6 @@ Table(s) with known/reported drugs to interact with potential druggable genes.
 widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
-  
   dgi.table <- as.data.frame(dgi[[i]])[, colnames(dgi[[i]]) %!in% "gene_long_name" ]
   
   widges.list[[i]] <- DT::datatable(data = dgi.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
@@ -1814,14 +1802,11 @@ for ( i in 1:length(mafFiles) ) {
   sampleSummary <- subset(sampleSummary, select=-c(Tumor_Sample_Barcode, total))
 
   ##### Generate interactive heatmap
-  p <- heatmaply(sampleSummary, main = datasets.list[i], Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Sample","Mutation_type","Count")) %>%
+  widges.list[[i]] <- heatmaply(sampleSummary, main = datasets.list[i], Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Sample","Mutation_type","Count")) %>%
   layout(width  = 900, height = 400, margin = list(l=150, r=10, b=80, t=50, pad=2), font = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
 
-  ##### Add plot to the list for htmlwidgets
-  widges.list[[i]] <- as_widget(ggplotly(p))
-
   ##### Save the heatmap as html (PLOTLY)
-  saveWidgetFix(as_widget(p), paste0(outDir, "/MAF_sample_summary_heatmap_", datasets.list[i], ".html"), selfcontained = TRUE)
+  saveWidgetFix(as_widget(widges.list[[i]]), paste0(outDir, "/MAF_sample_summary_heatmap_", datasets.list[i], ".html"), selfcontained = TRUE)
 }
 
 ##### Detach plotly package. Otherwise it clashes with other graphics devices
@@ -1830,6 +1815,7 @@ detach("package:plotly", unload=FALSE)
 
 ##### Print a list of htmlwidgets
 widges.list
+grDevices::dev.off()
 ```
 
 ***
@@ -1853,14 +1839,11 @@ for ( i in 1:length(mafFiles) ) {
   geneSummary <- subset(geneSummary, select=-c(Hugo_Symbol))
 
   ##### Generate interactive heatmap
-  p <- heatmaply(geneSummary, main = datasets.list[i], Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Mutation_type","Count")) %>%
+  widges.list[[i]]<- heatmaply(geneSummary, main = datasets.list[i], Rowv=NULL, Colv=NULL, scale="none", dendrogram="none", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Mutation_type","Count")) %>%
   layout(width  = 900, height = 400, margin = list(l=150, r=10, b=80, t=50, pad=2), font = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
-  
-  ##### Add plot to the list for htmlwidgets
-  widges.list[[i]] <- as_widget(ggplotly(p))
 
   ##### Save the heatmap as html (PLOTLY)
-  saveWidgetFix(as_widget(p), paste0(outDir, "/MAF_gene_summary_heatmap_", datasets.list[i], ".html"), selfcontained = TRUE)
+  saveWidgetFix(as_widget(widges.list[[i]]), paste0(outDir, "/MAF_gene_summary_heatmap_", datasets.list[i], ".html"), selfcontained = TRUE)
 }
 
 ##### Detach plotly package. Otherwise it clashes with other graphics devices
@@ -1901,7 +1884,6 @@ if ( length(mafFiles) != 1 ) {
   ################################################################################
   
   combNo <- factorial(length(datasets.list))/(factorial(length(datasets.list)-2)*(factorial(2))) # n!/((n-r)!(r!))
-  
   combNames <- NULL
   mafCompare.res <- vector("list", combNo)
   
@@ -1936,9 +1918,8 @@ if ( length(mafFiles) != 1 ) {
   ##### Generate interactive heatmap
   p <- heatmaply(mafCompare.res.common.p, Rowv=as.dendrogram(hr), Colv=NULL, viridis(n=256, alpha = 1, begin = 1, end = 0, option = "viridis"), scale="none", dendrogram="row", trace="none", hide_colorbar = FALSE, fontsize_row = 8, label_names=c("Gene","Comparison","P-value")) %>%
     layout(width  = 900, height = 900, margin = list(l=150, r=10, b=350, t=50, pad=2), font = list(size=16), xaxis = list(tickfont=list(size=10)), yaxis = list(tickfont=list(size=10)))
-  
-  as_widget(ggplotly(p))
   p
+  
   ##### Save the heatmap as html (PLOTLY)
   saveWidgetFix(as_widget(p), paste0(outDir, "/MAF_pair-wise_comparisons_heatmap.html"), selfcontained = TRUE)
 
@@ -1947,7 +1928,6 @@ if ( length(mafFiles) != 1 ) {
   detach("package:plotly", unload=FALSE)
   
 } else {
-  
   cat(paste("This section was skipped since MAF for only one dataset (", datasets.list[i], ") was provided.\n\n", sep=" "))
 }
 ```
@@ -1998,7 +1978,6 @@ for ( i in 1:length(mafFiles) ) {
   ##### Compare mutation load against TCGA cohorts
   tcgaCompare(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
   mtext("Mutation load in TCGA cohorts", outer=TRUE,  cex=1, line=-0.5)
-  
   invisible(dev.off())
 }
 
@@ -2015,7 +1994,6 @@ for ( i in 1:length(mafFiles) ) {
 
 ```{r params_info, comment = NA}
 for ( i in 1:length(params) ) {
-
   cat(paste("Parameter: ", names(params)[i], "\nValue: ", paste(unlist(params[i]), collapse = ","), "\n\n", sep=""))
 }
 ```
