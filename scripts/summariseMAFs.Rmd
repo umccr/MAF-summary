@@ -114,7 +114,6 @@ mut.details.datasets <- function(mafInfo, datasets, genes, type = "nonsynonymous
     
     ##### Include only non-synonymous variants
     } else {
-      
         mut.details.genes <- mafInfo[[datasets[i]]]@data[ mafInfo[[datasets[i]]]@data[, Hugo_Symbol] %in% genes, ]
     }
     
@@ -204,7 +203,6 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
       }
         
     } else {
-        
       cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
       cat(paste("Gene <i>", gene, "</i> has no mutations reported in dataset", dataset, "\n\n", sep=" "))
     }
@@ -275,14 +273,13 @@ clinicalFeatures <- vector("list", length(mafFiles))
 names(clinicalFeatures) <- datasets.list
 
 if ( params$clinical_info != "none" ){
-  
   clinicalFiles <- unlist(strsplit(params$clinical_info, split=',', fixed=TRUE))
   
   for ( i in 1:length(mafFiles) ) {
     clinicalInfo[[i]] <- read.table(clinicalFiles[[i]], sep="\t", as.is=TRUE, header=TRUE, row.names=NULL, quote = "")
+    
     ##### Define columns to be drawn in the oncoplot(s)
     if ( params$clinical_features != "none" ){
-    
       clinicalFeatures[[i]] <- unlist(strsplit(params$clinical_features, split=',', fixed=TRUE))
       
       ##### Keep only those that are acrually present in provided clinical information file
@@ -323,7 +320,6 @@ gisticInfo <- vector("list", length(mafFiles))
 names(gisticInfo) <- datasets.list
   
 if ( params$gistic != "none" ){
-  
   gisticFiles <- unlist(strsplit(params$gistic, split=',', fixed=TRUE))
   
   for ( i in 1:length(mafFiles) ) {
@@ -342,7 +338,6 @@ if ( params$gistic != "none" ){
     if ( !is.na(gisticInfo[[i]]$all.lesions[1]) && !is.na(gisticInfo[[i]]$amp.genes[1]) && !is.na(gisticInfo[[i]]$del.genes[1]) && !is.na(gisticInfo[[i]]$scores.gis[1]) ) {
       
     runGistic <- TRUE
-    
     gisticInfo[[i]]$status <- TRUE
     
     gisticInfo[[i]]$summary = readGistic(gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis)
@@ -359,7 +354,6 @@ if ( params$gistic != "none" ){
 
 ##### Change the column to be used to indicate samples' IDs
 if ( !is.na(params$samples_id_cols) ) {
-  
   samples_id_cols <- make.names(unlist(strsplit(params$samples_id_cols, split=',', fixed=TRUE)))
   
   for ( i in 1:length(mafFiles) ) {
@@ -421,7 +415,6 @@ if ( params$genes_list != "none" ){
 ```{r include_exclude_samples, comment=NA, message=FALSE, warning=FALSE, results='hide'}
 ##### Include user-derined samples(s) for the analysis
 if ( params$samples_list != "none" ) {
-    
   for ( i in 1:length(mafFiles) ) {
       
     ##### Read in list of samples to be excluded
@@ -434,7 +427,6 @@ if ( params$samples_list != "none" ) {
     
     ##### Now read the data subset as a maf object
     if ( gisticInfo[[i]]$status ) {
-      
       mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
       
     } else {
@@ -444,7 +436,6 @@ if ( params$samples_list != "none" ) {
 }
 
 if ( params$samples_blacklist != "none" ) {
-    
   for ( i in 1:length(mafFiles) ) {
       
     ##### Read in list of samples to be excluded
@@ -472,7 +463,6 @@ if ( params$samples_blacklist != "none" ) {
 ```{r exclude_genes, comment=NA, message=FALSE, warning=FALSE}
 ##### Exclude user-derined gene(s) from the analysis
 if ( params$genes_blacklist != "none" ) {
-    
   for ( i in 1:length(mafFiles) ) {
     
     ##### Read in list of genes to be excluded
@@ -542,7 +532,6 @@ wb <- createWorkbook("MAF_summary.xlsx")
 
 ##### Add worksheets, one for each dataset
 for ( i in 1:length(mafFiles) ) {
-  
     addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
     writeData(wb, sheet = i, mafInfo[[i]]@summary)
 }
@@ -572,7 +561,6 @@ wb <- createWorkbook("MAF_fields.xlsx")
 
 ##### Add worksheets, one for each dataset
 for ( i in 1:length(mafFiles) ) {
-  
     addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
     writeData(wb, sheet = i, maftools::getFields(mafInfo[[i]]))
 }
@@ -595,7 +583,6 @@ wb <- createWorkbook("MAF_sample_summary.xlsx")
 
 ##### Add worksheets, one for each dataset
 for ( i in 1:length(mafFiles) ) {
-  
     addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
     writeData(wb, sheet = i, maftools::getSampleSummary(mafInfo[[i]]))
 }
@@ -624,10 +611,8 @@ widges.list
 ```{r sample_no_nonsynonymous, comment = NA, message=FALSE, warning=FALSE}
 ##### report samples with no non-synonymous variants according to corresponding MAF file
 if ( !is.null(MAF_samples.silent.df) ) {
-
   DT::datatable( data = MAF_samples.silent.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong("Samples with no non-synonymours variants detected")), filter = "top", extensions = 'Buttons', options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')), width = 800,  escape = FALSE ) %>%
         DT::formatStyle( columns = names(MAF_samples.silent.df), 'text-align' = 'center' )
-  
 }
 
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
@@ -644,7 +629,6 @@ cat("\n\n\n")
 ```{r excluded_samples_table, comment = NA, message=FALSE, warning=FALSE}
 ##### Present a samples table in the html report
 if ( params$samples_blacklist != "none" ) {
-    
   DT::datatable(data = exclsamples.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;'), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 1), deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
       DT::formatStyle( columns = names(exclsamples.df), 'text-align' = 'center' )
 }
@@ -688,7 +672,6 @@ wb <- createWorkbook("MAF_gene_summary.xlsx")
 
 ##### Add worksheets, one for each dataset
 for ( i in 1:length(mafFiles) ) {
-  
     addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
     writeData(wb, sheet = i, maftools::getGeneSummary(mafInfo[[i]]))
 }
@@ -717,7 +700,6 @@ widges.list
 ```{r excluded_genes_table, comment = NA, message=FALSE, warning=FALSE}
 ##### Present a gene table in the html report
 if ( params$genes_blacklist != "none" ) {
-    
   DT::datatable(data = data.frame(Gene = exclgenes), caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;'), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
     DT::formatStyle( columns = "Gene", 'text-align' = 'center' )
 }
@@ -879,7 +861,6 @@ Oncoplot(s) illustrating different types of mutations observed across samples fo
 ###### Generate separate plot for each dataset
 if ( params$genes_list != "none" ) {
   for ( i in 1:length(mafFiles) ) {
-  
     if ( length(goi[[i]]) > 1 ) {
       
       cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
@@ -896,19 +877,28 @@ if ( params$genes_list != "none" ) {
         
         cat(paste("<i>", top_genes_goi[[i]], "</i>", collapse = ", "), "\n\n")
         
-        ##### Save the plot as PNG
-        png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height[[i]], units = "px", res = 200, type="cairo" )
+        ##### Check if the genes of interest have any non-synonymus mutations
+        if ( length(goi[[i]][ goi[[i]] %in% mafInfo[[i]]@data$Hugo_Symbol ]) > 1  ) {
           
-        ##### Drawing oncoplots for the top mutated genes in each dataset
-        plot.new()
-        par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE)
-        dev.off()
-        
-        ##### Read in the oncoplots PNG files
-        cat("![](",paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""),")")
-        cat("<br/>")
-  
+          ##### Save the plot as PNG
+          png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height[[i]], units = "px", res = 200, type="cairo" )
+            
+          ##### Drawing oncoplots for the top mutated genes in each dataset
+          plot.new()
+          par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
+          maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE)
+          dev.off()
+          
+          ##### Read in the oncoplots PNG files
+          cat("![](",paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""),")")
+          cat("<br/>")
+          
+        } else if ( length(goi[[i]][ goi[[i]] %in% mafInfo[[i]]@maf.silent$Hugo_Symbol ]) > 1  ) {
+          cat(paste0("**None of the genes of interest have non-synonymous variants detected and for *", paste(goi[[i]][ goi[[i]] %in% mafInfo[[i]]@maf.silent$Hugo_Symbol ], collapse = ", "), "* only silent variants were detected in ", datasets.list[i], " dataset**.\n\n\n"))
+          
+        } else {
+          cat(paste0("**None of the genes of interest have any variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
+        }
       } else {
         cat(paste0("All genes of interest are among the top ", top_genes_no[[i]], " most frequently mutated genes (mutated in at least ", params$genes_min, "% of patients) or no non-synonymous variants were detected in ", datasets.list[i], " dataset.\n\n\n"))
       }
@@ -1989,9 +1979,13 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
     if ( length(goi[[i]]) > 1 ) {
       
-      plot.new()
-      par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-      maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE)
+      ##### Check if the genes of interest have any non-synonymus mutations
+      if ( length(goi[[i]][ goi[[i]] %in% mafInfo[[i]]@data$Hugo_Symbol ]) > 1  ) {
+      
+        plot.new()
+        par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
+        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE)
+      }
     }
   }
   
