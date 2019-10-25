@@ -520,6 +520,13 @@ for ( i in 1:length(mafFiles) ) {
     colnames(MAF_samples.silent.df) <- c("Dataset", "Sample")
   }
 }
+
+##### List silent variants classifications
+silent_categories <- NULL
+
+for ( i in 1:length(mafFiles) ) {
+  silent_categories <- unique( c(silent_categories, mafInfo[[i]]@maf.silent$Variant_Classification) )
+}
 ```
 
 ***
@@ -755,6 +762,9 @@ if ( params$genes_list != "none" ) {
   genes_list_goi <- vector("list", length(mafFiles))
   names(genes_list_goi) <- datasets.list
   
+  genes_list_goi.silent <- vector("list", length(mafFiles))
+  names(genes_list_goi.silent) <- datasets.list
+  
   goi_absent <- vector("list", length(mafFiles))
   names(goi_absent) <- datasets.list
   
@@ -775,14 +785,18 @@ if ( params$genes_list != "none" ) {
     
     ##### Record genes of interest that are not present in the MAF file
     goi_absent[[i]] <- goi[[i]][ goi[[i]] %!in% maftools::getGeneSummary(mafInfo[[i]])$Hugo_Symbol ]
+    goi_absent[[i]] <- goi_absent[[i]][ goi_absent[[i]] %!in% mafInfo[[i]]@maf.silent$Hugo_Symbol ]
+    
+    genes_list_goi.silent[[i]] <- goi[[i]][ goi[[i]] %in% mafInfo[[i]]@maf.silent$Hugo_Symbol ]
     
     ##### Keep the genes of interest and most frequently mutated genes separately
     top_genes_goi[[i]] <- goi[[i]][ goi[[i]] %in% top_genes[[i]] ]
     genes_list_goi[[i]] <- goi[[i]][ goi[[i]] %!in% top_genes[[i]] ]
     
-    ##### Remove genes absent in MAF from the genes of interest list
+    ##### Remove genes absent in MAF from the genes of interest list. Also remove genes with silent mutations
     genes_list_goi[[i]] <- genes_list_goi[[i]][ genes_list_goi[[i]] %!in% goi_absent[[i]] ]
-
+    genes_list_goi[[i]] <- genes_list_goi[[i]][ genes_list_goi[[i]] %!in% genes_list_goi.silent[[i]] ]
+    
     ##### Set height for oncoplots
     if ( length(goi[[i]]) > 100 ) {
       oncoplot_goi_height[[i]] <- 100*length(goi[[i]])/2
@@ -854,7 +868,7 @@ for ( i in 1:length(mafFiles) ) {
     cat("![](",paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""),")")
     cat("<br/>")
   } else {
-      cat(paste0("No genes are mutated in at least ", genes_min[[i]], "% of patients.\n\n\n"))
+      cat(paste0("Less than 2 genes are mutated in at least ", genes_min[[i]], "% of patients.\n\n\n"))
   }
 }
 ```
@@ -887,7 +901,7 @@ if ( params$genes_list != "none" ) {
         cat(paste("<i>", top_genes_goi[[i]], "</i>", collapse = ", "), "\n\n")
         
         ##### Check if the genes of interest have any non-synonymus mutations
-        if ( length(goi[[i]][ goi[[i]] %in% mafInfo[[i]]@data$Hugo_Symbol ]) > 1  ) {
+        if ( length(top_genes_goi[[i]]) > 1  ) {
           
           ##### Save the plot as PNG
           png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height[[i]], units = "px", res = 200, type="cairo" )
@@ -902,8 +916,8 @@ if ( params$genes_list != "none" ) {
           cat("![](",paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""),")")
           cat("<br/>")
           
-        } else if ( length(goi[[i]][ goi[[i]] %in% mafInfo[[i]]@maf.silent$Hugo_Symbol ]) > 1  ) {
-          cat(paste0("**None of the genes of interest have non-synonymous variants detected and for *", paste(goi[[i]][ goi[[i]] %in% mafInfo[[i]]@maf.silent$Hugo_Symbol ], collapse = ", "), "* only silent variants were detected in ", datasets.list[i], " dataset**.\n\n\n"))
+        } else if ( length(genes_list_goi.silent[[i]]) > 0  ) {
+          cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected and for *", paste(genes_list_goi.silent[[i]], collapse = ", "), "* only silent variants were detected in ", datasets.list[i], " dataset**.\n\n\n"))
           
         } else {
           cat(paste0("**None of the genes of interest have any variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
@@ -1352,9 +1366,11 @@ for ( i in 1:length(mafFiles) ) {
 
 Many disease causing genes in cancer are co-occurring or show strong exclusiveness in their mutation pattern. These **mutually exclusive** or **co-occurring set of genes** were detected using *pair-wise Fisher’s Exact test*. NOTE, only top 25 most frequently mutated genes were considered in the analysis.
 
-### Pair-wise plot
+### Pair-wise plot {.tabset}
 
 Heatmap of observed pairwise mutation patterns. <span style="color:#48d47d">Green</span> colours denote preferential co-mutation, while <span style="color:#b3408b">pink</span> colours indicate mutual exclusivity. 
+
+#### Recurrently mutated genes
 
 ```{r som_interactions_plot, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Run Somatic Interactions analysis for each dataset
@@ -1367,16 +1383,47 @@ for ( i in 1:length(mafFiles) ) {
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
   ##### Exclusive/co-occurance event analysis on top 25 mutated genes
-  somInter[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], top = 25, pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
+  if ( nrow(mafInfo[[i]]@data) > 1 ) {
+    somInter[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], top = 25, pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
+    
+  } else {
+    cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
+  }
   cat("<br/><br/>")
 }
 ```
 
 ***
 
-### Pair-wise table
+#### Genes of interest
+
+```{r som_interactions_plot_goi, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+##### Run Somatic Interactions analysis for each dataset
+##### Create a list to store signature analysis results info for individual datasets
+somInter_goi <- vector("list", length(mafFiles))
+names(somInter_goi) <- datasets.list
+
+for ( i in 1:length(mafFiles) ) {
+  
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  
+   if ( length(genes_list_goi[[i]]) > 1 ) {
+  ##### Exclusive/co-occurance event analysis on top 25 mutated genes
+  somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = goi[[i]], pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
+  cat("<br/><br/>")
+   } else {
+     cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
+   }
+}
+```
+
+***
+
+### Pair-wise table {.tabset}
 
 Table with *pair-wise Fisher’s Exact test* results indicating **mutual exclusivity** and **co-occurrance** of genes in individual dataset(s). 
+
+#### Recurrently mutated genes
 
 ```{r som_interactions_table, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Create a list for htmlwidgets
@@ -1397,9 +1444,36 @@ widges.list
 
 ***
 
-### Oncostrip
+#### Genes of interest
+
+```{r som_interactions_table_goi, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  
+  somInter.table <- as.data.frame(somInter_goi[[i]]$pairs)[, colnames(somInter_goi[[i]]$pairs) %!in% c("00","11","01","10") ]
+  
+  if ( length(genes_list_goi[[i]]) > 1 ) {
+    widges.list[[i]] <- DT::datatable( data = somInter.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
+        DT::formatStyle( columns = names(somInter.table), 'text-align' = 'center' ) %>%
+        DT::formatRound(columns = c("pValue", "oddsRatio"), 1)
+  } else {
+    cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
+  }
+}
+  
+##### Print a list of htmlwidgets
+widges.list
+```
+
+***
+
+### Oncostrip {.tabset}
 
 [Oncoplot]s illustrating **mutually exclusive or co-occurring** set of **genes** (*P-value* < 0.05) in individual dataset(s).
+
+#### Recurrently mutated genes
 
 ```{r som_interactions_oncostrip, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Generate oncostrip plot for each dataset
@@ -1411,6 +1485,29 @@ for ( i in 1:length(mafFiles) ) {
   
   maftools::oncostrip(maf = mafInfo[[i]], genes = genes, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
   cat("<br/><br/>")
+}
+```
+
+***
+
+#### Genes of interest
+
+
+```{r som_interactions_oncostrip_goi, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+##### Generate oncostrip plot for each dataset
+for ( i in 1:length(mafFiles) ) {
+  
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  
+  if ( length(genes_list_goi[[i]]) > 1 ) {
+    
+    genes <- unique( unlist(as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene1" ]) )
+    
+    maftools::oncostrip(maf = mafInfo[[i]], genes = genes, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+    cat("<br/><br/>")
+  } else {
+    cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
+  }
 }
 ```
 
@@ -1675,7 +1772,7 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Add genes of interest to the list (if specified)
   if ( params$genes_list != "none" ){
-    genes.top <- c(genes.top, genes_list_goi[[i]])
+    genes.top <- unique(c(genes.top, genes_list_goi[[i]]))
   }
     
   sampleSize <- as.numeric(mafInfo[[i]]@summary[ID %in% "Samples", summary])
@@ -1683,10 +1780,10 @@ for ( i in 1:length(mafFiles) ) {
   mutRate.top <- round(getGeneSummary(x = mafInfo[[i]])[ Hugo_Symbol %in% genes.top, MutatedSamples]/sampleSize * 100, digits = 2)
   names(mutRate.top) <- genes.top
   
-  mutRate.top.datasets <- c( mutRate.top.datasets, mutRate.top)
+  mutRate.top.datasets <- c(mutRate.top.datasets, mutRate.top)
 }
 
-mutRate.top.datasets <- sort(sort(mutRate.top.datasets, decreasing = TRUE)[unique(names(mutRate.top.datasets))], decreasing = TRUE)[c(1:sum(unlist(top_genes_no)))]
+mutRate.top.datasets <- sort(mutRate.top.datasets, decreasing = TRUE)[unique(names(mutRate.top.datasets))]
 ```
 
 ```{r prot_structre, comment = NA, message=FALSE, warning=FALSE, eval=pchangeStatus}
@@ -1728,27 +1825,21 @@ if ( pchangeStatus ) {
 
 Tables with detailed information, as as provided in corresponding MAF file(s), for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r gsub(",", ", ", params$genes_min)` % of patients, respectively) across all datasets, as well as for the **genes of interest** (if specified) in individual dataset(s).
 
-```{r details_mut_table, comment = NA, message=FALSE, warning=FALSE}
-##### Provide detiles information for each dataset for user-defined number of top mutated genes
-##### Create a new workbook
-wb <- createWorkbook("MAF_top_mutations_details.xlsx")
+<details>
+<summary>Variants consequence definitions</summary>
+<font size="2">
 
-##### Add worksheets, one for each dataset
-for ( i in 1:length(mafFiles) ) {
-  
-  ##### Extract mutation details
-  mut.details <- mafInfo[[i]]@data[ mafInfo[[i]]@data[, Hugo_Symbol] %in% maftools::getGeneSummary(mafInfo[[i]])$Hugo_Symbol[1:top_genes_no[[i]]], ]
+* **Non-synonymous variants** are defined as variants with the following consequences: *`r paste(params$nonSyn_list, collapse = ", ")`*.
+* **Silent variants** are defined as variants with the following consequences: *`r paste(silent_categories, collapse = ", ")`*.
 
-  addWorksheet(wb, substring(datasets.list[i], 0, 31), tabColour = datasets.colour[[1]][i])
-  writeData(wb, sheet = i, mut.details[ order(mut.details$Hugo_Symbol) , ])
-}
+</font> 
+</details>
 
-saveWorkbook(wb, paste(outDir, "MAF_top_mutations_details.xlsx", sep="/"), overwrite = TRUE)
-```
+### Recurrently mutated genes {.tabset .tabset-fade}
 
-### Recurrently mutated genes
+#### Non-synonymous
 
-```{r details_mut, comment = NA, message=FALSE, warning=FALSE}
+```{r details_mut_nonsynon, comment = NA, message=FALSE, warning=FALSE}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
@@ -1766,9 +1857,31 @@ cat("\n\n\n")
 
 ***
 
-### Genes of interest
+#### Silent
 
-```{r details_mut_goi, comment = NA, message=FALSE, warning=FALSE}
+```{r details_mut_silent, comment = NA, message=FALSE, warning=FALSE}
+##### Provide detiles information for each dataset for user-defined number of top mutated genes
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- mut.details.datasets(mafInfo[i], datasets.list[i], maftools::getGeneSummary(mafInfo[[i]])$Hugo_Symbol[1:top_genes_no[[i]]], type = "silent")
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+***
+
+### Genes of interest {.tabset .tabset-fade}
+
+#### Non-synonymous
+
+```{r details_mut_goi_nonsynon, comment = NA, message=FALSE, warning=FALSE}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
@@ -1776,6 +1889,30 @@ widges.list <- htmltools::tagList()
 if ( params$genes_list != "none" ) {
   for ( i in 1:length(mafFiles) ) {
     widges.list[[i]] <- mut.details.datasets(mafInfo[i], datasets.list[i], goi[[i]], type = "nonsynonymous")
+  }
+} else {
+  cat("No list with genes of interest was provided\n\n")
+}
+
+##### Print a list of htmlwidgets
+widges.list
+
+##### Add extra lines to make sure that this section doesn't overlap with the next one
+cat("\n\n\n")
+```
+
+***
+
+#### Silent
+
+```{r details_mut_goi_silent, comment = NA, message=FALSE, warning=FALSE}
+##### Provide detiles information for each dataset for user-defined number of top mutated genes
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+if ( params$genes_list != "none" ) {
+  for ( i in 1:length(mafFiles) ) {
+    widges.list[[i]] <- mut.details.datasets(mafInfo[i], datasets.list[i], goi[[i]], type = "silent")
   }
 } else {
   cat("No list with genes of interest was provided\n\n")
@@ -1968,7 +2105,7 @@ for ( i in 1:length(mafFiles) ) {
     if ( length(goi[[i]]) > 1 ) {
       
       ##### Check if the genes of interest have any non-synonymus mutations
-      if ( length(goi[[i]][ goi[[i]] %in% mafInfo[[i]]@data$Hugo_Symbol ]) > 1  ) {
+      if ( length(top_genes_goi[[i]]) > 1  ) {
       
         plot.new()
         par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
