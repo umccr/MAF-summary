@@ -76,7 +76,7 @@ option_list <- list(
               help="Directory with MAF files"),
   make_option(c("-m", "--maf_files"), action="store", default=NA, type='character',
               help="List of MAF files to be processed"),
-  make_option(c("-f", "--maf_fields"), action="store", default=NA, type='character',
+  make_option(c("-f", "--maf_fields"), action="store", default="all", type='character',
               help="Fields to be kept in merged MAF"),
   make_option(c("-o", "--output"), action="store", default=NA, type='character',
               help="Location and name for the merged MAF file")
