@@ -140,7 +140,7 @@ mut.details.datasets <- function(mafInfo, datasets, genes, type = "nonsynonymous
   ##### Report datasets with no mutations reported in selected genes
   if ( length(datasets.noMut) != 0 ) {
     if ( type == "nonsynonymous" ) {
-      cat(paste("Note, none of queried gene(s) have non-synonymous variants reported in the following dataset(s):", paste(datasets.noMut, collapse = ", "), "\n\n", sep=" "))
+      cat(paste("NOTE: none of queried gene(s) have non-synonymous variants reported in the following dataset(s):", paste(datasets.noMut, collapse = ", "), "\n\n", sep=" "))
     } else if ( type == "silent" ) {
       cat(paste("Note, none of queried gene(s) have silent variants reported in the following dataset(s):", paste(datasets.noMut, collapse = ", "), "\n\n", sep=" "))
     }
@@ -156,7 +156,7 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
   ##### Create a list to store MAF info for individual datasets
   for ( dataset in datasets ) {
     
-    mut = subsetMaf(maf = mafInfo[[dataset]], includeSyn = TRUE, genes = gene, mafObj = FALSE, query = "Variant_Type != 'CNV'")
+    mut = subsetMaf(maf = mafInfo[[dataset]], includeSyn = FALSE, genes = gene, mafObj = FALSE, query = "Variant_Type != 'CNV'")
     
     ##### Check if the gene has any mutations in correspoding dataset
     if ( nrow(mut) != 0 ) {
@@ -173,22 +173,29 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
         
         cat(paste("\n\n <b>", dataset, "</b> \n\n", sep=" "))
         
-        ##### Make it plot to a dummy graphics device file (e.g. /dev/null) to avoid plotting to the console
-        pdf(file=paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf"), width = 8, height = 5)
-        lollipopPlot.image <- capture.output(maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = pchange, printCount = FALSE, showDomainLabel = FALSE, repel = FALSE, labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
-        invisible(dev.off())
+        ##### Check if non-synonymous variats are detected
+        if ( gene %in% mut$Hugo_Symbol ) {
         
-        ##### Export pdf to png
-        lollipopPlot.image <- image_read_pdf(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""), pages = NULL, density = 300)
-        image_write(lollipopPlot.image, path = paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".png", sep = ""), format = "png")
-        
-        ##### Read in the PNG files
-        cat("![](",paste(paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_")), ".png", sep = ""),")")
-        cat("<br/><br/><br/>")
-        
-        ##### Remove redundant pdf plot
-        file.remove(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""))
-        dev.off()
+          ##### Make it plot to a dummy graphics device file (e.g. /dev/null) to avoid plotting to the console
+          pdf(file=paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf"), width = 8, height = 5)
+          lollipopPlot.image <- capture.output(maftools::lollipopPlot(maf = mafInfo[[dataset]], gene = gene, AACol = pchange, printCount = FALSE, showDomainLabel = FALSE, repel = FALSE, labelPos = "all" , showMutationRate = TRUE, cBioPortal = TRUE))
+          invisible(dev.off())
+          
+          ##### Export pdf to png
+          lollipopPlot.image <- image_read_pdf(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""), pages = NULL, density = 300)
+          image_write(lollipopPlot.image, path = paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".png", sep = ""), format = "png")
+          
+          ##### Read in the PNG files
+          cat("![](",paste(paste0(mutationMapsDir, "/", paste(dataset, gene, sep="_")), ".png", sep = ""),")")
+          cat("<br/><br/><br/>")
+          
+          ##### Remove redundant pdf plot
+          file.remove(paste(mutationMapsDir, "/", paste(dataset, gene, sep="_"), ".pdf", sep = ""))
+          while (!is.null(dev.list()))  invisible(dev.off())
+        } else {
+          cat(paste("**", gene, " have no non-synonymous variants detected in ", dataset, "dataset**.\n\n", sep=" "))
+          cat("\n***\n")
+        }
         
       ##### ...otherwise leave a message
       } else {
@@ -765,6 +772,9 @@ if ( params$genes_list != "none" ) {
   genes_list_goi.silent <- vector("list", length(mafFiles))
   names(genes_list_goi.silent) <- datasets.list
   
+  genes_list_goi.nonsyn <- vector("list", length(mafFiles))
+  names(genes_list_goi.nonsyn) <- datasets.list
+  
   goi_absent <- vector("list", length(mafFiles))
   names(goi_absent) <- datasets.list
   
@@ -791,11 +801,12 @@ if ( params$genes_list != "none" ) {
     
     ##### Keep the genes of interest and most frequently mutated genes separately
     top_genes_goi[[i]] <- goi[[i]][ goi[[i]] %in% top_genes[[i]] ]
-    genes_list_goi[[i]] <- goi[[i]][ goi[[i]] %!in% top_genes[[i]] ]
     
-    ##### Remove genes absent in MAF from the genes of interest list. Also remove genes with silent mutations
-    genes_list_goi[[i]] <- genes_list_goi[[i]][ genes_list_goi[[i]] %!in% goi_absent[[i]] ]
-    genes_list_goi[[i]] <- genes_list_goi[[i]][ genes_list_goi[[i]] %!in% genes_list_goi.silent[[i]] ]
+    ##### Remove genes absent in MAF from the genes of interest list
+    genes_list_goi[[i]] <- goi[[i]][ goi[[i]] %!in% goi_absent[[i]] ]
+    
+    ##### Keep genes with non-synonymous mutations
+    genes_list_goi.nonsyn[[i]] <- genes_list_goi[[i]][ genes_list_goi[[i]] %in% mafInfo[[i]]@data$Hugo_Symbol ]
     
     ##### Set height for oncoplots
     if ( length(goi[[i]]) > 100 ) {
@@ -818,7 +829,7 @@ cat("\n\n\n")
 
 #### Summary
 
-A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r gsub(",", ", ", params$genes_min)` % of patients, respectively) (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
+A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r sum(unlist(top_genes_no))` most f% of patients, respectively) (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
 
 ```{r maf_summary_plot, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 10, results="asis"}
 ###### Generate separate plot for each dataset
@@ -841,7 +852,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ##### Recurrently mutated genes
 
-Oncoplot(s) illustrating different types of mutations observed across samples for the **most frequently mutated genes** (mutated in at least `r gsub(",", ", ", params$genes_min)` % of patients, respectively). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively. The bottom bar-plot illustrates the overall distribution of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*) across all samples in each dataset. `r if ( params$clinical_features != "none" ) { c("Sample annotations are also provided.") }`
+Oncoplot(s) illustrating different types of mutations observed across samples for the **most frequently mutated genes** (mutated in at least `r gsub(",", "% and ", params$genes_min)`% of patients, respectively). The side- and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively. The bottom bar-plot illustrates the overall distribution of the six different conversions (*C>A*, *C>G*, *C>T*, *T>C*, *T>A* and *T>G*) across all samples in each dataset. `r if ( params$clinical_features != "none" ) { c("Sample annotations are also provided.") }`
 
 ```{r maf_oncoplot, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Save oncoplot into the file
@@ -1156,7 +1167,7 @@ if ( params$clinical_info != "none" ) {
 
 #### Gene cloud
 
-Word cloud plot for **most frequently mutated genes** (mutated in at least `r gsub(",", ", ", params$genes_min)` % of patients, respectively). *Size* of each gene is proportional to the total *number of samples* in which it is altered.
+Word cloud plot for **most frequently mutated genes** (mutated in at least `r gsub(",", "% and ", params$genes_min)`% of patients, respectively). *Size* of each gene is proportional to the total *number of samples* in which it is altered.
 
 ```{r gene_cloud, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ###### Generate separate plot for each dataset
@@ -1183,7 +1194,7 @@ names(mutSign) <- datasets.list
 
 ##### Run signature analysis for each dataset
 for ( i in 1:length(mafFiles) ) {
-  mutSign[[i]] = trinucleotideMatrix(maf = mafInfo[[i]], prefix = 'chr', add = TRUE, ref_genome = "BSgenome.Hsapiens.UCSC.hg19")
+  mutSign[[i]] = trinucleotideMatrix(maf = mafInfo[[i]], prefix = 'chr', add = TRUE, ref_genome = paste0("BSgenome.Hsapiens.UCSC.hg",params$ucsc_genome_assembly))
 }
 ```
 
@@ -1351,11 +1362,23 @@ for ( i in 1:length(mafFiles) ) {
   
   if ( nrow(sub.tbl[!is.na(APOBEC_Enriched), mean(fraction_APOBEC_mutations), 
         APOBEC_Enriched][APOBEC_Enriched %in% "yes"]) == 0 ) {
-    cat("**None of the samples are enriched for APOBEC**")
+    cat("**None of the samples are enriched for APOBEC.**")
     cat("<br/><br/><br/>")
   } else {
-    try(plotApobecDiff(tnm = mutSign[[i]], maf = mafInfo[[i]], pVal = 0.2), silent = TRUE)
-    cat("<br/><br/><br/>")
+    
+    ##### Check if there are any differetially mutated genes
+    apobec.maf = subsetMaf(maf = mafInfo[[i]], tsb = as.character(sub.tbl[APOBEC_Enriched %in% 
+        "yes", Tumor_Sample_Barcode]), mafObj = TRUE)
+    nonapobec.maf = subsetMaf(maf = mafInfo[[i]], tsb = as.character(sub.tbl[APOBEC_Enriched %in% "no", Tumor_Sample_Barcode]), mafObj = TRUE)
+    mc = mafCompare(m1 = apobec.maf, m2 = nonapobec.maf, m1Name = "Enriched", m2Name = "nonEnriched", minMut = 2, useCNV = TRUE)
+    
+    if ( nrow(mc$results[pval < 0.05] ) == 0 ) {
+      cat("**No differetially mutated genes found.**")
+      cat("<br/><br/><br/>")
+    } else {
+      try(plotApobecDiff(tnm = mutSign[[i]], maf = mafInfo[[i]], pVal = 0.05), silent = TRUE)
+      cat("<br/><br/><br/>")
+    }
   }
 }
 ```
@@ -1407,10 +1430,10 @@ for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
-   if ( length(genes_list_goi[[i]]) > 1 ) {
-  ##### Exclusive/co-occurance event analysis on top 25 mutated genes
-  somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = goi[[i]], pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
-  cat("<br/><br/>")
+   ##### Exclusive/co-occurance event analysis on top 25 mutated genes
+   if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
+    somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = goi[[i]], pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
+    cat("<br/><br/>")
    } else {
      cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
    }
@@ -1452,9 +1475,11 @@ widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
   
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  
   somInter.table <- as.data.frame(somInter_goi[[i]]$pairs)[, colnames(somInter_goi[[i]]$pairs) %!in% c("00","11","01","10") ]
   
-  if ( length(genes_list_goi[[i]]) > 1 ) {
+  if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
     widges.list[[i]] <- DT::datatable( data = somInter.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
         DT::formatStyle( columns = names(somInter.table), 'text-align' = 'center' ) %>%
         DT::formatRound(columns = c("pValue", "oddsRatio"), 1)
@@ -1492,14 +1517,13 @@ for ( i in 1:length(mafFiles) ) {
 
 #### Genes of interest
 
-
 ```{r som_interactions_oncostrip_goi, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Generate oncostrip plot for each dataset
 for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
-  if ( length(genes_list_goi[[i]]) > 1 ) {
+  if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
     
     genes <- unique( unlist(as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene1" ]) )
     
@@ -1772,7 +1796,7 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Add genes of interest to the list (if specified)
   if ( params$genes_list != "none" ){
-    genes.top <- unique(c(genes.top, genes_list_goi[[i]]))
+    genes.top <- unique(c(genes.top, genes_list_goi.nonsyn[[i]]))
   }
     
   sampleSize <- as.numeric(mafInfo[[i]]@summary[ID %in% "Samples", summary])
@@ -1792,14 +1816,14 @@ gff = system.file('extdata', 'protein_domains.RDs', package = 'maftools')
 gff = readRDS(file = gff)
 ```
 
-Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Presented lollipop plot(s) show mutation spots on protein structure for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r gsub(",", ", ", params$genes_min)` % of patients, respectively) across all datasets. <span style="color:#ff0000">NOTE</span>, plots are available only for MAF file(s) containing field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
+Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Presented lollipop plot(s) show mutation spots on protein structure for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r gsub(",", "% and ", params$genes_min)`% of patients, respectively) across all datasets. <span style="color:#ff0000">NOTE</span>, plots are available only for MAF file(s) containing field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
 
 ```{r lollipop_plots, echo=FALSE, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Generate lollipop plot for each dataset for top mutated genes
 if ( pchangeStatus ) {
   
   output_plot <- list()
-  
+
   for( i in 1:length(mutRate.top.datasets) ){
     cat("\n### ", names(mutRate.top.datasets)[i], "\n")
     if ( nrow(gff[HGNC %in% names(mutRate.top.datasets)[i]]) != 0 ) {
@@ -1823,7 +1847,7 @@ if ( pchangeStatus ) {
 
 ## Mutation details {.tabset .tabset-fade}
 
-Tables with detailed information, as as provided in corresponding MAF file(s), for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r gsub(",", ", ", params$genes_min)` % of patients, respectively) across all datasets, as well as for the **genes of interest** (if specified) in individual dataset(s).
+Tables with detailed information, as as provided in corresponding MAF file(s), for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r gsub(",", "% and ", params$genes_min)`% of patients, respectively) across all datasets, as well as for the **genes of interest** (if specified) in individual dataset(s).
 
 <details>
 <summary>Variants consequence definitions</summary>
@@ -1967,7 +1991,7 @@ widges.list
 
 ### Genes
 
-Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. NOTE, for transparency only the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r gsub(",", ", ", params$genes_min)` % of patients, respectively) are presented.
+Interactive heatmap(s) with colours indicating low (blue) and high (yellow) number of *various mutations types* (columns) detected in corresponding *genes* (rows). Genes are ordered by the number of reported mutations. The *total number of mutations* in individual genes, as well as the *number of samples with mutations* are also presented in the last three columns. NOTE, for transparency only the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r gsub(",", "% and ", params$genes_min)`% of patients, respectively) are presented.
 
 ```{r gene_summary_heatmap, comment = NA, message=FALSE, warning=FALSE, fig.width = 6, fig.height = 8}
 suppressMessages(library(plotly))
