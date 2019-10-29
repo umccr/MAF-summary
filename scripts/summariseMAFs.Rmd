@@ -1387,7 +1387,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ## Somatic interactions {.tabset .tabset-fade}
 
-Many disease causing genes in cancer are co-occurring or show strong exclusiveness in their mutation pattern. These **mutually exclusive** or **co-occurring set of genes** were detected using *pair-wise Fisher’s Exact test*. <span style=\"color:#ff0000\">NOTE</span>, only top 50 most frequently mutated genes were considered in the analysis.
+Many disease causing genes in cancer are co-occurring or show strong exclusiveness in their mutation pattern. These **mutually exclusive** or **co-occurring set of genes** were detected using *pair-wise Fisher’s Exact test*. <span style=\"color:#ff0000\">NOTE</span>, only top 25 most frequently mutated genes were considered in the analysis.
 
 ### Pair-wise plot {.tabset}
 
@@ -1407,7 +1407,7 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Exclusive/co-occurance event analysis on top 25 mutated genes
   if ( nrow(mafInfo[[i]]@data) > 1 ) {
-    somInter[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], top = 50, pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
+    somInter[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], top = 25, pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
     
   } else {
     cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
@@ -1431,15 +1431,15 @@ for ( i in 1:length(mafFiles) ) {
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
    ##### Exclusive/co-occurance event analysis on top 25 mutated genes
-   if ( length(genes_list_goi.nonsyn[[i]]) > 1 && length(genes_list_goi.nonsyn[[i]]) < 51 ) {
+   if ( length(genes_list_goi.nonsyn[[i]]) > 1 && length(genes_list_goi.nonsyn[[i]]) < 26 ) {
     somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = goi[[i]], pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
     cat("<br/><br/>")
     
-   } else if ( length(genes_list_goi.nonsyn[[i]]) > 50 ) {
+   } else if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
      
-    cat(paste0("NOTE: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **50 genes** were analysed.\n\n"))
+    cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
      
-     somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = goi[[i]][c(1:50)], pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
+     somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = goi[[i]][c(1:25)], pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
      
    } else {
      cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
@@ -1487,8 +1487,8 @@ for ( i in 1:length(mafFiles) ) {
   somInter.table <- as.data.frame(somInter_goi[[i]]$pairs)[, colnames(somInter_goi[[i]]$pairs) %!in% c("00","11","01","10") ]
   
   if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
-    if ( length(genes_list_goi.nonsyn[[i]]) > 50 ) {
-      cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **50 genes** were analysed.\n\n"))
+    if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
+      cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
     }
     
     widges.list[[i]] <- DT::datatable( data = somInter.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
@@ -1536,9 +1536,9 @@ for ( i in 1:length(mafFiles) ) {
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
   if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
-    if ( length(genes_list_goi.nonsyn[[i]]) > 50 ) {
+    if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
       
-      cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **50 genes** were analysed.\n\n"))
+      cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
     }
     
     genes <- unique( unlist(as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene1" ]) )
