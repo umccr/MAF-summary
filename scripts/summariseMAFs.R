@@ -168,3 +168,8 @@ rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, o
 ##### Remove the assocaited MD file and the redundant folder with plots that are imbedded in the HTML report
 unlink(paste0(opt$maf_dir, "/", opt$out_folder, "_files"), recursive = TRUE)
 
+##### Clear workspace
+rm(list=ls())
+##### Close any open graphics devices
+graphics.off()
+
