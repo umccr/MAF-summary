@@ -115,6 +115,8 @@ if ($vcfList and $exons and $outMaf and $v2m and $ref) {
             ##### Once again make sure the uncompressed VCF file exists
             if (-e $vcfFile) {
                 
+                print( "Processing $vcfFile file...\n\n");
+                
                 ##### Also prepare MAF file
                 $mafFile = $info[ 0 ];
                 $mafFile =~ s/\.vcf/\.maf/g;
