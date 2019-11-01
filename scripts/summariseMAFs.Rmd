@@ -1518,7 +1518,7 @@ for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
-  genes <- unique( unlist(as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene1" ]) )
+  genes <- unique( unlist(as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene2" ]) )
   
   maftools::oncostrip(maf = mafInfo[[i]], genes = genes, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
   cat("<br/><br/>")
