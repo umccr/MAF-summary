@@ -150,7 +150,7 @@ for ( i in 1:length(mafFiles) ) {
   
   cat(paste0("\nProcessing MAF: ", mafFiles[i],"...\n\n"))
   
-  mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], , vc_nonSyn = nonSyn_list , verbose = FALSE)
+  mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = nonSyn_list , verbose = FALSE)
   mafFields <- c(mafFields, names(mafInfo[[i]]@data))
 }
 
