@@ -459,7 +459,7 @@ if ( params$samples_blacklist != "none" ) {
     exclsamples.df <- read.table(params$samples_blacklist, sep="\t", as.is=TRUE, header=TRUE, row.names=NULL)
     exclsamples <- unique(exclsamples.df[,"Tumor_Sample_Barcode"])
     
-    samples2keep <- unlist(unique( mafInfo[[i]]@maf.silent[, "Tumor_Sample_Barcode"]))[ unlist(unique(mafInfo[[i]]@maf.silent[, "Tumor_Sample_Barcode"])) %!in% exclsamples ]
+    samples2keep <- unlist(unique( mafInfo[[i]]@data[, "Tumor_Sample_Barcode"])[ unique(mafInfo[[i]]@data[, "Tumor_Sample_Barcode"]) %!in% exclsamples ])
     
     ##### Subset the maf object to exclude use-defined sample(s)
     ##### Initially don't save the subset output as maf object, as this will exlude samples with no non-synonymous mutations from the summary
@@ -635,7 +635,7 @@ widges.list
 ```{r sample_no_nonsynonymous, comment = NA, message=FALSE, warning=FALSE}
 ##### report samples with no non-synonymous variants according to corresponding MAF file
 if ( !is.null(MAF_samples.silent.df) ) {
-  DT::datatable( data = MAF_samples.silent.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong("Samples with no non-synonymours variants detected")), filter = "top", extensions = 'Buttons', options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy')), width = 800,  escape = FALSE ) %>%
+  DT::datatable( data = MAF_samples.silent.df, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong("Samples with no non-synonymours variants detected")), filter = "top", extensions = 'Buttons', options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
         DT::formatStyle( columns = names(MAF_samples.silent.df), 'text-align' = 'center' )
 }
 
