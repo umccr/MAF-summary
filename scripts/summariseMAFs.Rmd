@@ -1520,7 +1520,11 @@ for ( i in 1:length(mafFiles) ) {
   
   genes <- unique( unlist(c(as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene2" ])) )
   
-  maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+  if ( length(genes) > 0 ) {
+    maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+  } else {
+    cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
+  }
   cat("<br/><br/>")
 }
 ```
@@ -1542,11 +1546,20 @@ for ( i in 1:length(mafFiles) ) {
       
       genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene2" ])) )
       
-      maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+      if ( length(genes) > 0 ) {
+        maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+      } else {
+        cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
+      }
       cat("<br/><br/>")
     } else {
-      maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
-      cat("<br/><br/>")
+      
+      genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]]$pairs)[ , "gene1" ], as.data.frame(somInter_goi[[i]]$pairs)[ , "gene2" ])) )
+      if ( length(genes) > 0 ) {
+        maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+      } else {
+        cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
+      }
     }
   } else {
      cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
