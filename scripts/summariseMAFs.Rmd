@@ -1560,6 +1560,7 @@ for ( i in 1:length(mafFiles) ) {
       } else {
         cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
       }
+      cat("<br/><br/>")
     }
   } else {
      cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
