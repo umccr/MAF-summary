@@ -15,13 +15,13 @@
 #   Description: Script summarising and visualising multiple MAF files using maftools R package ( https://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/maftools.html ). This script catches the arguments from the command line and passes them to the summariseMAFs.Rmd script to produce the report, generate set of plots and excel spreadsheets summarising each MAF file.
 #   NOTE: Each MAF file needs to contain the "Tumor_Sample_Barcode" column. Otherwise, user needs to specify the MAF file column containing samples' IDs using "--samples_id_col" parameter.
 #
-#   Command line use example: Rscript summariseMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --genes_list genes_of_interest.txt --out_folder MAF_summary_report
+#   Command line use example: Rscript summariseMAFs.R --maf_dir /data --maf_files simple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 5 --genes_list genes_of_interest.txt --out_folder MAF_summary_report
 #
 #   maf_dir:      Directory with MAF files
 #   maf_files:    List of MAF files to be processed. Each file name is expected to be separated by comma
 #   datasets:     Desired names of each dataset. The names are expected to be in the same order as provided MAF files and should be separated by comma
 #   samples_id_cols:  The name(s) of MAF file(s) column containing samples' IDs. One column name is expected for a single file, and each separated by comma. The defualt samples' ID column is "Tumor_Sample_Barcode"
-#   genes_min:  Minimal percentage of patients carrying mutations in individual genes to be included in the report
+#   genes_min:  Minimal percentage of patients carrying mutations in individual genes to be included in the report. Default is 5
 #   genes_list (optional):  Location and name of a file listing genes of interest to be considered in the report. The genes are expected to be listed in first column
 #   genes_blacklist (optional):  Location and name of a file listing genes to be excluded. Header is not expected and the genes should be listed in separate lines
 #   samples_list (optional):  Location and name of a file listing specific samples to be included. All other samples will be ignored. The ID of samples to be included are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
@@ -64,7 +64,7 @@ option_list <- list(
               help="Desired names of each dataset"),
   make_option("--samples_id_cols", action="store", default=NA, type='character',
               help="The name(s) of MAF file(s) column containing samples' IDs"),
-  make_option("--genes_min", action="store", default=NA, type='character',
+  make_option("--genes_min", action="store", default="5", type='character',
               help="Minimal percentage of patients carrying mutations in individual genes to be included in the report"),
   make_option("--genes_list", action="store", default="none", type='character',
               help="Location and name of a file listing genes of interest to be considered in the report"),
@@ -112,7 +112,7 @@ opt$datasets <- gsub("\\s","", opt$datasets)
 if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$datasets) ) {
 
   cat("\nPlease type in required arguments!\n\n")
-  cat("\ncommand example:\n\nRscript summariseMAFs.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 4 --genes_list genes_of_interest.txt --out_folder MAF_summary_report\n\n")
+  cat("\ncommand example:\n\nRscript summariseMAFs.R --maf_dir /data --maf_filessimple_somatic_mutation.open.PACA-AU.maf,PACA-CA.icgc.simple_somatic_mutation.maf --datasets ICGC-PACA-AU,ICGC-PACA-CA --genes_min 5 --genes_list genes_of_interest.txt --out_folder MAF_summary_report\n\n")
 
   q()
 } else if ( length(unlist(strsplit(opt$maf_files, split=',', fixed=TRUE))) != length(unlist(strsplit(opt$datasets, split=',', fixed=TRUE))) ) {
@@ -136,7 +136,7 @@ if ( is.na(opt$out_folder) ) {
 
 ##### Present genes with mutations present in >= 4% patients, if not specified differently
 if ( is.na(opt$genes_min) ) {
-  opt$genes_min<- 4
+  opt$genes_min<- "5"
 }
 
 ##### Pre-define list of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants. Default uses Variant Classifications with High/Moderate variant consequences (http://asia.ensembl.org/Help/Glossary?id=535)
