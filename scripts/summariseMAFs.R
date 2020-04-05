@@ -27,7 +27,7 @@
 #   samples_list (optional):  Location and name of a file listing specific samples to be included. All other samples will be ignored. The ID of samples to be included are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
 #   samples_blacklist (optional):  Location and name of a file listing samples to be excluded. The ID of samples to be exdluded are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
 #   nonSyn_list:   List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants
-#	  remove_duplicated_variants:		Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? Defulat value is "FALSE"
+#	  remove_duplicated_variants:		Remove repeated variants in a particular sample, mapped to multiple transcripts of same gene? Defulat value is "FALSE"
 #   gistic (optional):  Location of the corresponding GISTIC output files (including gisticAllLesionsFile, gisticAmpGenesFile, gisticDelGenesFile and gisticScoresFile). Each file name (for each dataset) is expected to be separated by comma
 #   clinical_info (optional):  Location of clinical data associated with each sample in MAF. Each file name (for each dataset) is expected to be separated by comma
 #   clinical_features (optional):  Columns names (separated by comma) from clinical data (specified by --clinical_info argument) to be drawn in the oncoplot(s). Note that the order matters
@@ -148,7 +148,7 @@ if ( is.na(opt$nonSyn_list) ) {
 
 ##### Set defualt paramters
 if ( is.na(opt$remove_duplicated_variants) ) {
-  opt$remove_duplicated_variants = TRUE
+  opt$remove_duplicated_variants = FALSE
 }
 
 if ( opt$ucsc_genome_assembly !=19 && opt$ucsc_genome_assembly !=38   ) {
