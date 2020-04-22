@@ -15,7 +15,7 @@ params:
   maf_dir: 
   maf_files: 
   datasets: 
-  samples_id_cols: 'Tumor_Sample_Barcode'
+  samples_id_cols: NULL
   genes_min: '5'
   genes_list: 'none'
   genes_blacklist: 'none'
@@ -396,6 +396,9 @@ DT::datatable( data = datasets.df, filter = "none", extensions = 'Buttons', opti
 mafInfo <- vector("list", length(mafFiles))
 names(mafInfo) <- datasets.list
 
+mafInfo_tcgaCompare <- vector("list", length(mafFiles))
+names(mafInfo_tcgaCompare) <- datasets.list
+
 ##### Check if file with clinical information is provided
 clinicalInfo <- vector("list", length(mafFiles))
 names(clinicalInfo) <- datasets.list
@@ -429,8 +432,21 @@ if ( params$clinical_info != "none" ){
 for ( i in 1:length(mafFiles) ) {
   
   ##### Add clinical information if provided
-  if ( !is.na(clinicalInfo[[i]]) ){
-    mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = clinicalInfo[[i]])
+  if ( any(!is.na(clinicalInfo[[i]])) ){
+    mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
+    
+  ##### Check if for any sample the clincal info is missing and add "NA"" to these samples
+    if ( length(unique(mafInfo[[i]]@data$Tumor_Sample_Barcode)[ unique(mafInfo[[i]]@data$Tumor_Sample_Barcode) %!in% clinicalInfo[[i]]$Tumor_Sample_Barcode]) > 0 ) {
+      
+      clinicalInfo.missing <- unique(mafInfo[[1]]@data$Tumor_Sample_Barcode)[ unique(mafInfo[[1]]@data$Tumor_Sample_Barcode) %!in% clinicalInfo[[i]]$Tumor_Sample_Barcode]
+      
+      ##### Identify samples with missing info and add "NA"" to these samples
+      clinicalInfo.missing <- data.frame(cbind(as.character(clinicalInfo.missing)), rep(NA, length(clinicalInfo.missing)))
+      names(clinicalInfo.missing) <- names(clinicalInfo[[i]])
+      clinicalInfo[[i]] <- rbind(clinicalInfo[[i]], clinicalInfo.missing)
+      
+      mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = clinicalInfo[[i]])
+    }
   } else {
     mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
   }
@@ -482,18 +498,22 @@ if ( params$gistic != "none" ){
     
     gisticInfo[[i]]$summary = readGistic(gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis)
     
+    nonSyn_list <- c(unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), "Amp","Del")
+    
     } else {
       gisticInfo[[i]]$status <- FALSE
+      nonSyn_list <- unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE))
     }
   }
 } else {
   for ( i in 1:length(mafFiles) ) {
       gisticInfo[[i]]$status <- FALSE
+      nonSyn_list <- unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE))
   }
 }
 
 ##### Change the column to be used to indicate samples' IDs
-if ( !is.na(params$samples_id_cols) ) {
+if ( !is.null(params$samples_id_cols) ) {
   samples_id_cols <- make.names(unlist(strsplit(params$samples_id_cols, split=',', fixed=TRUE)))
   
   for ( i in 1:length(mafFiles) ) {
@@ -514,10 +534,24 @@ if ( !is.na(params$samples_id_cols) ) {
       ##### Now read the data with changess column names as a maf object
       if ( gisticInfo[[i]]$status ) {
         
-        mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
+        ##### Add clinical information if provided
+        if ( !is.na(clinicalInfo[[i]]) ){
+          mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE, clinicalData = clinicalInfo[[i]])
+        } else {
+          mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE, clinicalData = NULL)
+        }
+        
+        ##### Save maf object without GISTIC results as well for the tcgaCompare fucntion
+        mafInfo_tcgaCompare[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = onSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
         
       } else {
-        mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+        
+        ##### Add clinical information if provided
+        if ( !is.na(clinicalInfo[[i]]) ){
+          mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = clinicalInfo[[i]])
+        } else {
+          mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
+        }
       }
     }
   }
@@ -528,7 +562,15 @@ if ( !is.na(params$samples_id_cols) ) {
     
     if ( gisticInfo[[i]]$status ) {
       
-      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
+      ##### Add clinical information if provided
+      if ( !is.na(clinicalInfo[[i]]) ){
+        mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE, clinicalData = clinicalInfo[[i]])
+      } else {
+        mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
+      }
+      
+      ##### Save maf object without GISTIC results as well for the tcgaCompare fucntion
+      mafInfo_tcgaCompare[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
     }
   }
 }
@@ -567,10 +609,10 @@ if ( params$samples_list != "none" ) {
     
     ##### Now read the data subset as a maf object
     if ( gisticInfo[[i]]$status ) {
-      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
       
     } else {
-      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
     }
   }
 }
@@ -591,10 +633,10 @@ if ( params$samples_blacklist != "none" ) {
     ##### Now read the data subset as a maf object
     if ( gisticInfo[[i]]$status ) {
       
-      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
       
     } else {
-      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
     }
   }
 }
@@ -617,10 +659,10 @@ if ( params$genes_blacklist != "none" ) {
     ##### Now read the data subset as a maf object
     if ( gisticInfo[[i]]$status ) {
       
-      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, gisticAllLesionsFile = gisticInfo[[i]]$all.lesions, gisticAmpGenesFile = gisticInfo[[i]]$amp.genes, gisticDelGenesFile = gisticInfo[[i]]$del.genes, gisticScoresFile = gisticInfo[[i]]$scores.gis, verbose = FALSE)
       
     } else {
-      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
+      mafInfo[[i]] <- maftools::read.maf(maf = mafInfo[[i]], vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE)
     }
   }
 }
@@ -691,7 +733,8 @@ widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
   widges.list[[i]] <- DT::datatable( data = mafInfo[[i]]@summary, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "none", extensions = 'Buttons', options = list(pageLength = nrow(mafInfo[[i]]@summary), dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis')), width = 800,  escape = FALSE ) %>%
-        DT::formatStyle( columns = names(mafInfo[[i]]@summary), 'text-align' = 'center' )
+        DT::formatStyle( columns = names(mafInfo[[i]]@summary), 'text-align' = 'center' ) %>%
+        DT::formatRound( columns = "Mean", 2)
 }
 
 ##### Print a list of htmlwidgets
@@ -884,23 +927,23 @@ for ( i in 1:length(mafFiles) ) {
 }
 
 ##### Define colours for each Variant_Classification if the default list of non-synonymous variants is not used (from http://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/oncoplots.html#02_changing_colors_for_variant_classifications and "get_vcColors" function in https://rdrr.io/github/PoisonAlien/maftools/src/R/oncomatrix.R)
-if ( !all(unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)) %in% c( "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation" ) ) ) {
+if ( !all(nonSyn_list %in% c( "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation" ) ) ) {
   
   ##### Get the default colours first
-  vc_cols = c(RColorBrewer::brewer.pal(11, name = "Paired"), RColorBrewer::brewer.pal(11,name = "Spectral")[1:3],'black', 'violet', 'royalblue', '#7b7060')
+  vc_cols = c(RColorBrewer::brewer.pal(11, name = "Paired"), RColorBrewer::brewer.pal(11,name = "Spectral")[1:3],'black', 'violet', 'royalblue', '#7b7060', '#535c68')
   vc_cols = grDevices::adjustcolor(col = vc_cols, alpha.f = 1)
   names(vc_cols) = names = c('Nonstop_Mutation','Frame_Shift_Del','IGR','Missense_Mutation','Silent','Nonsense_Mutation',
-                         'RNA','Splice_Site','Intron','Frame_Shift_Ins','In_Frame_Del','ITD','In_Frame_Ins',
-                         'Translation_Start_Site',"Multi_Hit", 'Amp', 'Del', 'Complex_Event')
+                          'RNA','Splice_Site','Intron','Frame_Shift_Ins','In_Frame_Del','ITD','In_Frame_Ins',
+                          'Translation_Start_Site',"Multi_Hit", 'Amp', 'Del', 'Complex_Event', 'pathway')
   
   ##### Correct colour for "In_Frame_Del"
   vc_cols[ names(vc_cols) == "In_Frame_Del"] <- "#976726"
   
   ##### ... now remove unwanted variant types
-  vc_cols <- vc_cols[ c(names(vc_cols)) %in% c( "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation","Multi_Hit" ) ]
+  #vc_cols <- vc_cols[ c(names(vc_cols)) %in% c( "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation","Multi_Hit" ) ]
   
   ##### ... add colours for additional variant types
-  vc_missing <- unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE))[ unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)) %!in% names(vc_cols) ]
+  vc_missing <- nonSyn_list[ nonSyn_list %!in% names(vc_cols) ]
   vc_missing_cols = RColorBrewer::brewer.pal(11,name = "Spectral")[4:(3+length(vc_missing))]
   names(vc_missing_cols) = vc_missing
   
@@ -1022,7 +1065,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE, colors = vc_cols)
+    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE, colors = vc_cols, includeColBarCN = FALSE)
     dev.off()
     
     ##### Read in the oncoplots PNG files
@@ -1090,7 +1133,7 @@ if ( params$genes_list != "none" ) {
           ##### Drawing oncoplots for the top mutated genes in each dataset
           plot.new()
           par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-          maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE, colors = vc_cols)
+          maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE, colors = vc_cols, includeColBarCN = FALSE)
           dev.off()
           
           ##### Read in the oncoplots PNG files
@@ -1267,8 +1310,14 @@ for ( i in 1:length(mafFiles) ) {
   cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
   
   ##### Compare mutation load against TCGA cohorts
-  par(mar=c(1,1,1,1), oma=c(6,2,2,1))
+  if ( gisticInfo[[i]]$status ) {
+    par(mar=c(1,1,1,1), oma=c(6,2,2,1))
+  tcgaCompare.res <- tcgaCompare(maf = mafInfo_tcgaCompare[[i]], cohortName = datasets.list[i], primarySite=TRUE)
+  } else {
+    par(mar=c(1,1,1,1), oma=c(6,2,2,1))
   tcgaCompare.res <- tcgaCompare(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
+  }
+  
   cat("<br/><br/>")
 }
 ```
@@ -1618,20 +1667,25 @@ for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
-   ##### Exclusive/co-occurance event analysis on top 25 mutated genes
-   if ( length(genes_list_goi.nonsyn[[i]]) > 1 && length(genes_list_goi.nonsyn[[i]]) < 26 ) {
-    somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = genes_list_goi.nonsyn[[i]], pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
-    cat("<br/><br/>")
-    
-   } else if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
-     
-    cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
-     
-     somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = genes_list_goi.nonsyn[[i]][c(1:25)], pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
-     
-   } else {
-     cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
-   }
+  if ( params$genes_list != "none" ) {
+  
+    ##### Exclusive/co-occurance event analysis on top 25 mutated genes
+    if ( length(genes_list_goi.nonsyn[[i]]) > 1 && length(genes_list_goi.nonsyn[[i]]) < 26 ) {
+      somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = genes_list_goi.nonsyn[[i]], pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
+      cat("<br/><br/>")
+      
+    } else if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
+       
+      cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
+       
+       somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = genes_list_goi.nonsyn[[i]][c(1:25)], pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
+       
+     } else {
+       cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
+     }
+  } else {
+    cat("No list with genes of interest was provided\n\n")
+  }
 }
 ```
 
@@ -1668,28 +1722,32 @@ widges.list
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
 
-for ( i in 1:length(mafFiles) ) {
-  
-  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
-  
-  somInter.table <- as.data.frame(somInter_goi[[i]]$pairs)[, colnames(somInter_goi[[i]]$pairs) %!in% c("00","11","01","10") ]
-  
-  if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
-    if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
-      cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
+if ( params$genes_list != "none" ) {
+  for ( i in 1:length(mafFiles) ) {
+    
+    cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+    
+    somInter.table <- as.data.frame(somInter_goi[[i]]$pairs)[, colnames(somInter_goi[[i]]$pairs) %!in% c("00","11","01","10") ]
+    
+    if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
+      if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
+        cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
+      }
+      
+      widges.list[[i]] <- DT::datatable( data = somInter.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
+          DT::formatStyle( columns = names(somInter.table), 'text-align' = 'center' ) %>%
+          DT::formatRound(columns = c("pValue", "oddsRatio"), 1)
+      
+    } else {
+       cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
     }
-    
-    widges.list[[i]] <- DT::datatable( data = somInter.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
-        DT::formatStyle( columns = names(somInter.table), 'text-align' = 'center' ) %>%
-        DT::formatRound(columns = c("pValue", "oddsRatio"), 1)
-    
-  } else {
-     cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
   }
+  ##### Print a list of htmlwidgets
+  widges.list
+
+} else {
+  cat("No list with genes of interest was provided\n\n")
 }
-  
-##### Print a list of htmlwidgets
-widges.list
 ```
 
 ***
@@ -1723,36 +1781,40 @@ for ( i in 1:length(mafFiles) ) {
 
 ```{r som_interactions_oncostrip_goi, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Generate oncostrip plot for each dataset
-for ( i in 1:length(mafFiles) ) {
-  
-  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
-  
-  if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
-    if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
-      
-      cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
-      
-      genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene2" ])) )
-      
-      if ( length(genes) > 0 ) {
-        maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+if ( params$genes_list != "none" ) {
+  for ( i in 1:length(mafFiles) ) {
+    
+    cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+    
+    if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
+      if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
+        
+        cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
+        
+        genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene2" ])) )
+        
+        if ( length(genes) > 0 ) {
+          maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+        } else {
+          cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
+        }
+        cat("<br/><br/>")
       } else {
-        cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
+        
+        genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]]$pairs)[ , "gene1" ], as.data.frame(somInter_goi[[i]]$pairs)[ , "gene2" ])) )
+        if ( length(genes) > 0 ) {
+          maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+        } else {
+          cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
+        }
+        cat("<br/><br/>")
       }
-      cat("<br/><br/>")
     } else {
-      
-      genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]]$pairs)[ , "gene1" ], as.data.frame(somInter_goi[[i]]$pairs)[ , "gene2" ])) )
-      if ( length(genes) > 0 ) {
-        maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
-      } else {
-        cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
-      }
-      cat("<br/><br/>")
+       cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
     }
-  } else {
-     cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
   }
+} else {
+  cat("No list with genes of interest was provided\n\n")
 }
 ```
 
@@ -1770,14 +1832,14 @@ for ( i in 1:length(mafFiles) ) {
 for ( i in 1:length(gisticFiles) ) {
   if ( gisticInfo[[i]]$status ) {
     
-    ##### Save the genome plot as PDF for each dataset
-    maftools::gisticChromPlot(gistic = gisticInfo[[i]]$summary, markBands = "all", file = paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], sep = ""), width = 12, height = 5)
-    
-    ##### Export pdf to png
-    gisticChromPlot.image <- image_read_pdf(paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".pdf", sep = ""), pages = NULL, density = 300)
-    image_write(gisticChromPlot.image, path = paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".png", sep = ""), format = "png")
-
-    file.remove(paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".pdf", sep = ""))
+    ##### Save the genome plot as PNG for each dataset
+    png( file = paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".png", sep = ""), width = 1800, height = 1200, units = "px", res = 200, type="cairo" )
+      
+    ##### Drawing oncoplot for each dataset
+    plot.new()
+    par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
+    maftools::gisticChromPlot(gistic = gisticInfo[[i]]$summary, markBands = "all")
+    dev.off()
     
     ##### Read in the genome plots PNG files
     cat("![](",paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".png", sep = ""),")")
@@ -1796,15 +1858,14 @@ for ( i in 1:length(gisticFiles) ) {
 for ( i in 1:length(gisticFiles) ) {
   if ( gisticInfo[[i]]$status ) {
     
-    ##### Save the bubble plot as PDF for each dataset
-    maftools::gisticBubblePlot(gistic = gisticInfo[[i]]$summary, file = paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], sep = ""), width = 8, height = 5)
-
-    ##### Export pdf to png
-    gisticBubblePlot.image <- image_read_pdf(paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".pdf", sep = ""), pages = NULL, density = 300)
-    image_write(gisticBubblePlot.image, path = paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".png", sep = ""), format = "png")
-
-    file.remove(paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".pdf", sep = ""))
+    ##### Save the bubble plot as PNG for each dataset
+    png( file = paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".png", sep = ""), width = 1800, height = 1200, units = "px", res = 200, type="cairo" )
     
+    ##### Drawing oncoplot for each dataset
+    plot.new()
+    maftools::gisticBubblePlot(gistic = gisticInfo[[i]]$summary)
+    dev.off()
+
     ##### Read in the bubble plot PNG files
     cat("![](",paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".png", sep = ""),")")
     cat("<br/><br/><br/>")
@@ -2340,7 +2401,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE, colors = vc_cols)
+    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE, colors = vc_cols, includeColBarCN = FALSE)
   }
   
   ##### Drawing oncoplots for additional genes of interest (if specified)
@@ -2354,7 +2415,7 @@ for ( i in 1:length(mafFiles) ) {
       
         plot.new()
         par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE, colors = vc_cols)
+        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE, colors = vc_cols, includeColBarCN = FALSE)
       }
     }
   }
@@ -2366,9 +2427,16 @@ for ( i in 1:length(mafFiles) ) {
   mtext("Transition and transversions distribution", outer=TRUE,  cex=1, line=-1.5)
 
   ##### Compare mutation load against TCGA cohorts
-  tcgaCompare(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
+  ##### Compare mutation load against TCGA cohorts
+  if ( gisticInfo[[i]]$status ) {
+    tcgaCompare(maf = mafInfo_tcgaCompare[[i]], cohortName = datasets.list[i], primarySite=TRUE)
   mtext("Mutation load in TCGA cohorts", outer=TRUE,  cex=1, line=-0.5)
   invisible(dev.off())
+  } else {
+    tcgaCompare(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
+  mtext("Mutation load in TCGA cohorts", outer=TRUE,  cex=1, line=-0.5)
+  invisible(dev.off())
+  }
 }
 
 ##### Add extra lines to make sure that this section doesn't overlap with the next one
