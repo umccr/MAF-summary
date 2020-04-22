@@ -26,6 +26,7 @@
 #   genes_blacklist (optional):  Location and name of a file listing genes to be excluded. Header is not expected and the genes should be listed in separate lines
 #   samples_list (optional):  Location and name of a file listing specific samples to be included. All other samples will be ignored. The ID of samples to be included are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
 #   samples_blacklist (optional):  Location and name of a file listing samples to be excluded. The ID of samples to be exdluded are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
+#   samples_show (optional):  Include sample names on the plots (oncoplots, oncogenic pathways plots, oncostrips). Default is FALSE
 #   nonSyn_list:   List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants
 #	  remove_duplicated_variants:		Remove repeated variants in a particular sample, mapped to multiple transcripts of same gene? Defulat value is "FALSE"
 #   gistic (optional):  Location of the corresponding GISTIC output files (including gisticAllLesionsFile, gisticAmpGenesFile, gisticDelGenesFile and gisticScoresFile). Each file name (for each dataset) is expected to be separated by comma
@@ -74,6 +75,8 @@ option_list <- list(
               help="Location and name of a file listing specific samples to be included"),
   make_option("--samples_blacklist", action="store", default="none", type='character',
               help="Location and name of a file listing samples to be excluded"),
+  make_option("--samples_show", action="store", default=FALSE, type='logical',
+              help="Include sample names on the plots"),
   make_option("--nonSyn_list", action="store", default=NA, type='character',
               help="List of variant classifications to be considered as non-synonymous"),
   make_option("--remove_duplicated_variants", action="store", default=NA, type='character',
@@ -162,8 +165,33 @@ if ( tolower(opt$remove_duplicated_variants) != "true" && tolower(opt$remove_dup
   q()
 }
 
+##### Collect parameters
+param_list <- list(maf_dir = opt$maf_dir,
+                   maf_files = opt$maf_files,
+                   datasets = opt$datasets,
+                   samples_id_cols = opt$samples_id_cols,
+                   genes_min = opt$genes_min,
+                   genes_list = opt$genes_list,
+                   genes_blacklist = opt$genes_blacklist,
+                   samples_list = opt$samples_list,
+                   samples_blacklist = opt$samples_blacklist,
+                   samples_show = opt$samples_show,
+                   nonSyn_list = opt$nonSyn_list,
+                   remove_duplicated_variants = opt$remove_duplicated_variants,
+                   gistic = opt$gistic,
+                   clinical_info = opt$clinical_info,
+                   clinical_features = opt$clinical_features,
+                   clinical_enrichment_p = opt$clinical_enrichment_p,
+                   signature_enrichment_p = opt$signature_enrichment_p,
+                   maf_comp_p = opt$maf_comp_p,
+                   maf_comp_fdr = opt$maf_comp_fdr,
+                   out_folder = opt$out_folder,
+                   hide_code_btn = opt$hide_code_btn,
+                   ucsc_genome_assembly = as.numeric(opt$ucsc_genome_assembly)
+                   )
+
 ##### Pass the user-defined argumentas to the summariseMAFs.R markdown script and run the analysis
-rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = list(maf_dir = opt$maf_dir, maf_files = opt$maf_files, datasets = opt$datasets, samples_id_cols = opt$samples_id_cols, genes_min = opt$genes_min, genes_list = opt$genes_list, genes_blacklist = opt$genes_blacklist, samples_list = opt$samples_list, samples_blacklist = opt$samples_blacklist, nonSyn_list = opt$nonSyn_list, remove_duplicated_variants = opt$remove_duplicated_variants, gistic = opt$gistic, clinical_info = opt$clinical_info, clinical_features = opt$clinical_features, clinical_enrichment_p = opt$clinical_enrichment_p, signature_enrichment_p = opt$signature_enrichment_p, maf_comp_p = opt$maf_comp_p, maf_comp_fdr = opt$maf_comp_fdr, out_folder = opt$out_folder, hide_code_btn = opt$hide_code_btn, ucsc_genome_assembly = as.numeric(opt$ucsc_genome_assembly)))
+rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = param_list)
 
 ##### Remove the assocaited MD file and the redundant folder with plots that are imbedded in the HTML report
 unlink(paste0(opt$maf_dir, "/", opt$out_folder, "_files"), recursive = TRUE)
