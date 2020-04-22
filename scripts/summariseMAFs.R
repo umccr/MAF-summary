@@ -20,7 +20,7 @@
 #   maf_dir:      Directory with MAF files
 #   maf_files:    List of MAF files to be processed. Each file name is expected to be separated by comma
 #   datasets:     Desired names of each dataset. The names are expected to be in the same order as provided MAF files and should be separated by comma
-#   samples_id_cols:  The name(s) of MAF file(s) column containing samples' IDs. One column name is expected for a single file, and each separated by comma. The defualt samples' ID column is "Tumor_Sample_Barcode"
+#   samples_id_cols:  The name(s) of MAF file(s) column containing samples' IDs. One column name is expected for a single file, and each separated by comma. The default expected samples' ID column is "Tumor_Sample_Barcode"
 #   genes_min:  Minimal percentage of patients carrying mutations in individual genes to be included in the report. Default is 5
 #   genes_list (optional):  Location and name of a file listing genes of interest to be considered in the report. The genes are expected to be listed in first column
 #   genes_blacklist (optional):  Location and name of a file listing genes to be excluded. Header is not expected and the genes should be listed in separate lines
@@ -62,7 +62,7 @@ option_list <- list(
               help="List of MAF files to be processed"),
   make_option("--datasets", action="store", default=NA, type='character',
               help="Desired names of each dataset"),
-  make_option("--samples_id_cols", action="store", default=NA, type='character',
+  make_option("--samples_id_cols", action="store", default=NULL, type='character',
               help="The name(s) of MAF file(s) column containing samples' IDs"),
   make_option("--genes_min", action="store", default="5", type='character',
               help="Minimal percentage of patients carrying mutations in individual genes to be included in the report"),
@@ -122,7 +122,7 @@ if (is.na(opt$maf_dir) || is.na(opt$maf_files) || is.na(opt$datasets) ) {
   q()
 }
 
-if ( !is.na(opt$samples_id_cols) && length(unlist(strsplit(opt$maf_files, split=',', fixed=TRUE))) != length(unlist(strsplit(opt$samples_id_cols, split=',', fixed=TRUE))) ) {
+if ( !is.null(opt$samples_id_cols) && length(unlist(strsplit(opt$maf_files, split=',', fixed=TRUE))) != length(unlist(strsplit(opt$samples_id_cols, split=',', fixed=TRUE))) ) {
   
   cat("\nMake sure that the number of samples' ID columns match the number of queried MAF files\n\n")
   
