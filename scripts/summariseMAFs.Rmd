@@ -1066,7 +1066,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show)
+    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5)
     dev.off()
     
     ##### Read in the oncoplots PNG files
@@ -1134,7 +1134,7 @@ if ( params$genes_list != "none" ) {
           ##### Drawing oncoplots for the top mutated genes in each dataset
           plot.new()
           par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-          maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show)
+          maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5)
           dev.off()
           
           ##### Read in the oncoplots PNG files
@@ -1346,19 +1346,78 @@ widges.list
 
 ***
 
-#### Oncogenic signaling pathways
+#### Oncogenic signaling pathways {.tabset .tabset-fade}
 
 Enrichment of known oncogenic signaling pathways reported in [TCGA](https://cancergenome.nih.gov/){target="_blank"} cohorts (see paper [Oncogenic Signaling Pathways in The Cancer Genome Atlas](https://www.ncbi.nlm.nih.gov/pubmed/29625050){target="_blank"}).
 
-```{r oncogenic_pathways, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+##### Plots {.tabset .tabset-fade}
+
+```{r oncogenic_pathways_plots, echo=FALSE, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ###### Generate separate plot for each dataset
+OncogenicPathways.res <- list()
+  
 for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
-
-  capture.output(OncogenicPathways(maf = mafInfo[[i]]))
-  cat("<br/><br/>")
+  
+  OncogenicPathways.res[[i]] <- capture.output(OncogenicPathways(maf = mafInfo[[i]]))
+  
+  if ( length(OncogenicPathways.res[[i]]) > 0 ) {
+    
+    cat("\n\n\n\nThe complete oncogenic pathways are presented below. Tumour suppressor genes are in <span style=\"color:#ff0000\">red</span>, and oncogenes are in <span style=\"color:#0000ff\">blue</span> font.\n")
+     
+    OncogenicPathways.res[[i]] <- as.data.frame(OncogenicPathways.res[[i]])
+    
+    for( j in 2:nrow(OncogenicPathways.res[[i]]) ){
+      
+      pathway <- unlist(strsplit(as.character(OncogenicPathways.res[[i]][j,1]), split=' ', fixed=TRUE))
+      pathway <- pathway[ pathway != "" ]
+      
+      if ( pathway[4] != 0  ) {
+        
+        cat("\n###### ",as.character(pathway[2]), "\n")
+        
+        maftools::PlotOncogenicPathways(maf = mafInfo[[i]], fullPathway = FALSE, pathways = pathway[2], showTumorSampleBarcodes = params$samples_show)
+        
+        cat("\n\n***\n")
+      }
+    }
+    } else {
+    cat("\n\n\n\nNone of the known oncogenic signaling pathways is enriched.\n\n")
+  }
 }
+```
+
+##### Table
+
+```{r oncogenic_pathways_table, comment = NA, message=FALSE, warning=FALSE}
+##### Present a sample table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  
+  OncogenicPathways.table <- NULL
+  
+  ##### Prepare table 
+  for ( j in 2:length(OncogenicPathways.res[[i]][[1]]) ) {
+    
+    
+    pathway <- unlist(strsplit(as.character(OncogenicPathways.res[[i]][j,1]), split=' ', fixed=TRUE))
+    pathway <- pathway[ pathway != "" ]
+    
+    OncogenicPathways.table <- rbind( OncogenicPathways.table, pathway[-1]  )
+  }
+  
+  colnames(OncogenicPathways.table) <- c("Pathway", "No of genes", "No of affected genes", "Fraction affected")
+  
+  widges.list[[i]] <- DT::datatable( data = OncogenicPathways.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
+      DT::formatStyle( columns = colnames(OncogenicPathways.table), 'text-align' = 'center' ) %>%
+      DT::formatRound( columns = "Fraction affected", 2)
+}
+  
+##### Print a list of htmlwidgets
+widges.list
 ```
 
 ***
@@ -1676,7 +1735,7 @@ for ( i in 1:length(mafFiles) ) {
       cat("<br/><br/>")
       
     } else if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
-       
+      
       cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
        
        somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = genes_list_goi.nonsyn[[i]][c(1:25)], pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
@@ -1768,7 +1827,7 @@ for ( i in 1:length(mafFiles) ) {
   genes <- unique( unlist(c(as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene2" ])) )
   
   if ( length(genes) > 0 ) {
-    maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+    maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, gene_mar = 6)
   } else {
     cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
   }
@@ -1795,7 +1854,7 @@ if ( params$genes_list != "none" ) {
         genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene2" ])) )
         
         if ( length(genes) > 0 ) {
-          maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+          maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, gene_mar = 6)
         } else {
           cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
         }
@@ -1890,7 +1949,7 @@ for ( i in 1:length(gisticFiles) ) {
     ##### Drawing oncoplot for each dataset
     plot.new()
     par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::gisticOncoPlot(gistic = gisticInfo[[i]]$summary, showTumorSampleBarcodes = params$samples_show)
+    maftools::gisticOncoPlot(gistic = gisticInfo[[i]]$summary, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5)
     dev.off()
     
     ##### Read in the oncoplot PNG files
@@ -2017,7 +2076,7 @@ try(maftools::forestPlot(mafCompareRes = mafCompare.res, pVal = params$maf_comp_
 ##### Considering only genes which are mutated in at-least in 5 samples in one of the cohort to avoid bias due to genes mutated in single sample
 genes = mafCompare.res$results$Hugo_Symbol[ mafCompare.res$results$pval < params$maf_comp_p ]
 
-maftools::coOncoplot(m1 = mafInfo[[1]], m2 = mafInfo[[2]], m1Name = datasets.list[1], m2Name = datasets.list[2], genes = genes, removeNonMutated = TRUE, clinicalFeatures1 = clinicalFeatures[[1]], clinicalFeatures2 = clinicalFeatures[[2]], sortByAnnotation1 = TRUE, sortByAnnotation2 = TRUE, titleFontSize = 1.2, colors = vc_cols, showTumorSampleBarcodes = params$samples_show)
+maftools::coOncoplot(m1 = mafInfo[[1]], m2 = mafInfo[[2]], m1Name = datasets.list[1], m2Name = datasets.list[2], genes = genes, removeNonMutated = TRUE, clinicalFeatures1 = clinicalFeatures[[1]], clinicalFeatures2 = clinicalFeatures[[2]], sortByAnnotation1 = TRUE, sortByAnnotation2 = TRUE, titleFontSize = 1.2, colors = vc_cols, showSampleNames = params$samples_show)
 ```
 
 `r if ( runMafCompare ) { c("\n***\n### Table") }`
@@ -2402,7 +2461,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show)
+    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show)
   }
   
   ##### Drawing oncoplots for additional genes of interest (if specified)
@@ -2416,7 +2475,7 @@ for ( i in 1:length(mafFiles) ) {
       
         plot.new()
         par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = TRUE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show)
+        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5)
       }
     }
   }
