@@ -852,6 +852,42 @@ if ( params$clinical_info != "none" ) {
 
 #### Genes summary {.tabset}
 
+`r if ( params$genes_list != "none" ) { c("##### Genes of interest") }`
+
+`r if ( params$genes_list != "none" ) { c("Table(s) summarising ***genes of interest*** in individual datasets. Each table contains per-gene information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file. The last two columns contain the *number of samples with mutations/alterations* in the corresponding gene.") }`
+
+`r if ( params$genes_list != "none" ) { c("<span style=\"color:#ff0000\">NOTE</span>: Only genes of interest with **non-synonymous variants** are presented in the table. Expand buttons below to see the full list of genes of interest and those which have no non-synonymous variants detected.") }`
+
+`r if ( params$genes_list != "none" ) { c("<details>") }`
+`r if ( params$genes_list != "none" ) { c("<summary>Full list of genes of interest</summary>") }`
+`r if ( params$genes_list != "none" ) { c("<font size=\"2\">") }`
+`r if ( params$genes_list != "none" ) { c(paste0("*", goi[[i]], "*")) }`
+`r if ( params$genes_list != "none" ) { c("</font>") }`
+`r if ( params$genes_list != "none" ) { c("</details>") }`
+
+`r if ( params$genes_list != "none" ) { c("<details>") }`
+`r if ( params$genes_list != "none" ) { c("<summary>Genes of interest with no non-synonymous variants</summary>") }`
+`r if ( params$genes_list != "none" ) { c("<font size=\"2\">") }`
+`r if ( params$genes_list != "none" ) { c(paste0("*", goi[[i]][ goi[[i]] %!in% maftools::getGeneSummary(mafInfo[[i]])[ maftools::getGeneSummary(mafInfo[[i]])$Hugo_Symbol %in% goi[[i]], ]$Hugo_Symbol ], "*")) }`
+`r if ( params$genes_list != "none" ) { c("</font>") }`
+`r if ( params$genes_list != "none" ) { c("</details>") }`
+
+```{r goi_table, comment = NA, message=FALSE, warning=FALSE}
+##### Present a gene table in the html report
+##### Create a list for htmlwidgets
+widges.list <- htmltools::tagList()
+
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- DT::datatable(data = maftools::getGeneSummary(mafInfo[[i]])[ maftools::getGeneSummary(mafInfo[[i]])$Hugo_Symbol %in% goi[[i]], ], caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','FixedColumns','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, fixedColumns = list(leftColumns = 2), deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
+        DT::formatStyle( columns = names(maftools::getGeneSummary(mafInfo[[i]])), 'text-align' = 'center' )
+}
+
+##### Print a list of htmlwidgets
+widges.list
+```
+
+`r if ( params$genes_list != "none" ) { c("***") }`
+
 ##### Mutated genes
 
 Table(s) summarising mutated genes in individual datasets. Each table contains per-gene information (rows) about *number of different types of mutations* (columns), as well as the *total number of mutations* reported in corresponding MAF file. The last two columns contain the *number of samples with mutations/alterations* in the corresponding gene.
