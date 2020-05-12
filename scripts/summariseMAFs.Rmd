@@ -1527,7 +1527,15 @@ names(mutSign) <- datasets.list
 
 ##### Run signature analysis for each dataset
 for ( i in 1:length(mafFiles) ) {
-  mutSign[[i]] = trinucleotideMatrix(maf = mafInfo[[i]], prefix = 'chr', add = TRUE, ref_genome = paste0("BSgenome.Hsapiens.UCSC.hg",params$ucsc_genome_assembly))
+  
+  ##### Check if "chr" prefix needs to be added
+  if ( grepl("chr", mafInfo[[i]]@data$Chromosome[1], fixed = TRUE) ) {
+    prefix = NULL
+  } else {
+    prefix = "chr"
+  }
+  
+  mutSign[[i]] = trinucleotideMatrix(maf = mafInfo[[i]], prefix = prefix, add = TRUE, ref_genome = paste0("BSgenome.Hsapiens.UCSC.hg",params$ucsc_genome_assembly))
 }
 ```
 
