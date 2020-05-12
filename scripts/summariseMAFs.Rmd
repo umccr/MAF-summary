@@ -436,6 +436,17 @@ for ( i in 1:length(mafFiles) ) {
   if ( any(!is.na(clinicalInfo[[i]])) ){
     mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
     
+  ##### Make sure that the input MAF doesn't contain empty rows, which would throw errors in downstream analyses
+  ##### List all samples and remove empty sample names
+  tsb <- as.vector(unlist(unique(mafInfo[[i]]@maf.silent[, "Tumor_Sample_Barcode"])))
+  tsb <- tsb[ tsb != "" ]
+  
+  ##### Subset the maf object to include only non-empty samples
+  maf <- subsetMaf(maf = mafInfo[[i]], tsb = tsb, genes = NULL, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE, dropLevels=TRUE)
+  
+  ##### Convert the MAF data into Maf object
+  mafInfo[[i]] <- maftools::read.maf(maf = maf, vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
+
   ##### Check if for any sample the clincal info is missing and add "NA"" to these samples
     if ( length(unique(mafInfo[[i]]@data$Tumor_Sample_Barcode)[ unique(mafInfo[[i]]@data$Tumor_Sample_Barcode) %!in% clinicalInfo[[i]]$Tumor_Sample_Barcode]) > 0 ) {
       
@@ -450,6 +461,17 @@ for ( i in 1:length(mafFiles) ) {
     }
   } else {
     mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
+    
+  ##### Make sure that the input MAF doesn't contain empty rows, which would throw errors in downstream analyses
+  ##### List all samples and remove empty sample names
+  tsb <- as.vector(unlist(unique(mafInfo[[i]]@maf.silent[, "Tumor_Sample_Barcode"])))
+  tsb <- tsb[ tsb != "" ]
+  
+  ##### Subset the maf object to include only non-empty samples
+  maf <- subsetMaf(maf = mafInfo[[i]], tsb = tsb, genes = NULL, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE, dropLevels=TRUE)
+  
+  ##### Convert the MAF data into Maf object
+  mafInfo[[i]] <- maftools::read.maf(maf = maf, vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
   }
 }
 
