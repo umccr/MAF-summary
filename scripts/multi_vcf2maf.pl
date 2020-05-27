@@ -129,7 +129,7 @@ if ($vcfList and $exons and $outMaf and $v2m and $ref) {
 
                 ##### Run vcf2maf.pl script (https://github.com/mskcc/vcf2maf)
                 ##### NOTE, VEP is not run (--inhibit_vep)
-                system("perl $v2m  --input-vcf $vcfFile --output-maf $mafFile --ref-fasta $ref --inhibit_vep --filter-vcf 0 --species homo_sapiens --tumor-id $sampleName --normal-id $sampleName.normal");            
+                system("perl $v2m  --input-vcf $vcfFile --output-maf $mafFile --ref-fasta $ref --inhibit-vep --filter-vcf 0 --species homo_sapiens --tumor-id $sampleName --normal-id $sampleName.normal");            
                 
                 ##### Compress VCFs
                 system( "gzip $vcfFile" );
