@@ -127,15 +127,9 @@ if ($vcfList and $exons and $outMaf and $v2m and $ref) {
                 $mafInfo = join('/', @mafInfo[0 .. $#mafInfo-1]);
                 $sampleName = $mafInfo[$#mafInfo];
 
-                ##### Create copy of the VCF file with .vep extenstion to skip VEP annotation step
-                $vepFile = $info[ 0 ];
-                $vepFile =~ s/\.vcf/\.vep\.vcf/g;
-                
-                system("ln -s $vcfFile $vepFile");
-                
                 ##### Run vcf2maf.pl script (https://github.com/mskcc/vcf2maf)
-                system("perl $v2m  --input-vcf $vcfFile --output-maf $mafFile --ref-fasta $ref --filter-vcf 0 --species homo_sapiens --tumor-id $sampleName --normal-id $sampleName.normal");            
-                system("rm $vepFile");
+                ##### NOTE, VEP is not run (--inhibit_vep)
+                system("perl $v2m  --input-vcf $vcfFile --output-maf $mafFile --ref-fasta $ref --inhibit_vep --filter-vcf 0 --species homo_sapiens --tumor-id $sampleName --normal-id $sampleName.normal");            
                 
                 ##### Compress VCFs
                 system( "gzip $vcfFile" );
