@@ -29,20 +29,6 @@ rm(list=ls())
 ##### Close any open graphics devices
 graphics.off()
 
-
-#===============================================================================
-#    Functions
-#===============================================================================
-
-##### Prepare object to write into a file
-prepare2write <- function (x) {
-
-	x2write <- cbind(rownames(x), x)
-    colnames(x2write) <- c("",colnames(x))
-	return(x2write)
-}
-
-
 #===============================================================================
 #    Load libraries
 #===============================================================================
@@ -158,7 +144,7 @@ if ( length(MAF.sub[ ,1]$V1) > 0 ) {
 }
 
 ##### Write subsetted MAF into a file
-write.table(prepare2write(MAF.sub), file=opt$output, sep="\t", row.names=FALSE, quote = FALSE)
+write.table(MAF.sub, file=opt$output, sep="\t", row.names=FALSE, quote = FALSE)
 
 ##### Clear workspace
 rm(list=ls())
