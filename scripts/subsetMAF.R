@@ -125,15 +125,31 @@ if ( !is.na(opt$genes) ) {
 ##### Specify classification of variants to keep in the subsetted MAF (if sepcified)
 if ( !is.na(opt$var_class) ) {
   
-  vars2keep <- paste0( "Variant_Classification == \"", opt$var_class, "\"")
-  
-  ##### Otherwise keep all genes
-} else {
-  vars2keep <- NULL
-}
+  vars2keep <- unlist(strsplit(opt$var_class, split=',', fixed=TRUE))
 
-##### Extract required data from MAF
-MAF.sub <- subsetMaf(maf = mafInfo, tsb = sample2keep, genes = genes2keep, fields = NULL, query = vars2keep, mafObj = FALSE, includeSyn = TRUE)
+  ##### Add variants of each type into the MAF
+  if ( length(vars2keep) > 1 ) {
+    
+    MAF.sub <- NULL
+    
+    for ( i in 1:length(vars2keep) ) {
+      
+      var2keep <- paste0( "Variant_Classification == \"", vars2keep[i], "\"")
+      MAF.sub <- rbind(MAF.sub, subsetMaf(maf = mafInfo, tsb = sample2keep, genes = genes2keep, fields = NULL, query = var2keep, mafObj = FALSE, includeSyn = TRUE))
+      
+    }
+    
+  } else {
+    var2keep <- paste0( "Variant_Classification == \"", opt$var_class, "\"")
+    
+    ##### Extract required data from MAF
+    MAF.sub <- subsetMaf(maf = mafInfo, tsb = sample2keep, genes = genes2keep, fields = NULL, query = var2keep, mafObj = FALSE, includeSyn = TRUE)
+  }
+  
+##### Otherwise keep all variants
+} else {
+  MAF.sub <- subsetMaf(maf = mafInfo, tsb = sample2keep, genes = genes2keep, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE)
+}
 
 ##### The subsetMaf adds a column with the MAF genes order. Use it to reorder the new MAF and remove that column once done
 if ( length(MAF.sub[ ,1]$V1) > 0 ) {
