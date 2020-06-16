@@ -1588,7 +1588,7 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Save the plot as PNG. NOTE: A small positive value (pConstant=0.1) is added to the matrix to avoid "non-conformable arrays" error.
   png( file = paste(outDir, "/MAF_NMF_cophenetic_metric_", datasets.list[i], ".png", sep = ""), width = 1200, height = 800, units = "px", res = 200, type="cairo" )
-  invisible(capture.output(mutextractSign[[i]] <- extractSignatures(mat = mutSign[[i]], plotBestFitRes = FALSE, pConstant = 0.1)))
+  invisible(capture.output(mutextractSign[[i]] <- extractSignatures(mat = mutSign[[i]], n = 6, plotBestFitRes = FALSE, pConstant = 0.1)))
   invisible(dev.off())
   
   ##### Plot detected signatures
