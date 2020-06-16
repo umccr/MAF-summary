@@ -456,9 +456,15 @@ for ( i in 1:length(mafFiles) ) {
       clinicalInfo.missing <- data.frame(cbind(as.character(clinicalInfo.missing)), rep(NA, length(clinicalInfo.missing)))
       names(clinicalInfo.missing) <- names(clinicalInfo[[i]])
       clinicalInfo[[i]] <- rbind(clinicalInfo[[i]], clinicalInfo.missing)
-      
-      mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = clinicalInfo[[i]])
     }
+    
+    #### Make sure the clinical features names are correct
+    for (j in 1:length(clinicalFeatures[[i]])) {
+      clinicalInfo[[i]][, clinicalFeatures[[i]][j]] <- make.names(clinicalInfo[[i]][, clinicalFeatures[[i]][j]])
+    }
+  
+    mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = clinicalInfo[[i]])
+  
   } else {
     mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
     
@@ -1582,7 +1588,7 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Save the plot as PNG. NOTE: A small positive value (pConstant=0.1) is added to the matrix to avoid "non-conformable arrays" error.
   png( file = paste(outDir, "/MAF_NMF_cophenetic_metric_", datasets.list[i], ".png", sep = ""), width = 1200, height = 800, units = "px", res = 200, type="cairo" )
-  invisible(capture.output(mutextractSign[[i]] <- extractSignatures(mat = mutSign[[i]], nTry = 6, plotBestFitRes = FALSE, pConstant = 0.1)))
+  invisible(capture.output(mutextractSign[[i]] <- extractSignatures(mat = mutSign[[i]], plotBestFitRes = FALSE, pConstant = 0.1)))
   invisible(dev.off())
   
   ##### Plot detected signatures
