@@ -14,12 +14,12 @@
 
 ################################################################################
 #
-#   Description: Script combining and converting Purple (https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) output to GISTIC (https://www.genepattern.org/modules/docs/GISTIC_2.0) compatible input.
+#   Description: Script combining and converting Purple (https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) output into GISTIC (https://www.genepattern.org/modules/docs/GISTIC_2.0) compatible input.
 #
 #   Command line use example: Rscript purple2gistic.R --purple_files cnvs.txt --output cnv_combined
 #
 #   purple_files: Full path and name of a file listing purple ".purple.cnv.somatic.tsv" output files to combine
-#   output:       Full path and name for the output file. If no output file name is specified the output files will have same name as the input file with added "cnv_combined" suffix
+#   output:       Full path and name for the output folder
 #
 ################################################################################
 
@@ -42,14 +42,14 @@ option_list <- list(
   make_option(c("-i", "--purple_files"), action="store", default=NA, type='character',
               help="Full path and name of a file listing purple output files to combine"),
   make_option(c("-o", "--output"), action="store", default=NA, type='character',
-              help="Name for the output file")
+              help="Full path and name for the output folder")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
 
 
 ##### Check if the required arguments are provided
-if ( is.na(opt$purple_files) ) {
+if ( is.na(opt$purple_files) || is.na(opt$output) ) {
   
   cat("\nPlease type in required arguments!\n\n")
   cat("\ncommand example:\n\nRscript purple2gistic.R --purple_files cnvs.txt --output cnv_combined\n\n")
@@ -57,17 +57,9 @@ if ( is.na(opt$purple_files) ) {
   q()
 }
 
-##### Specify output file name if not pre-defined
-if ( is.na(opt$output) ) {
-  opt$output <- paste0(opt$purple_files, ".cnv_combined")
-}
-
 ##### Check if the directory for the output files exists
-output_dir <- unique(unlist(strsplit(opt$output, split='/', fixed=TRUE)))
-output_dir <- paste(output_dir[-length(output_dir)], collapse = "/")
-
-if ( !file.exists(output_dir) ) {
-  dir.create(output_dir, recursive=TRUE)
+if ( !file.exists(opt$output) ) {
+  dir.create(opt$output, recursive=TRUE)
 }
 
 #===============================================================================
@@ -98,7 +90,7 @@ for (i in 1:nrow(purple_files)){
 
 ##### Combined all purple outputs and save as a file
 combined <- bind_rows(all_outputs)
-write_csv(combined, paste(opt$output, ".csv"))
+write_csv(combined, paste(opt$output, "/cnv_combined.csv"))
 
 
 ##### Make a file for gistic from the PURPLE outputs. 
@@ -117,12 +109,12 @@ gistic_format <- combined %>%
   mutate(Seg.CN = log2(as.numeric(Seg.CN))-1)
 
 ##### Save converted data inta a seg file
-write_tsv(gistic_format, paste(opt$output, ".seg"))
+write_tsv(gistic_format, paste(opt$output, "/cnv_combined.seg"))
 
 ##### Draw a histogram of values. Should be centered around 0
-pdf(paste(opt$output, ".pdf"), width=8, height=5)
+pdf(paste(opt$output, "/cnv_combined.pdf"), width=8, height=5)
 hist(gistic_format$Seg.CN,breaks = 1000)
-dev.off()
+invisible(dev.off())
 
 ##### Clear workspace
 rm(list=ls())
