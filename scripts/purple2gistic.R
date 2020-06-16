@@ -90,7 +90,7 @@ for (i in 1:nrow(purple_files)){
 
 ##### Combined all purple outputs and save as a file
 combined <- bind_rows(all_outputs)
-write_csv(combined, paste(opt$output, "/cnv_combined.csv"))
+write_csv(combined, paste0(opt$output, "/cnv_combined.csv"))
 
 
 ##### Make a file for gistic from the PURPLE outputs. 
@@ -109,10 +109,10 @@ gistic_format <- combined %>%
   mutate(Seg.CN = log2(as.numeric(Seg.CN))-1)
 
 ##### Save converted data inta a seg file
-write_tsv(gistic_format, paste(opt$output, "/cnv_combined.seg"))
+write_tsv(gistic_format, paste0(opt$output, "/cnv_combined.seg"))
 
 ##### Draw a histogram of values. Should be centered around 0
-pdf(paste(opt$output, "/cnv_combined.pdf"), width=8, height=5)
+pdf(paste0(opt$output, "/cnv_combined.pdf"), width=8, height=5)
 hist(gistic_format$Seg.CN,breaks = 1000)
 invisible(dev.off())
 
