@@ -36,5 +36,5 @@ dependencies:
         - r-htmltools
         - r-htmlwidgets
         - r-devtools
-        - moreutils
+        - perl-list-moreutils
 
