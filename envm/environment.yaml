@@ -18,6 +18,7 @@ dependencies:
         - vcf2maf
         - tabix
         - samtools
+        - perl-list-moreutils
         - bioconductor-maftools
         - bioconductor-bsgenome.hsapiens.ucsc.hg19
         - bioconductor-bsgenome.hsapiens.ucsc.hg38
@@ -36,5 +37,5 @@ dependencies:
         - r-htmltools
         - r-htmlwidgets
         - r-devtools
-        - perl-list-moreutils
+
 
