@@ -348,6 +348,10 @@ Argument | Description | Required
 
 **Packages**: required packages are listed in [environment.yaml](envm/environment.yaml) file.
 
+###### Note
+
+[Purple](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) output files can be combined and converted into [GISTIC](https://www.genepattern.org/modules/docs/GISTIC_2.0) compatible seg file using *[purple2gistic.R](./scripts/purple2gistic.R)* script. 
+
 **Command line use example**:
 
 ```
