@@ -32,6 +32,7 @@ dependencies:
         - r-plotly=4.9.0
         - r-heatmaply
         - r-tibble
+        - r-tidyverse
         - r-htmltools
         - r-htmlwidgets
         - r-devtools
