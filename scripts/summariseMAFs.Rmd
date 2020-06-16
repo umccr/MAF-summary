@@ -1573,7 +1573,7 @@ Extracted signatures were compared against known signatures derived from [Alexan
 
 #### Plot
 
-Mutational signatures detected in individual dataset(s).
+Mutational signatures presented for individual dataset(s).
 
 ```{r signature_analysis, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Generate separate plot for each dataset
@@ -1588,20 +1588,22 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Save the plot as PNG. NOTE: A small positive value (pConstant=0.1) is added to the matrix to avoid "non-conformable arrays" error.
   png( file = paste(outDir, "/MAF_NMF_cophenetic_metric_", datasets.list[i], ".png", sep = ""), width = 1200, height = 800, units = "px", res = 200, type="cairo" )
-  invisible(capture.output(mutextractSign[[i]] <- extractSignatures(mat = mutSign[[i]], n = 6, plotBestFitRes = FALSE, pConstant = 0.1)))
+  invisible(capture.output(mutextractSign[[i]] <- extractSignatures(mat = mutSign[[i]], n = 30, plotBestFitRes = TRUE, pConstant = 0.1)))
   invisible(dev.off())
   
   ##### Plot detected signatures
-  png( file = paste(outDir, "/MAF_mutational signatures_", datasets.list[i], ".png", sep = ""), width = 1200, height = nrow(mutextractSign[[i]]$contributions)*300, units = "px", res = 200, type="cairo" )
+  png( file = paste(outDir, "/MAF_mutational_signatures_", datasets.list[i], ".png", sep = ""), width = 1200, height = nrow(mutextractSign[[i]]$contributions)*300, units = "px", res = 200, type="cairo" )
   try(plotSignatures(mutextractSign[[i]], title_size = 0.8), silent = TRUE)
   invisible(dev.off())
   
-  cat("![](",paste(outDir, "/MAF_mutational signatures_", datasets.list[i], ".png", sep = ""),")\n")
+  cat("![](",paste(outDir, "/MAF_mutational_signatures_", datasets.list[i], ".png", sep = ""),")\n")
   
   ##### Drawing heatmap comparison to all COSMIC signatures
   ##### Save the plot as PNG
+  cosm = compareSignatures(nmfRes = mutextractSign[[i]], sig_db = "SBS", verbose = FALSE)
+
   par(mar=c(2,4,2,0.5), oma=c(1.5,2,2,1))
-  invisible(capture.output(pheatmap::pheatmap(mat = mutextractSign[[i]]$coSineSimMat, cluster_rows = FALSE, main = "Cosine similarity against validated signatures", cellheight = 10, filename = paste(outDir, "/MAF_COSMIC_signatures_comp_", datasets.list[i], ".png", sep = ""))))
+  invisible(capture.output(pheatmap::pheatmap(mat = cosm$cosine_similarities, cluster_rows = FALSE, main = "Cosine similarity against validated signatures", cellheight = 10, filename = paste(outDir, "/MAF_COSMIC_signatures_comp_", datasets.list[i], ".png", sep = ""))))
   
   cat("\n<details>\n")
   cat("\n<summary>Plot legend</summary>\n")
@@ -1622,7 +1624,7 @@ for ( i in 1:length(mafFiles) ) {
 
 #### Table
 
-Table(s) with detected signature contributions (*columns*) in each sample (*rows*) in individual dataset(s).
+Table(s) with signature contributions (*columns*) in each sample (*rows*) in individual dataset(s).
 
 ```{r signature_analysis_table, comment = NA, message=FALSE, warning=FALSE}
 ##### Present a sample table in the html report
@@ -1642,7 +1644,7 @@ widges.list
 
 ### Enrichment analysis {.tabset .tabset-fade}
 
-Signatures were assigned to samples and enrichment analysis were performed to detect mutations enriched in every signature identified.
+Signatures were assigned to samples and enrichment analysis were performed to detect mutations enriched in individual signatures.
 
 #### Per-signature
 
@@ -1666,7 +1668,7 @@ for ( i in 1:length(mafFiles) ) {
 
 #### Per-genes
 
-Plot(s) illustrating enrichment of individual genes in detected mutational signatures.
+Plot(s) illustrating enrichment of individual genes in individual mutational signatures.
 
 ```{r signature_enrichment_genes, comment = NA, message=FALSE, warning=FALSE, fig.width = 8, fig.height = 4, results="asis"}
 ##### Generate separate plot for each dataset
