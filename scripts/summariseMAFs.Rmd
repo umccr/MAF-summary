@@ -1771,7 +1771,7 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Exclusive/co-occurance event analysis on top 25 mutated genes
   if ( nrow(mafInfo[[i]]@data) > 1 ) {
-    somInter[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], top = 25, pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
+    somInter[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], top = 25, pvalue = c(0.05, 0.1), returnAll = TRUE)
     
   } else {
     cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
@@ -1798,14 +1798,14 @@ for ( i in 1:length(mafFiles) ) {
   
     ##### Exclusive/co-occurance event analysis on top 25 mutated genes
     if ( length(genes_list_goi.nonsyn[[i]]) > 1 && length(genes_list_goi.nonsyn[[i]]) < 26 ) {
-      somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = genes_list_goi.nonsyn[[i]], pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
+      somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = genes_list_goi.nonsyn[[i]], pvalue = c(0.05, 0.1), returnAll = TRUE)
       cat("<br/><br/>")
       
     } else if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
       
       cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
        
-       somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = genes_list_goi.nonsyn[[i]][c(1:25)], pvalue = c(0.05, 0.1), returnAll = TRUE, verbose = FALSE)
+       somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = genes_list_goi.nonsyn[[i]][c(1:25)], pvalue = c(0.05, 0.1), returnAll = TRUE)
        
      } else {
        cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
