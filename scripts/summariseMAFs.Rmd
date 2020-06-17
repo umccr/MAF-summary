@@ -1573,7 +1573,7 @@ Extracted signatures were compared against known signatures derived from [Alexan
 
 #### Plot
 
-Mutational signatures presented for individual dataset(s).
+Mutational signatures presented for individual dataset(s).<span style=\"color:#ff0000\">NOTE</span>, 5 best fit signatures are assumed.
 
 ```{r signature_analysis, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Generate separate plot for each dataset
@@ -1588,7 +1588,7 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Save the plot as PNG. NOTE: A small positive value (pConstant=0.1) is added to the matrix to avoid "non-conformable arrays" error.
   png( file = paste(outDir, "/MAF_NMF_cophenetic_metric_", datasets.list[i], ".png", sep = ""), width = 1200, height = 800, units = "px", res = 200, type="cairo" )
-  invisible(capture.output(mutextractSign[[i]] <- extractSignatures(mat = mutSign[[i]], n = 30, plotBestFitRes = TRUE, pConstant = 0.1)))
+  invisible(capture.output(mutextractSign[[i]] <- extractSignatures(mat = mutSign[[i]], n = 6, plotBestFitRes = FALSE, pConstant = 0.1)))
   invisible(dev.off())
   
   ##### Plot detected signatures
@@ -1624,7 +1624,7 @@ for ( i in 1:length(mafFiles) ) {
 
 #### Table
 
-Table(s) with signature contributions (*columns*) in each sample (*rows*) in individual dataset(s).
+Table(s) with detected signature contributions (*columns*) in each sample (*rows*) in individual dataset(s).
 
 ```{r signature_analysis_table, comment = NA, message=FALSE, warning=FALSE}
 ##### Present a sample table in the html report
@@ -1644,7 +1644,7 @@ widges.list
 
 ### Enrichment analysis {.tabset .tabset-fade}
 
-Signatures were assigned to samples and enrichment analysis were performed to detect mutations enriched in individual signatures.
+Signatures were assigned to samples and enrichment analysis were performed to detect mutations enriched in every signature identified.
 
 #### Per-signature
 
@@ -1668,7 +1668,7 @@ for ( i in 1:length(mafFiles) ) {
 
 #### Per-genes
 
-Plot(s) illustrating enrichment of individual genes in individual mutational signatures.
+Plot(s) illustrating enrichment of individual genes in detected mutational signatures.
 
 ```{r signature_enrichment_genes, comment = NA, message=FALSE, warning=FALSE, fig.width = 8, fig.height = 4, results="asis"}
 ##### Generate separate plot for each dataset
