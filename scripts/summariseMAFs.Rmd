@@ -1475,6 +1475,7 @@ for ( i in 1:length(mafFiles) ) {
   }
   
   colnames(OncogenicPathways.table) <- c("Pathway", "No of genes", "No of affected genes", "Fraction affected", "Mutated_samples")
+  OncogenicPathways.table <- OncogenicPathways.table[ order(OncogenicPathways.table[, "Mutated_samples"]), ]
   
   widges.list[[i]] <- DT::datatable( data = OncogenicPathways.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
       DT::formatStyle( columns = colnames(OncogenicPathways.table), 'text-align' = 'center' ) %>%
