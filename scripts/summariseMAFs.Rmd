@@ -1465,16 +1465,16 @@ for ( i in 1:length(mafFiles) ) {
   OncogenicPathways.table <- NULL
   
   ##### Prepare table 
-  for ( j in 2:length(OncogenicPathways.res[[i]][[1]]) ) {
+  for( j in 2:(length(OncogenicPathways.res[[i]])/2) ){
     
     
-    pathway <- unlist(strsplit(as.character(OncogenicPathways.res[[i]][j,1]), split=' ', fixed=TRUE))
+    pathway <- unlist(strsplit(as.character(OncogenicPathways.res[[i]][j]), split=' ', fixed=TRUE))
     pathway <- pathway[ pathway != "" ]
     
     OncogenicPathways.table <- rbind( OncogenicPathways.table, pathway[-1]  )
   }
   
-  colnames(OncogenicPathways.table) <- c("Pathway", "No of genes", "No of affected genes", "Fraction affected")
+  colnames(OncogenicPathways.table) <- c("Pathway", "No of genes", "No of affected genes", "Fraction affected", "Mutated_samples")
   
   widges.list[[i]] <- DT::datatable( data = OncogenicPathways.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
       DT::formatStyle( columns = colnames(OncogenicPathways.table), 'text-align' = 'center' ) %>%
