@@ -30,7 +30,7 @@ dependencies:
         - r-ggplot2
         - r-dt
         - r-magick
-        - r-plotly=4.9.0
+        - r-plotly
         - r-heatmaply
         - r-tibble
         - r-tidyverse
