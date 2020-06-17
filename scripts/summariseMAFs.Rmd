@@ -1535,22 +1535,6 @@ if ( params$clinical_info != "none" ) {
 }
 ```
 
-#### Gene cloud
-
-Word cloud plot for **most frequently mutated genes** (mutated in at least `r gsub(",", "% and ", params$genes_min)`% of patients, respectively). *Size* of each gene is proportional to the total *number of samples* in which it is altered.
-
-```{r gene_cloud, comment = NA, message=FALSE, warning=FALSE, results="asis"}
-###### Generate separate plot for each dataset
-for ( i in 1:length(mafFiles) ) {
-
-  cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
-  
-  par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-  maftools::geneCloud(input = mafInfo[[i]], minMut = 3, top = top_genes_no[[i]])
-  cat("<br/><br/>")
-}
-```
-
 ***
 
 ## Signature analysis {.tabset .tabset-fade}
