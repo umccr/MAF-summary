@@ -1511,10 +1511,18 @@ if ( params$clinical_info != "none" ) {
     } 
     clinicalFeatures[[i]] <- clinicalFeatures[[i]][ clinicalFeatures[[i]] %!in% clinicalFeatures2rm ]
     
-    clinical.enrichment[[i]] = quiet(clinicalEnrichment(maf = mafInfo[[i]], clinicalFeature = clinicalFeatures[[i]]))
+    ##### Make sure that there is at least one clinical feature assigned to > 1 sample
+    if ( length(as.data.frame(mafInfo[[i]]@clinical.data)[ ,clinicalFeatures[[i]]]) < nrow(mafInfo[[i]]@clinical.data) ) {
+      clinical.enrichment[[i]] = quiet(clinicalEnrichment(maf = mafInfo[[i]], clinicalFeature = clinicalFeatures[[i]]))
+    } else {
+      clinical.enrichment[[i]] <- NA
+    }
     
     ##### Check any gene in given dataset passed the user-defined threshold
-    if ( any(clinical.enrichment[[i]]$groupwise_comparision$p_value < params$clinical_enrichment_p) ) {
+    if ( is.na(clinical.enrichment[[i]]) ) {
+      cat(paste0("No significant associations found at p-value < ", params$clinical_enrichment_p))
+      cat("<br/><br/>")
+    } else if ( any(clinical.enrichment[[i]]$groupwise_comparision$p_value < params$clinical_enrichment_p) ) {
       try(plotEnrichmentResults(enrich_res = clinical.enrichment[[i]], pVal = params$clinical_enrichment_p), silent = TRUE)
       cat("<br/><br/>")
     } else {
