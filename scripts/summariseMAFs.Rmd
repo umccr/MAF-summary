@@ -1837,7 +1837,7 @@ widges.list <- htmltools::tagList()
 
 for ( i in 1:length(mafFiles) ) {
   
-  somInter.table <- as.data.frame(somInter[[i]]$pairs)[, colnames(somInter[[i]]$pairs) %!in% c("00","11","01","10") ]
+  somInter.table <- as.data.frame(somInter[[i]])[, colnames(somInter[[i]]) %!in% c("00","11","01","10") ]
   
   widges.list[[i]] <- DT::datatable( data = somInter.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
       DT::formatStyle( columns = names(somInter.table), 'text-align' = 'center' ) %>%
@@ -1861,7 +1861,7 @@ if ( params$genes_list != "none" ) {
     
     cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
     
-    somInter.table <- as.data.frame(somInter_goi[[i]]$pairs)[, colnames(somInter_goi[[i]]$pairs) %!in% c("00","11","01","10") ]
+    somInter.table <- as.data.frame(somInter_goi[[i]])[, colnames(somInter_goi[[i]]) %!in% c("00","11","01","10") ]
     
     if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
       if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
