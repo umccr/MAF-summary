@@ -1429,11 +1429,8 @@ for ( i in 1:length(mafFiles) ) {
   if ( length(OncogenicPathways.res[[i]]) > 0 ) {
     
     cat("\n\n\n\nThe complete oncogenic pathways are presented below. Tumour suppressor genes are in <span style=\"color:#ff0000\">red</span>, and oncogenes are in <span style=\"color:#0000ff\">blue</span> font.\n")
-     
-    #OncogenicPathways.res[[i]] <- as.data.frame(OncogenicPathways.res[[i]])
-    #OncogenicPathways.res[[i]] <- OncogenicPathways.res[[i]][[1]][,1:4]
-    
-    for( j in 2:(length(OncogenicPathways.res[[i]])/2) ){
+  
+    for( j in (length(OncogenicPathways.res[[i]])/2):2 ){
       
       pathway <- unlist(strsplit(as.character(OncogenicPathways.res[[i]][j]), split=' ', fixed=TRUE))
       pathway <- pathway[ pathway != "" ]
@@ -1474,8 +1471,8 @@ for ( i in 1:length(mafFiles) ) {
     OncogenicPathways.table <- rbind( OncogenicPathways.table, pathway[-1]  )
   }
   
-  colnames(OncogenicPathways.table) <- c("Pathway", "No of genes", "No of affected genes", "Fraction affected", "Mutated_samples")
-  OncogenicPathways.table <- OncogenicPathways.table[ order(OncogenicPathways.table[, "Mutated_samples"]), ]
+  colnames(OncogenicPathways.table) <- c("Pathway", "No of genes", "No of affected genes", "Fraction affected", "Mutated samples")
+  OncogenicPathways.table <- OncogenicPathways.table[ order(OncogenicPathways.table[, "Mutated samples"], decreasing = TRUE), ]
   
   widges.list[[i]] <- DT::datatable( data = OncogenicPathways.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
       DT::formatStyle( columns = colnames(OncogenicPathways.table), 'text-align' = 'center' ) %>%
