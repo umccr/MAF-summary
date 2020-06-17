@@ -1898,7 +1898,7 @@ for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
-  genes <- unique( unlist(c(as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter[[i]]$pairs)[ somInter[[i]]$pairs$pValue < 0.05, "gene2" ])) )
+  genes <- unique( unlist(c(as.data.frame(somInter[[i]])[ somInter[[i]]$pValue < 0.05, "gene1" ], as.data.frame(somInter[[i]])[ somInter[[i]]$pValue < 0.05, "gene2" ])) )
   
   if ( length(genes) > 0 ) {
     maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, gene_mar = 6)
@@ -1925,7 +1925,7 @@ if ( params$genes_list != "none" ) {
         
         cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
         
-        genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene1" ], as.data.frame(somInter_goi[[i]]$pairs)[ somInter_goi[[i]]$pairs$pValue < 0.05, "gene2" ])) )
+        genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]])[ somInter_goi[[i]]$pValue < 0.05, "gene1" ], as.data.frame(somInter_goi[[i]])[ somInter_goi[[i]]$pValue < 0.05, "gene2" ])) )
         
         if ( length(genes) > 0 ) {
           maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, gene_mar = 6)
@@ -1935,7 +1935,7 @@ if ( params$genes_list != "none" ) {
         cat("<br/><br/>")
       } else {
         
-        genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]]$pairs)[ , "gene1" ], as.data.frame(somInter_goi[[i]]$pairs)[ , "gene2" ])) )
+        genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]])[ , "gene1" ], as.data.frame(somInter_goi[[i]])[ , "gene2" ])) )
         if ( length(genes) > 0 ) {
           maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
         } else {
