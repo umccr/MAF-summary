@@ -1430,11 +1430,12 @@ for ( i in 1:length(mafFiles) ) {
     
     cat("\n\n\n\nThe complete oncogenic pathways are presented below. Tumour suppressor genes are in <span style=\"color:#ff0000\">red</span>, and oncogenes are in <span style=\"color:#0000ff\">blue</span> font.\n")
      
-    OncogenicPathways.res[[i]] <- as.data.frame(OncogenicPathways.res[[i]])
+    #OncogenicPathways.res[[i]] <- as.data.frame(OncogenicPathways.res[[i]])
+    #OncogenicPathways.res[[i]] <- OncogenicPathways.res[[i]][[1]][,1:4]
     
-    for( j in 2:nrow(OncogenicPathways.res[[i]]) ){
+    for( j in 2:(length(OncogenicPathways.res[[i]])/2) ){
       
-      pathway <- unlist(strsplit(as.character(OncogenicPathways.res[[i]][j,1]), split=' ', fixed=TRUE))
+      pathway <- unlist(strsplit(as.character(OncogenicPathways.res[[i]][j]), split=' ', fixed=TRUE))
       pathway <- pathway[ pathway != "" ]
       
       if ( pathway[4] != 0  ) {
