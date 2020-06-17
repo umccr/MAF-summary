@@ -30,6 +30,7 @@ dependencies:
         - r-ggplot2
         - r-dt
         - r-magick
+        - r-pdftools
         - r-plotly
         - r-heatmaply
         - r-tibble
