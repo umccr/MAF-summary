@@ -1756,7 +1756,7 @@ Many disease causing genes in cancer are co-occurring or show strong exclusivene
 
 ### Pair-wise plot {.tabset}
 
-Heatmap of observed pairwise mutation patterns. <span style="color:#48d47d">Green</span> colours denote preferential co-mutation, while <span style="color:#b3408b">pink</span> colours indicate mutual exclusivity. 
+Heatmap of observed pairwise mutation patterns. <span style="color:#48d47d">Green</span> colours denote preferential co-mutation, while <span style="color:#b37240">brown</span> colours indicate mutual exclusivity. 
 
 #### Recurrently mutated genes
 
