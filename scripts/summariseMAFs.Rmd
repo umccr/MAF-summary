@@ -1377,10 +1377,10 @@ for ( i in 1:length(mafFiles) ) {
   ##### Compare mutation load against TCGA cohorts
   if ( gisticInfo[[i]]$status ) {
     par(mar=c(1,1,1,1), oma=c(6,2,2,1))
-  tcgaCompare.res <- tcgaCompare(maf = mafInfo_tcgaCompare[[i]], cohortName = datasets.list[i], primarySite=TRUE)
+    tcgaCompare.res <- tcgaCompare(maf = mafInfo_tcgaCompare[[i]], cohortName = datasets.list[i], primarySite=TRUE)$median_mutation_burden
   } else {
     par(mar=c(1,1,1,1), oma=c(6,2,2,1))
-  tcgaCompare.res <- tcgaCompare(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)
+    tcgaCompare.res <- tcgaCompare(maf = mafInfo[[i]], cohortName = datasets.list[i], primarySite=TRUE)$median_mutation_burden
   }
   
   cat("<br/><br/>")
