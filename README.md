@@ -111,6 +111,20 @@ perl scripts/multi_vcf2maf.pl  --vcf_list examples/example_vcf_list.txt  --exons
 >This will convert the [VCF](http://www.internationalgenome.org/wiki/Analysis/vcf4.0/) files listed in [example_vcf_list.txt](./examples/example_vcf_list.txt) into corresponding MAF files, which are then will be merged into one collective MAF file **example.maf** saved in **examples** directory.
 >
 
+NOTE: Sometimes the [VCF](http://www.internationalgenome.org/wiki/Analysis/vcf4.0/) files miss the `chr` prefix for chromosome names, while these were present in the reference FASTA file (indicated by `--ref` parameter). This may trigger error similar to the one below:
+
+```
+[W::fai_get_val] Reference 10:69103935-69103937 not found in file, returning empty sequence
+[faidx] Failed to fetch sequence in 10:69103935-69103937
+ERROR: Make sure that ref-fasta is the same genome build as your MAF: ../GCF_000001405.38_GRCh38.p12_genomic.fna
+```
+
+To solve that issue one needs to add `chr` prefix to the [VCF](http://www.internationalgenome.org/wiki/Analysis/vcf4.0/) file of interest, e.g. `no_chr.vcf`:
+
+```
+awk '{if($0 !~ /^#/) print "chr"$0; else print $0}' no_chr.vcf > with_chr.vcf
+```
+ 
 <br>
 
 
