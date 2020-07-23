@@ -169,6 +169,12 @@ if ( tolower(opt$remove_duplicated_variants) != "true" && tolower(opt$remove_dup
   q()
 }
 
+##### Make sure that only PURPLE or GISTIC results are provided, not both
+if ( opt$purple != "none" && opt$gistic != "none" ) {
+  cat("\nMake sure that only PURPLE (\"--purple\") or GISTIC (\"--gistic\") results are provided!\n\n")
+  q()  
+}
+
 ##### Collect parameters
 param_list <- list(maf_dir = opt$maf_dir,
                    maf_files = opt$maf_files,
