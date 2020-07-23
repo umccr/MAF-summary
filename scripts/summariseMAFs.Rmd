@@ -536,6 +536,7 @@ if ( params$purple != "none" ){
     # Then feed the result into read.maf
     maf.data <- rbind(mafInfo[[i]]@data, mafInfo[[i]]@maf.silent)
     
+    nonSyn_list <- c(unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), "Amp","Del")
     
     ##### Add clinical information if provided
     if ( !is.na(clinicalInfo[[i]]) ) {
