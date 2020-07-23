@@ -512,7 +512,6 @@ if ( params$purple != "none" ){
     purple_dfs <- purple_files %>% map(~ mutate(read_tsv(.), fname = .))
     purple_df = purple_dfs %>% 
       bind_rows %>% 
-      filter(gene %in% c("KRAS", "TP53")) %>% 
       mutate(sample = fname %>% basename %>% str_replace('.purple.cnv.gene.tsv', '')) %>%
       rowwise() %>% mutate(cn = mean(minCopyNumber, maxCopyNumber)) %>% 
       select(gene, sample, cn) %>% 
