@@ -24,6 +24,7 @@ params:
   samples_blacklist: 'none'
   nonSyn_list: 'Frame_Shift_Del,Frame_Shift_Ins,Splice_Site,Translation_Start_Site,Nonsense_Mutation,Nonstop_Mutation,In_Frame_Del,In_Frame_Ins,Missense_Mutation'
   remove_duplicated_variants: TRUE
+  purple: 'none'
   gistic: 'none'
   clinical_info: 'none'
   clinical_features: 'none'
@@ -367,6 +368,8 @@ suppressMessages(library(NMF))
 suppressMessages(library(openxlsx))
 suppressMessages(library(ggplot2))
 suppressMessages(library(DT))
+suppressMessages(library(purrr))
+suppressMessages(library(tidyverse))
 suppressMessages(library(magick))
 suppressMessages(library(htmltools))
 suppressMessages(library(htmlwidgets))
@@ -495,6 +498,52 @@ if ( length(mafFiles) == 2 ) {
   runMafCompare <- TRUE
 } else {
   runMafCompare <- FALSE
+}
+
+##### Read in PURPLE output files if defined by user
+# https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/oncoplots.html#032_custom_copy-number_table
+if ( params$purple != "none" ){
+  purpleFiles <- unlist(strsplit(params$purple, split=',', fixed=TRUE))
+  
+  for ( i in 1:length(mafFiles) ) {
+    
+    purple_files <- list.files(purpleFiles, pattern = "*.purple.cnv.gene.tsv", full.names = TRUE)
+
+    purple_dfs <- purple_files %>% map(~ mutate(read_tsv(.), fname = .))
+    purple_df = purple_dfs %>% 
+      bind_rows %>% 
+      filter(gene %in% c("KRAS", "TP53")) %>% 
+      mutate(sample = fname %>% basename %>% str_replace('.purple.cnv.gene.tsv', '')) %>%
+      rowwise() %>% mutate(cn = mean(minCopyNumber, maxCopyNumber)) %>% 
+      select(gene, sample, cn) %>% 
+      mutate(
+        event = case_when(
+          (cn < 0.5) ~ "HD",
+          (cn >= 0.5 & cn < 1.5) ~ "LOH",
+          (cn >= 1.5 & cn < 8) ~ "NA",
+          (cn >= 8) ~ "Amp",
+          TRUE ~ "NA"
+        )) %>% 
+        
+      # oncoplot doesn't seem to support custom tags like HD or LOH though. Need to convert it into Del. So using only HD for now, but potentially can manually select what do we want to treat as a deletion based on gene role:
+      mutate(
+      	ampdel = case_when(
+          (event == "HD") ~ "Del", 
+          (event == "Amp") ~ "Amp",
+          TRUE ~ "NA"
+      ))
+      
+    # Then feed the result into read.maf
+    maf.data <- rbind(mafInfo[[i]]@data, mafInfo[[i]]@maf.silent)
+    
+    
+    ##### Add clinical information if provided
+    if ( !is.na(clinicalInfo[[i]]) ) {
+      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = purple_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = clinicalInfo[[i]])
+    } else {
+      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = purple_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = NULL)
+    }
+  }
 }
 
 ##### Read in GISTIC output files if defined by user

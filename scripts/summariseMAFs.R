@@ -29,6 +29,7 @@
 #   samples_show (optional):  Include sample names on the plots (oncoplots, oncogenic pathways plots, oncostrips). Default is FALSE
 #   nonSyn_list:   List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants
 #	  remove_duplicated_variants:		Remove repeated variants in a particular sample, mapped to multiple transcripts of same gene? Defulat value is "FALSE"
+#   purple (optional):  Location of the PURPLE ".purple.cnv.gene.tsv" output files. Each file name (for each dataset) is expected to be separated by comma
 #   gistic (optional):  Location of the corresponding GISTIC output files (including gisticAllLesionsFile, gisticAmpGenesFile, gisticDelGenesFile and gisticScoresFile). Each file name (for each dataset) is expected to be separated by comma
 #   clinical_info (optional):  Location of clinical data associated with each sample in MAF. Each file name (for each dataset) is expected to be separated by comma
 #   clinical_features (optional):  Columns names (separated by comma) from clinical data (specified by --clinical_info argument) to be drawn in the oncoplot(s). Note that the order matters
@@ -81,6 +82,8 @@ option_list <- list(
               help="List of variant classifications to be considered as non-synonymous"),
   make_option("--remove_duplicated_variants", action="store", default=NA, type='character',
               help="Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene?"),
+  make_option("--purple", action="store", default="none", type='character',
+              help="Location of the PURPLE output files"),
   make_option("--gistic", action="store", default="none", type='character',
               help="Location of the corresponding GISTIC output files"),
   make_option("--clinical_info", action="store", default="none", type='character',
@@ -108,6 +111,7 @@ opt <- parse_args(OptionParser(option_list=option_list))
 ##### Collect MAF files and correspondiong datasets names
 opt$maf_files <- gsub("\\s","", opt$maf_files)
 opt$gistic <- gsub("\\s","", opt$gistic)
+opt$purple <- gsub("\\s","", opt$purple)
 opt$clinical_info <- gsub("\\s","", opt$clinical_info)
 opt$datasets <- gsub("\\s","", opt$datasets)
 
@@ -178,6 +182,7 @@ param_list <- list(maf_dir = opt$maf_dir,
                    samples_show = opt$samples_show,
                    nonSyn_list = opt$nonSyn_list,
                    remove_duplicated_variants = opt$remove_duplicated_variants,
+                   purple = opt$purple,
                    gistic = opt$gistic,
                    clinical_info = opt$clinical_info,
                    clinical_features = opt$clinical_features,
