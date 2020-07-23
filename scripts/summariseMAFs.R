@@ -30,6 +30,9 @@
 #   nonSyn_list:   List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants
 #	  remove_duplicated_variants:		Remove repeated variants in a particular sample, mapped to multiple transcripts of same gene? Defulat value is "FALSE"
 #   purple (optional):  Location of the PURPLE ".purple.cnv.gene.tsv" output files. Each file name (for each dataset) is expected to be separated by comma
+#   purple_hd (optional): CN upper threshold to call homozygous deletions (HD)
+#   purple_loh (optional): CN upper threshold to call loss of heterozygosity (LOH)
+#   purple_amp (optional): CN lower threshold to call amplification (Amp)
 #   gistic (optional):  Location of the corresponding GISTIC output files (including gisticAllLesionsFile, gisticAmpGenesFile, gisticDelGenesFile and gisticScoresFile). Each file name (for each dataset) is expected to be separated by comma
 #   clinical_info (optional):  Location of clinical data associated with each sample in MAF. Each file name (for each dataset) is expected to be separated by comma
 #   clinical_features (optional):  Columns names (separated by comma) from clinical data (specified by --clinical_info argument) to be drawn in the oncoplot(s). Note that the order matters
@@ -84,6 +87,12 @@ option_list <- list(
               help="Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene?"),
   make_option("--purple", action="store", default="none", type='character',
               help="Location of the PURPLE output files"),
+  make_option("--purple_hd", action="store", default=0.5, type='double',
+              help="CN upper threshold to call HD"),
+  make_option("--purple_loh", action="store", default=1.5, type='double',
+              help="CN upper threshold to call LOH"),
+  make_option("--purple_amp", action="store", default=6, type='double',
+              help="CN lower threshold to call LOH"),
   make_option("--gistic", action="store", default="none", type='character',
               help="Location of the corresponding GISTIC output files"),
   make_option("--clinical_info", action="store", default="none", type='character',
@@ -189,6 +198,9 @@ param_list <- list(maf_dir = opt$maf_dir,
                    nonSyn_list = opt$nonSyn_list,
                    remove_duplicated_variants = opt$remove_duplicated_variants,
                    purple = opt$purple,
+                   purple_hd = opt$purple_hd,
+                   purple_loh = opt$purple_loh,
+                   purple_amp = opt$purple_amp,
                    gistic = opt$gistic,
                    clinical_info = opt$clinical_info,
                    clinical_features = opt$clinical_features,
