@@ -348,9 +348,13 @@ Argument | Description | Required
 --nonSyn_list | List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants. Default uses [Variant Classifications](http://asia.ensembl.org/Help/Glossary?id=535) with `High/Moderate variant consequences` | No
 --remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them) | No
 --purple | Location of the corresponding [PURPLE](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) output files (OPTIONAL) | No
---purple_hd | Copy-number (CN) upper threshold to call homozygous deletion (HD) in [PURPLE](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) output files (OPTIONAL) | No
---purple_loh | CN upper threshold to call loss of heterozygosity (LOH) in [PURPLE](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) output files (OPTIONAL) | No
---purple_amp | CN lower threshold to call amplification in [PURPLE](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) output files (OPTIONAL) | No
+--purple_hd | Copy-number (CN) upper threshold to call homozygous deletion (HD) in [PURPLE](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) output files (OPTIONAL; defulat is `0.5`) | No
+--purple_loh | CN upper threshold to call loss of heterozygosity (LOH) in [PURPLE](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) output files (OPTIONAL; defulat is `1.5`) | No
+--purple_amp | CN lower threshold to call amplification in [PURPLE](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) output files (OPTIONAL; defulat is `6`) | No
+--cnvkit | Location of the corresponding [CNVkit](https://cnvkit.readthedocs.io/en/stable/index.html) output files (OPTIONAL) | No
+--cnvkit_hd | Copy-number (CN) upper threshold to call homozygous deletion (HD) in [CNVkit](https://cnvkit.readthedocs.io/en/stable/index.html) output files (OPTIONAL; defulat is `0.5`) | No
+--cnvkit_loh | CN upper threshold to call loss of heterozygosity (LOH) in [CNVkit](https://cnvkit.readthedocs.io/en/stable/index.html) output files (OPTIONAL; defulat is `1.5`) | No
+--cnvkit_amp | CN lower threshold to call amplification in [CNVkit](https://cnvkit.readthedocs.io/en/stable/index.html) output files (OPTIONAL; defulat is `6`) | No
 --gistic | Location of the corresponding [GISTIC](http://software.broadinstitute.org/cancer/software/genepattern/modules/docs/GISTIC_2.0) output files (including *gisticAllLesionsFile*, *gisticAmpGenesFile*, *gisticDelGenesFile* and *gisticScoresFile*) (OPTIONAL) | No
 --clinical_info | Location of clinical data associated with each sample in individual MAF file. Each file name (for each dataset) is expected to be separated by comma (OPTIONAL) | No
 --clinical_features | Columns names (separated by comma) from clinical data (specified by *--clinical_info* argument) to be drawn in oncoplot(s) (OPTIONAL) | No
