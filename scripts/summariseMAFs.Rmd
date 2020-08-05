@@ -28,6 +28,10 @@ params:
   purple_hd: 0.5
   purple_loh: 1.5
   purple_amp: 6
+  cnvkit: 'none'
+  cnvkit_hd: 0.5
+  cnvkit_loh: 1.5
+  cnvkit_amp: 6
   gistic: 'none'
   clinical_info: 'none'
   clinical_features: 'none'
@@ -551,6 +555,65 @@ if ( params$purple != "none" ){
     } else {
       mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = purple_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = NULL)
     }
+    
+    ##### For some reason the read.maf() function adds "Tumor_Sample_barcode" column with "NA"s
+    tsb <- as.vector(unlist(unique(mafInfo[[i]]@maf.silent[, "Tumor_Sample_Barcode"])))
+    tsb <- tsb[ tsb != "" ]
+  
+    mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = tsb, genes = NULL, fields = colnames(mafInfo[[i]]@data)[!colnames(mafInfo[[i]]@data) %in% "Tumor_Sample_barcode" ], query = NULL, mafObj = TRUE, includeSyn = TRUE, dropLevels=TRUE)
+  }
+}
+
+##### Read in CNVkit output files if defined by user
+# https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/oncoplots.html#032_custom_copy-number_table
+if ( params$cnvkit != "none" ){
+  cnvkitFiles <- unlist(strsplit(params$purple, split=',', fixed=TRUE))
+  
+  for ( i in 1:length(mafFiles) ) {
+    
+    cnvkit_files <- list.files(cnvkitFiles, pattern = "*-cnvkit-call.cns", full.names = T)
+
+    cnvkit_df = cnvkit_files %>% 
+    map(~ mutate(read_tsv(.), fname = .)) %>% 
+    bind_rows %>% 
+    mutate(sample = fname %>% basename %>% str_replace("-cnvkit-call.cns", "")) %>% 
+    select(gene, sample, cn) %>%
+    mutate(gene = gene %>% str_split(",")) %>% 
+    unnest(gene) %>% 
+    mutate(caller = "cnvkit")
+
+    cnvkit_df = cnvkit_df %>%
+      mutate(
+        ampdel = case_when(
+          (cn < params$cnvkit_hd) ~ "HD",
+          (cn >= params$cnvkit_hd & cn < params$cnvkit_loh) ~ "LOH",
+          (cn >= params$cnvkit_loh & cn < params$cnvkit_amp) ~ "NA",
+          (cn >= params$cnvkit_amp) ~ "AMP",
+          TRUE ~ "NA"
+        ))
+    
+    ##### Remove entries with NAs
+    cnvkit_df = cnvkit_df %>% 
+      filter(ampdel %!in% "NA")
+    
+    # Then feed the result into read.maf
+    maf.data <- rbind(mafInfo[[i]]@data, mafInfo[[i]]@maf.silent)
+    
+    nonSyn_list <- unique(c(nonSyn_list, cnvkit_df$ampdel))
+    
+    ##### Add clinical information if provided
+    if ( !is.na(clinicalInfo[[i]]) ) {
+      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = cnvkit_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = clinicalInfo[[i]])
+    } else {
+      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = cnvkit_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = NULL)
+    }
+    
+    ##### For some reason the read.maf() function adds "Tumor_Sample_barcode" column with "NA"s
+    ##### For some reason the read.maf() function adds "Tumor_Sample_barcode" column with "NA"s
+    tsb <- as.vector(unlist(unique(mafInfo[[i]]@maf.silent[, "Tumor_Sample_Barcode"])))
+    tsb <- tsb[ tsb != "" ]
+    
+    mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = tsb, genes = NULL, fields = colnames(mafInfo[[i]]@data)[!colnames(mafInfo[[i]]@data) %in% "Tumor_Sample_barcode" ], query = NULL, mafObj = TRUE, includeSyn = TRUE, dropLevels=TRUE)
   }
 }
 
