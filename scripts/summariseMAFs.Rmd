@@ -516,6 +516,7 @@ if ( length(mafFiles) == 2 ) {
 ##### Read in PURPLE output files if defined by user
 # https://www.bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/oncoplots.html#032_custom_copy-number_table
 nonSyn_list <- unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE))
+cn_df <- NULL
 
 if ( params$purple != "none" ){
   purpleFiles <- unlist(strsplit(params$purple, split=',', fixed=TRUE))
@@ -543,17 +544,18 @@ if ( params$purple != "none" ){
     ##### Remove entries with NAs
     purple_df = purple_df %>% 
       filter(ampdel %!in% "NA")
+    cn_df <- purple_df
     
     # Then feed the result into read.maf
     maf.data <- rbind(mafInfo[[i]]@data, mafInfo[[i]]@maf.silent)
     
-    nonSyn_list <- unique(c(nonSyn_list, purple_df$ampdel))
+    nonSyn_list <- unique(c(nonSyn_list, cn_df$ampdel))
     
     ##### Add clinical information if provided
     if ( !is.na(clinicalInfo[[i]]) ) {
-      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = purple_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = clinicalInfo[[i]])
+      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = cn_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = clinicalInfo[[i]])
     } else {
-      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = purple_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = NULL)
+      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = cn_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = NULL)
     }
     
     ##### For some reason the read.maf() function adds "Tumor_Sample_barcode" column with "NA"s
@@ -579,8 +581,7 @@ if ( params$cnvkit != "none" ){
     mutate(sample = fname %>% basename %>% str_replace("-cnvkit-call.cns", "")) %>% 
     select(gene, sample, cn) %>%
     mutate(gene = gene %>% str_split(",")) %>% 
-    unnest(gene) %>% 
-    mutate(caller = "cnvkit")
+    unnest(gene)
 
     cnvkit_df = cnvkit_df %>%
       mutate(
@@ -593,19 +594,27 @@ if ( params$cnvkit != "none" ){
         ))
     
     ##### Remove entries with NAs
-    cnvkit_df = cnvkit_df %>% 
-      filter(ampdel %!in% "NA")
+    ##### Add PURPLE results if provided
+    if ( !is.null( cn_df) ) {
+      cnvkit_df = cnvkit_df %>% 
+        filter(ampdel %!in% "NA")
+      cn_df <- rbind(cn_df, cnvkit_df)
+    } else {
+      cnvkit_df = cnvkit_df %>% 
+        filter(ampdel %!in% "NA")
+      cn_df <- cnvkit_df
+    }
     
     # Then feed the result into read.maf
     maf.data <- rbind(mafInfo[[i]]@data, mafInfo[[i]]@maf.silent)
     
-    nonSyn_list <- unique(c(nonSyn_list, cnvkit_df$ampdel))
+    nonSyn_list <- unique(c(nonSyn_list, cn_df$ampdel))
     
     ##### Add clinical information if provided
     if ( !is.na(clinicalInfo[[i]]) ) {
-      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = cnvkit_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = clinicalInfo[[i]])
+      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = cn_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = clinicalInfo[[i]])
     } else {
-      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = cnvkit_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = NULL)
+      mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = cn_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = NULL)
     }
     
     ##### For some reason the read.maf() function adds "Tumor_Sample_barcode" column with "NA"s
