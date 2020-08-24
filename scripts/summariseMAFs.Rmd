@@ -18,8 +18,10 @@ params:
   samples_id_cols: NULL
   genes_min: '5'
   genes_list: 'none'
+  genes_keep_order: TRUE
   genes_blacklist: 'none'
   samples_show: FALSE
+  samples_keep_order: TRUE
   samples_list: 'none'
   samples_blacklist: 'none'
   nonSyn_list: 'Frame_Shift_Del,Frame_Shift_Ins,Splice_Site,Translation_Start_Site,Nonsense_Mutation,Nonstop_Mutation,In_Frame_Del,In_Frame_Ins,Missense_Mutation'
@@ -551,6 +553,9 @@ if ( params$purple != "none" ){
     
     nonSyn_list <- unique(c(nonSyn_list, cn_df$ampdel))
     
+    ##### Save maf object without CN results for the tcgaCompare fucntion frist
+    mafInfo_tcgaCompare[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
+      
     ##### Add clinical information if provided
     if ( !is.na(clinicalInfo[[i]]) ) {
       mafInfo[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, cnTable = cn_df %>% select(Gene = gene, Sample_name = sample, CN = ampdel), clinicalData = clinicalInfo[[i]])
@@ -561,7 +566,7 @@ if ( params$purple != "none" ){
     ##### For some reason the read.maf() function adds "Tumor_Sample_barcode" column with "NA"s
     tsb <- as.vector(unlist(unique(mafInfo[[i]]@maf.silent[, "Tumor_Sample_Barcode"])))
     tsb <- tsb[ tsb != "" ]
-  
+    
     mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = tsb, genes = NULL, fields = colnames(mafInfo[[i]]@data)[!colnames(mafInfo[[i]]@data) %in% "Tumor_Sample_barcode" ], query = NULL, mafObj = TRUE, includeSyn = TRUE, dropLevels=TRUE)
   }
 }
@@ -609,6 +614,9 @@ if ( params$cnvkit != "none" ){
     maf.data <- rbind(mafInfo[[i]]@data, mafInfo[[i]]@maf.silent)
     
     nonSyn_list <- unique(c(nonSyn_list, cn_df$ampdel))
+    
+    ##### Save maf object without CN results for the tcgaCompare fucntion frist
+    mafInfo_tcgaCompare[[i]] <- maftools::read.maf(maf = maf.data, vc_nonSyn = nonSyn_list, removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = NULL)
     
     ##### Add clinical information if provided
     if ( !is.na(clinicalInfo[[i]]) ) {
@@ -1087,6 +1095,8 @@ if ( params$genes_blacklist != "none" ) {
 }
 ```
 
+`r if ( params$genes_blacklist != "none" ) { c("***") }`
+
 ```{r top_genes_threshold, comment = NA, message=FALSE, warning=FALSE}
 ##### Check if the use-defined number of genes to present is not higher than the number of genes with non-synonymous mutations reported in individual MAFs
 top_genes_no <- vector("list", length(mafFiles))
@@ -1209,8 +1219,6 @@ if ( params$genes_list != "none" ) {
 cat("\n\n\n")
 ```
 
-***
-
 ### Plots {.tabset}
 
 #### Summary
@@ -1260,6 +1268,13 @@ for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
+  ##### Samples ordering
+  if ( params$samples_keep_order ) {
+    sampleOrder <- unique(mafInfo[[i]]@data$Tumor_Sample_Barcode)
+  } else {
+    sampleOrder <- NULL
+  }
+  
   ##### Generate oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
   if ( top_genes_no[[i]] > 1 ) {
     
@@ -1271,7 +1286,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5)
+    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder)
     dev.off()
     
     ##### Read in the oncoplots PNG files
@@ -1282,6 +1297,11 @@ for ( i in 1:length(mafFiles) ) {
     genes = getGeneSummary(x = mafInfo[[i]])[1:top_genes_no[[i]], Hugo_Symbol]
     om = createOncoMatrix(m = mafInfo[[i]], g = genes)
     om$oncoMatrix[ om$oncoMatrix == "" ] <- "-"
+    
+    ##### Samples ordering
+    if ( params$samples_keep_order ) {
+      om$oncoMatrix <- om$oncoMatrix[ ,as.vector(sampleOrder) ]
+    }
     
     ##### Write gene summary into a file
     ##### Create a new workbook
@@ -1327,6 +1347,7 @@ Oncoplot(s) illustrating different types of mutations observed across samples fo
 ##### Draw additional oncoplot if a list of genes of intereset was specified by user 
 ###### Generate separate plot for each dataset
 if ( params$genes_list != "none" ) {
+  
   for ( i in 1:length(mafFiles) ) {
     if ( length(goi[[i]]) > 1 ) {
       
@@ -1353,7 +1374,7 @@ if ( params$genes_list != "none" ) {
           ##### Drawing oncoplots for the top mutated genes in each dataset
           plot.new()
           par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-          maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5)
+          maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder)
           dev.off()
           
           ##### Read in the oncoplots PNG files
@@ -1362,7 +1383,26 @@ if ( params$genes_list != "none" ) {
           
           ##### Save the oncoplot matrix into a file
           om = createOncoMatrix(m = mafInfo[[i]], g = goi[[i]])
+          
+          ##### Add "-" to genes with no mutations
+          om_genes.missing <- goi[[i]][ goi[[i]] %!in% rownames(om$oncoMatrix) ]
+          om.missing <- data.frame(matrix(vector(), length(om_genes.missing), ncol(om$oncoMatrix), dimnames=list(c(), colnames(om$oncoMatrix))), stringsAsFactors=FALSE)
+          rownames(om.missing) <- om_genes.missing
+          om.missing[ is.na(om.missing) ] <- "-" 
+          om$oncoMatrix <- rbind(om$oncoMatrix, om.missing)
           om$oncoMatrix[ om$oncoMatrix == "" ] <- "-"
+          
+          ##### Genes ordering
+          if ( params$genes_keep_order ) {
+            om_genes <- rownames(om$oncoMatrix)
+            om_genes <- goi[[i]][ goi[[i]] %in% om_genes ]
+            om$oncoMatrix <- om$oncoMatrix[ om_genes, ]
+          }
+          
+          ##### Samples ordering
+          if ( params$samples_keep_order ) {
+            om$oncoMatrix <- om$oncoMatrix[ ,as.vector(sampleOrder) ]
+          }
           
           ##### Write gene summary into a file
           ##### Create a new workbook
@@ -1531,6 +1571,12 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Compare mutation load against TCGA cohorts
   if ( gisticInfo[[i]]$status ) {
+    par(mar=c(1,1,1,1), oma=c(6,2,2,1))
+    tcgaCompare.res <- tcgaCompare(maf = mafInfo_tcgaCompare[[i]], cohortName = datasets.list[i], primarySite=TRUE)$median_mutation_burden
+  } else if ( params$purple != "none" ) {
+    par(mar=c(1,1,1,1), oma=c(6,2,2,1))
+    tcgaCompare.res <- tcgaCompare(maf = mafInfo_tcgaCompare[[i]], cohortName = datasets.list[i], primarySite=TRUE)$median_mutation_burden
+  } else if ( params$cnvkit != "none" ) {
     par(mar=c(1,1,1,1), oma=c(6,2,2,1))
     tcgaCompare.res <- tcgaCompare(maf = mafInfo_tcgaCompare[[i]], cohortName = datasets.list[i], primarySite=TRUE)$median_mutation_burden
   } else {
@@ -2681,7 +2727,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show)
+    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, sampleOrder = sampleOrder)
   }
   
   ##### Drawing oncoplots for additional genes of interest (if specified)
@@ -2695,7 +2741,7 @@ for ( i in 1:length(mafFiles) ) {
       
         plot.new()
         par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5)
+        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder)
       }
     }
   }

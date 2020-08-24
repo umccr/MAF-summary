@@ -342,11 +342,13 @@ Argument | Description | Required
 --samples_id_cols | The name(s) of MAF file(s) column containing samples' IDs. One column name is expected for a single file, and each separated by comma. The defualt samples' ID column is `Tumor_Sample_Barcode` | No
 --genes_min | Minimal percentage of patients carrying mutations in individual genes to be included in the report (default is `4`) | No
 --genes_list | Location and name of a file listing genes of interest to be considered in the report (OPTIONAL) | No
+--genes_keep_order | Keep order of genes as provided in file specified by `genes_list` parameter (OPTIONAL; default is `FALSE`) | No
 --genes_blacklist | Location and name of a file listing genes to be excluded (OPTIONAL). Header is not expected and the genes should be listed in separate lines | No
 --samples_list | Location and name of a file listing specific samples to be included (OPTIONAL). All other samples will be ignored. The ID of samples to be included are expected to be listed in column named `Tumor_Sample_Barcode`. Additional columns are also allowed | No
+--samples_keep_order | Keep order of samples as provided in the MAF file (OPTIONAL; default is `FALSE`).  | No
 --samples_blacklist | Location and name of a file listing samples to be excluded (OPTIONAL). The ID of samples to be excluded are expected to be listed in column named `Tumor_Sample_Barcode`. Additional columns are allowed | No
 --nonSyn_list | List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants. Default uses [Variant Classifications](http://asia.ensembl.org/Help/Glossary?id=535) with `High/Moderate variant consequences` | No
---remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them) | No
+--remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them | No
 --purple | Location of the corresponding [PURPLE](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) output files (OPTIONAL) | No
 --purple_hd | Copy-number (CN) upper threshold to call homozygous deletion (HD) in [PURPLE](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) output files (OPTIONAL; defulat is `0.5`) | No
 --purple_loh | CN upper threshold to call loss of heterozygosity (LOH) in [PURPLE](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator) output files (OPTIONAL; defulat is `1.5`) | No

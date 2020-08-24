@@ -23,8 +23,10 @@
 #   samples_id_cols:  The name(s) of MAF file(s) column containing samples' IDs. One column name is expected for a single file, and each separated by comma. The default expected samples' ID column is "Tumor_Sample_Barcode"
 #   genes_min:  Minimal percentage of patients carrying mutations in individual genes to be included in the report. Default is 5
 #   genes_list (optional):  Location and name of a file listing genes of interest to be considered in the report. The genes are expected to be listed in first column
+#   genes_keep_order (optional):  Keep order of genes as provided in the "genes_list" file. It refers to oncoplot of genes of interest only. Default is FALSE
 #   genes_blacklist (optional):  Location and name of a file listing genes to be excluded. Header is not expected and the genes should be listed in separate lines
 #   samples_list (optional):  Location and name of a file listing specific samples to be included. All other samples will be ignored. The ID of samples to be included are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
+#   samples_keep_order (optional):  Keep order of samples as provided in the MAF file. Default is FALSE
 #   samples_blacklist (optional):  Location and name of a file listing samples to be excluded. The ID of samples to be exdluded are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
 #   samples_show (optional):  Include sample names on the plots (oncoplots, oncogenic pathways plots, oncostrips). Default is FALSE
 #   nonSyn_list:   List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants
@@ -77,10 +79,14 @@ option_list <- list(
               help="Minimal percentage of patients carrying mutations in individual genes to be included in the report"),
   make_option("--genes_list", action="store", default="none", type='character',
               help="Location and name of a file listing genes of interest to be considered in the report"),
+  make_option("--genes_keep_order", action="store", default=FALSE, type='logical',
+              help="Keep order of genes as provided in the 'genes_list' file"),
   make_option("--genes_blacklist", action="store", default="none", type='character',
               help="Location and name of a file listing genes to be excluded"),
   make_option("--samples_list", action="store", default="none", type='character',
               help="Location and name of a file listing specific samples to be included"),
+  make_option("--samples_keep_order", action="store", default=FALSE, type='logical',
+              help="Keep order of samples as provided in the MAF file"),
   make_option("--samples_blacklist", action="store", default="none", type='character',
               help="Location and name of a file listing samples to be excluded"),
   make_option("--samples_show", action="store", default=FALSE, type='logical',
@@ -203,8 +209,10 @@ param_list <- list(maf_dir = opt$maf_dir,
                    samples_id_cols = opt$samples_id_cols,
                    genes_min = opt$genes_min,
                    genes_list = opt$genes_list,
+                   genes_keep_order = opt$genes_keep_order,
                    genes_blacklist = opt$genes_blacklist,
                    samples_list = opt$samples_list,
+                   samples_keep_order = opt$samples_keep_order,
                    samples_blacklist = opt$samples_blacklist,
                    samples_show = opt$samples_show,
                    nonSyn_list = opt$nonSyn_list,
