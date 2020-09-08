@@ -1132,12 +1132,15 @@ for ( i in 1:length(mafFiles) ) {
 if ( !all(nonSyn_list %in% c( "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation" ) ) ) {
   
   ##### Get the default colours first
-  vc_cols = c(RColorBrewer::brewer.pal(11, name = "Paired"), RColorBrewer::brewer.pal(11,name = "Spectral")[1:3],'black', 'violet', 'violet', 'royalblue', 'royalblue4', 'skyblue', '#7b7060', '#535c68')
+  vc_cols = c(RColorBrewer::brewer.pal(11, name = "Paired"), RColorBrewer::brewer.pal(11,name = "Spectral")[1:3],'black', 'violet', 'violet', 'royalblue', 'royalblue4', 'skyblue', 'yellowgreen', '#7b7060', '#535c68')
   vc_cols = grDevices::adjustcolor(col = vc_cols, alpha.f = 1)
-  names(vc_cols) = names = c('Nonstop_Mutation','Frame_Shift_Del','IGR','Missense_Mutation','Silent','Nonsense_Mutation','RNA','Splice_Site','Intron','Frame_Shift_Ins','In_Frame_Del','ITD','In_Frame_Ins','Translation_Start_Site',"Multi_Hit", 'Amp', 'AMP', 'Del', 'HD', 'LOH', 'Complex_Event', 'pathway')
+  names(vc_cols) = names = c('Nonstop_Mutation','Frame_Shift_Del','IGR','Missense_Mutation','Silent','Nonsense_Mutation','RNA','Splice_Site','Intron','Frame_Shift_Ins','In_Frame_Del','ITD','In_Frame_Ins','Translation_Start_Site',"Multi_Hit", 'Amp', 'AMP', 'Del', 'HD', 'LOH', 'Fusion', 'Complex_Event', 'pathway')
   
   ##### Correct colour for "In_Frame_Del"
   vc_cols[ names(vc_cols) == "In_Frame_Del"] <- "#976726"
+  
+  ##### Correct colour for "In_Frame_Ins"
+  vc_cols[ names(vc_cols) == "In_Frame_Ins"] <- "#7d7d7d"
   
   ##### ... now remove unwanted variant types
   #vc_cols <- vc_cols[ c(names(vc_cols)) %in% c( "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation","Multi_Hit" ) ]
@@ -1223,7 +1226,7 @@ cat("\n\n\n")
 
 #### Summary
 
-A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r sum(unlist(top_genes_no))` most f% of patients, respectively) (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
+A per-MAF file summary including *frequency of various mutation/SNV types/classes* (top panel), the *number of variants in each sample* as a stacked bar-plot (bottom-left) and *variant types* as a box-plot (bottom-middle), as well as the *frequency of different mutation types* for the **`r sum(unlist(top_genes_no))`** most f% of patients, respectively) (bottom-right). The horizontal dashed line in stacked bar-plot represents median number of variants across the dataset.
 
 ```{r maf_summary_plot, comment = NA, message=FALSE, warning=FALSE, fig.width = 9, fig.height = 10, results="asis"}
 ###### Generate separate plot for each dataset
