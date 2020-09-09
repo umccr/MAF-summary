@@ -71,6 +71,48 @@ NOTE: by default, variants considered as non-synonymous are those with high/mode
 
 ***
 
+<details>
+<summary>Input parameters</summary>
+<font size="2">
+
+* **maf_dir**: `r params$maf_dir`
+* **maf_files**: `r params$maf_files`
+* **datasets**: `r params$datasets`
+* **samples_id_cols**: `r params$samples_id_cols`
+* **genes_min**: `r params$genes_min`
+* **genes_list**: `r params$genes_list`
+* **genes_keep_order**: `r params$genes_keep_order`
+* **genes_blacklist**: `r params$genes_blacklist`
+* **samples_show**: `r params$samples_show`
+* **samples_keep_order**: `r params$samples_keep_order`
+* **samples_list**: `r params$samples_list`
+* **samples_blacklist**: `r params$samples_blacklist`
+* **nonSyn_list**: `r params$nonSyn_list`
+* **remove_duplicated_variants**: `r remove_duplicated_variants`
+* **purple**: `r params$purple`
+`r if ( params$purple !="none" ) { c(paste0(* **purple_hd**: ",params$purple_hd)) }`
+`r if ( params$purple !="none" ) { c(paste0(* **purple_loh**: ",params$purple_loh)) }`
+`r if ( params$purple !="none" ) { c(paste0(* **purple_amp**: ",params$purple_amp)) }`
+* **cnvkit**: `r params$cnvkit`
+* **cnvkit_hd**: `r params$cnvkit_hd`
+* **cnvkit_loh**: `r params$cnvkit_loh`
+* **cnvkit_amp**: `r params$cnvkit_amp`
+* **gistic**: `r params$gistic`
+* **clinical_info**: `r params$clinical_info`
+* **clinical_features**: `r params$clinical_features`
+* **clinical_enrichment_p**: `r params$clinical_enrichment_p`
+* **signature_enrichment_p**: `r params$signature_enrichment_p`
+* **maf_comp_p**: `r params$maf_comp_p`
+* **maf_comp_fdr**: `r params$maf_comp_fdr`
+* **out_folder**: `r params$out_folder`
+* **hide_code_btn**: `r params$hide_code_btn`
+* **ucsc_genome_assembly**: `r params$ucsc_genome_assembly`
+
+</font> 
+</details>
+
+***
+
 ```{r code_display, echo = FALSE}
 ##### Include or exclude the "Code" buttom allowing to "show"/"hide" code chunks from the report 
 if ( params$hide_code_btn ) {
@@ -1257,7 +1299,7 @@ Oncoplot(s) illustrating different types of mutations observed across samples fo
 `r if ( params$purple != "none" ) { c("<font size=\"2\">") }`
 `r if ( params$purple != "none" ) { paste0("HD: CN < ", params$purple_hd, "\n") }`
 `r if ( params$purple != "none" ) { paste0("LOH: CN >= ", params$purple_hd, " & < ", params$purple_loh, "\n") }`
-`r if ( params$purple != "none" ) { c("AMP: CN >= ", params$purple_amp) }`
+`r if ( params$purple != "none" ) { c("AMP: CN >= "params$purple_amp) }`
 `r if ( params$purple != "none" ) { c("</font>") }`
 `r if ( params$purple != "none" ) { c("</details>") }`
 `r if ( params$purple != "none" ) { c("</br>") }`
