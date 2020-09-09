@@ -92,7 +92,7 @@ NOTE: by default, variants considered as non-synonymous are those with high/mode
 * **purple**: `r params$purple`
 `r if ( params$purple !="none" ) { c(paste0("* **purple_hd**: ",params$purple_hd)) }`
 `r if ( params$purple !="none" ) { c(paste0("* **purple_loh**: ",params$purple_loh)) }`
-`r if ( params$purple !="none" ) { c(paste0(* **purple_amp**: ",params$purple_amp)) }`
+`r if ( params$purple !="none" ) { c(paste0("* **purple_amp**: ",params$purple_amp)) }`
 * **cnvkit**: `r params$cnvkit`
 `r if ( params$cnvkit !="none" ) { c(paste0("* **cnvkit_hd**: ",params$cnvkit_hd)) }`
 `r if ( params$cnvkit !="none" ) { c(paste0("* **cnvkit_loh**: ",params$cnvkit_loh)) }`
