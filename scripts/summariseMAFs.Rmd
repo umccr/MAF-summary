@@ -88,15 +88,15 @@ NOTE: by default, variants considered as non-synonymous are those with high/mode
 * **samples_list**: `r params$samples_list`
 * **samples_blacklist**: `r params$samples_blacklist`
 * **nonSyn_list**: `r params$nonSyn_list`
-* **remove_duplicated_variants**: `r remove_duplicated_variants`
+* **remove_duplicated_variants**: `r params$remove_duplicated_variants`
 * **purple**: `r params$purple`
 `r if ( params$purple !="none" ) { c(paste0(* **purple_hd**: ",params$purple_hd)) }`
 `r if ( params$purple !="none" ) { c(paste0(* **purple_loh**: ",params$purple_loh)) }`
 `r if ( params$purple !="none" ) { c(paste0(* **purple_amp**: ",params$purple_amp)) }`
 * **cnvkit**: `r params$cnvkit`
-* **cnvkit_hd**: `r params$cnvkit_hd`
-* **cnvkit_loh**: `r params$cnvkit_loh`
-* **cnvkit_amp**: `r params$cnvkit_amp`
+`r if ( params$cnvkit !="none" ) { c(paste0(* **cnvkit_hd**: ",params$cnvkit_hd)) }`
+`r if ( params$cnvkit !="none" ) { c(paste0(* **cnvkit_loh**: ",params$cnvkit_loh)) }`
+`r if ( params$cnvkit !="none" ) { c(paste0(* **cnvkit_amp**: ",params$cnvkit_amp)) }`
 * **gistic**: `r params$gistic`
 * **clinical_info**: `r params$clinical_info`
 * **clinical_features**: `r params$clinical_features`
