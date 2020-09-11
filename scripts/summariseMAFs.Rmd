@@ -2615,23 +2615,19 @@ widges.list
 cat("\n\n\n")
 ```
 
-***
+`r if ( goi_status ) { c("***") }`
 
-### Genes of interest {.tabset .tabset-fade}
+`r if ( goi_status ) { c("### Genes of interest {.tabset .tabset-fade}") }`
 
-#### Non-synonymous
+`r if ( goi_status ) { c("#### Non-synonymous") }`
 
-```{r details_mut_goi_nonsynon, comment = NA, message=FALSE, warning=FALSE}
+```{r details_mut_goi_nonsynon, comment = NA, message=FALSE, warning=FALSE, eval=goi_status}
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
 
-if ( params$genes_list != "none" ) {
-  for ( i in 1:length(mafFiles) ) {
-    widges.list[[i]] <- mut.details.datasets(mafInfo[i], datasets.list[i], goi[[i]], type = "nonsynonymous")
-  }
-} else {
-  cat("No list with genes of interest was provided\n\n")
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- mut.details.datasets(mafInfo[i], datasets.list[i], goi[[i]], type = "nonsynonymous")
 }
 
 ##### Print a list of htmlwidgets
@@ -2641,21 +2637,17 @@ widges.list
 cat("\n\n\n")
 ```
 
-***
+`r if ( goi_status ) { c("***") }`
 
-#### Silent
+`r if ( goi_status ) { c("#### Silent") }`
 
-```{r details_mut_goi_silent, comment = NA, message=FALSE, warning=FALSE}
+```{r details_mut_goi_silent, comment = NA, message=FALSE, warning=FALSE, eval=goi_status }
 ##### Provide detiles information for each dataset for user-defined number of top mutated genes
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
 
-if ( params$genes_list != "none" ) {
-  for ( i in 1:length(mafFiles) ) {
-    widges.list[[i]] <- mut.details.datasets(mafInfo[i], datasets.list[i], goi[[i]], type = "silent")
-  }
-} else {
-  cat("No list with genes of interest was provided\n\n")
+for ( i in 1:length(mafFiles) ) {
+  widges.list[[i]] <- mut.details.datasets(mafInfo[i], datasets.list[i], goi[[i]], type = "silent")
 }
 
 ##### Print a list of htmlwidgets
