@@ -454,6 +454,20 @@ DT::datatable( data = datasets.df, filter = "none", extensions = 'Buttons', opti
 ```
 
 ```{r load_data, comment = NA, message=FALSE, warning=FALSE, results='hide'}
+##### Check if list of genes of interest is provided
+if ( params$genes_list != "none" ) {
+  goi_status <- TRUE
+} else {
+  goi_status <- FALSE
+}
+
+##### Check if list of pathways is provided
+if ( params$pathways != "none" ) {
+  pathways_status <- TRUE
+} else {
+  pathways_status <- FALSE
+}
+
 ##### Read MAF files and put associated info into a list
 ##### Create a list to store MAF info for individual datasets
 mafInfo <- vector("list", length(mafFiles))
@@ -1312,15 +1326,6 @@ Oncoplot(s) illustrating different types of mutations observed across samples fo
 ##### Save oncoplot into the file
 ##### Generate separate plot for each dataset
 
-##### Check if a file with custom pathway list is provided
-if ( params$pathways != "none" ) {
-  pathways <- params$pathways
-  gene_mar = 10
-} else {
-  pathways <- NULL
-  gene_mar = 5
-}
-
 for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
@@ -1343,7 +1348,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, pathways = pathways, gene_mar = gene_mar)
+    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder)
     dev.off()
     
     ##### Read in the oncoplots PNG files
@@ -1380,12 +1385,14 @@ for ( i in 1:length(mafFiles) ) {
 }
 ```
 
-***
+`r if ( goi_status ) { c("***") }`
 
-##### Genes of interest
+`r if ( goi_status ) { c("##### Genes of interest") }`
 
-Oncoplot(s) illustrating different types of mutations observed across samples for the **genes of interest** (if specified). The side and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.
-<span style="color:#ff0000">NOTE</span>, the top column bar illustrates the total number of alterations detected only in the genes of interest. 
+`r if ( goi_status ) { c("Oncoplot(s) illustrating different types of mutations observed across samples for the **genes of interest**. The side and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.") }`
+
+`r if ( goi_status ) { c("<span style=\"color:#ff0000\">NOTE</span>, the top column bar illustrates the total number of alterations detected only in the genes of interest.") }`
+
 `r if ( params$purple != "none" ) { c("<span style=\"color:#ff0000\">NOTE</span>, copy-number (CN) alterations are derived from *[PURPLE](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator){target=\"_blank\"}* programme.") }`
 
 `r if ( params$purple != "none" ) { c("<details>") }`
@@ -1400,96 +1407,154 @@ Oncoplot(s) illustrating different types of mutations observed across samples fo
 
 `r if ( params$gistic != "none" ) { c("<span style=\"color:#ff0000\">NOTE</span>, copy-number (CN) alterations are derived from *[GISTIC](http://software.broadinstitute.org/cancer/software/genepattern/modules/docs/GISTIC_2.0){target=\"_blank\"}* programme.") }`
 
-```{r maf_oncoplot_goi, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+```{r maf_oncoplot_goi, comment = NA, message=FALSE, warning=FALSE, results="asis", eval=goi_status}
 ##### Draw additional oncoplot if a list of genes of intereset was specified by user 
 ###### Generate separate plot for each dataset
-if ( params$genes_list != "none" ) {
-  
-  for ( i in 1:length(mafFiles) ) {
+for ( i in 1:length(mafFiles) ) {
+  if ( length(goi[[i]]) > 1 ) {
+   
+    cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
+      
+    ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
     if ( length(goi[[i]]) > 1 ) {
       
-      cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
-      
-      ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
-      if ( length(goi[[i]]) > 1 ) {
-      
-        ##### Report genes missing in individual MAFs, as well as those which are within the list of genes of interest and are also among the most frequently mutated genes
-        cat(paste("* The following genes from provided gene list are missing from", datasets.list[i], "MAF:\n\n", sep=" "))
+      ##### Report genes missing in individual MAFs, as well as those which are within the list of genes of interest and are also among the most frequently mutated genes
+      cat(paste("* The following genes from provided gene list are missing from", datasets.list[i], "MAF:\n\n", sep=" "))
         
-        cat(paste("<i>", goi_absent[[i]], "</i>", collapse = ", "))
+      cat(paste("<i>", goi_absent[[i]], "</i>", collapse = ", "))
         
-        cat(paste("\n\n* The following genes from provided gene list are also among the top", top_genes_no[[i]], "most frequently mutated genes:\n\n", sep=" "))
+      cat(paste("\n\n* The following genes from provided gene list are also among the top", top_genes_no[[i]], "most frequently mutated genes:\n\n", sep=" "))
         
-        cat(paste("<i>", top_genes_goi[[i]], "</i>", collapse = ", "), "\n\n")
+      cat(paste("<i>", top_genes_goi[[i]], "</i>", collapse = ", "), "\n\n")
         
-        ##### Check if the genes of interest have any non-synonymus mutations
-        if ( length(top_genes_goi[[i]]) > 1  ) {
+      ##### Check if the genes of interest have any non-synonymus mutations
+      if ( length(top_genes_goi[[i]]) > 1  ) {
           
-          ##### Save the plot as PNG
-          png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height[[i]], units = "px", res = 200, type="cairo" )
+        ##### Save the plot as PNG
+        png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height[[i]], units = "px", res = 200, type="cairo" )
             
-          ##### Drawing oncoplots for the top mutated genes in each dataset
-          plot.new()
-          par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-          maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder, pathways = pathways, gene_mar = gene_mar)
-          dev.off()
+        ##### Drawing oncoplots for the top mutated genes in each dataset
+        plot.new()
+        par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
+        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder)
+        dev.off()
           
-          ##### Read in the oncoplots PNG files
-          cat("![](",paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""),")")
-          cat("<br/>")
+        ##### Read in the oncoplots PNG files
+        cat("![](",paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""),")")
+        cat("<br/>")
           
-          ##### Save the oncoplot matrix into a file
-          om = createOncoMatrix(m = mafInfo[[i]], g = goi[[i]])
+        ##### Save the oncoplot matrix into a file
+        om = createOncoMatrix(m = mafInfo[[i]], g = goi[[i]])
           
-          ##### Add "-" to genes with no mutations
-          om_genes.missing <- goi[[i]][ goi[[i]] %!in% rownames(om$oncoMatrix) ]
-          om.missing <- data.frame(matrix(vector(), length(om_genes.missing), ncol(om$oncoMatrix), dimnames=list(c(), colnames(om$oncoMatrix))), stringsAsFactors=FALSE)
-          rownames(om.missing) <- om_genes.missing
-          om.missing[ is.na(om.missing) ] <- "-" 
-          om$oncoMatrix <- rbind(om$oncoMatrix, om.missing)
-          om$oncoMatrix[ om$oncoMatrix == "" ] <- "-"
+        ##### Add "-" to genes with no mutations
+        om_genes.missing <- goi[[i]][ goi[[i]] %!in% rownames(om$oncoMatrix) ]
+        om.missing <- data.frame(matrix(vector(), length(om_genes.missing), ncol(om$oncoMatrix), dimnames=list(c(), colnames(om$oncoMatrix))), stringsAsFactors=FALSE)
+        rownames(om.missing) <- om_genes.missing
+        om.missing[ is.na(om.missing) ] <- "-" 
+        om$oncoMatrix <- rbind(om$oncoMatrix, om.missing)
+        om$oncoMatrix[ om$oncoMatrix == "" ] <- "-"
           
-          ##### Genes ordering
-          if ( params$genes_keep_order ) {
-            om_genes <- rownames(om$oncoMatrix)
-            om_genes <- goi[[i]][ goi[[i]] %in% om_genes ]
-            om$oncoMatrix <- om$oncoMatrix[ om_genes, ]
-          }
-          
-          ##### Samples ordering
-          if ( params$samples_keep_order ) {
-            om$oncoMatrix <- om$oncoMatrix[ ,as.vector(sampleOrder) ]
-          }
-          
-          ##### Write gene summary into a file
-          ##### Create a new workbook
-          wb <- createWorkbook(paste("MAF_oncoplot_goi_", datasets.list[i], ".xlsx", sep = ""))
-      
-          ##### Add worksheet for oncoMatrix
-          addWorksheet(wb, substring("oncoMatrix", 0, 31))
-          writeData(wb, rowNames=TRUE, sheet = 1, om$oncoMatrix)
-          
-          ##### Add worksheet for numericMatrix
-          addWorksheet(wb, substring("numericMatrix", 0, 31))
-          writeData(wb, rowNames=TRUE, sheet = 2, om$numericMatrix)
-          
-          saveWorkbook(wb, paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".xlsx", sep = ""), overwrite = TRUE)
-          
-        } else if ( length(genes_list_goi.silent[[i]]) > 0  ) {
-          cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected and for *", paste(genes_list_goi.silent[[i]], collapse = ", "), "* only silent variants were detected in ", datasets.list[i], " dataset**.\n\n\n"))
-          
-        } else {
-          cat(paste0("**None of the genes of interest have any variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
+        ##### Genes ordering
+        if ( params$genes_keep_order ) {
+          om_genes <- rownames(om$oncoMatrix)
+          om_genes <- goi[[i]][ goi[[i]] %in% om_genes ]
+          om$oncoMatrix <- om$oncoMatrix[ om_genes, ]
         }
+          
+        ##### Samples ordering
+        if ( params$samples_keep_order ) {
+          om$oncoMatrix <- om$oncoMatrix[ ,as.vector(sampleOrder) ]
+        }
+          
+        ##### Write gene summary into a file
+        ##### Create a new workbook
+        wb <- createWorkbook(paste("MAF_oncoplot_goi_", datasets.list[i], ".xlsx", sep = ""))
+      
+        ##### Add worksheet for oncoMatrix
+        addWorksheet(wb, substring("oncoMatrix", 0, 31))
+        writeData(wb, rowNames=TRUE, sheet = 1, om$oncoMatrix)
+          
+        ##### Add worksheet for numericMatrix
+        addWorksheet(wb, substring("numericMatrix", 0, 31))
+        writeData(wb, rowNames=TRUE, sheet = 2, om$numericMatrix)
+          
+        saveWorkbook(wb, paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".xlsx", sep = ""), overwrite = TRUE)
+          
+      } else if ( length(genes_list_goi.silent[[i]]) > 0  ) {
+        cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected and for *", paste(genes_list_goi.silent[[i]], collapse = ", "), "* only silent variants were detected in ", datasets.list[i], " dataset**.\n\n\n"))
+          
       } else {
-        cat(paste0("All genes of interest are among the top ", top_genes_no[[i]], " most frequently mutated genes (mutated in at least ", genes_min[[i]], "% of patients) or no non-synonymous variants were detected in ", datasets.list[i], " dataset.\n\n\n"))
+        cat(paste0("**None of the genes of interest have any variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
       }
+    } else {
+      cat(paste0("All genes of interest are among the top ", top_genes_no[[i]], " most frequently mutated genes (mutated in at least ", genes_min[[i]], "% of patients) or no non-synonymous variants were detected in ", datasets.list[i], " dataset.\n\n\n"))
     }
   }
-} else {
-  cat("No list with genes of interest was provided\n\n")
 }
 ```
+
+`r if ( pathways_status ) { c("***") }`
+
+`r if ( pathways_status ) { c("##### Pathways") }`
+
+`r if ( pathways_status ) { c("Oncoplot(s) illustrating different types of mutations observed across samples for genes involved in the **pathways of interest**. The side and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.") }`
+
+`r if ( params$purple != "none" ) { c("<span style=\"color:#ff0000\">NOTE</span>, copy-number (CN) alterations are derived from *[PURPLE](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator){target=\"_blank\"}* programme.") }`
+
+```{r maf_oncoplot_pathways, comment = NA, message=FALSE, warning=FALSE, results="asis", eval=pathways_status}
+##### Save oncoplot into the file
+##### Generate separate plot for each dataset
+
+for ( i in 1:length(mafFiles) ) {
+  
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  
+  ##### Samples ordering
+  if ( params$samples_keep_order ) {
+    sampleOrder <- unique(mafInfo[[i]]@data$Tumor_Sample_Barcode)
+  } else {
+    sampleOrder <- NULL
+  }
+  
+  ##### Save the plot as PNG
+  png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_height[[i]], units = "px", res = 200, type="cairo" )
+      
+  ##### Drawing oncoplots for the top mutated genes in each dataset
+  plot.new()
+   par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
+  maftools::oncoplot(maf = mafInfo[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, pathways = pathways, gene_mar = 10)
+  dev.off()
+    
+  ##### Read in the oncoplots PNG files
+  cat("![](",paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""),")")
+  cat("<br/>")
+    
+  ##### Save the oncoplot matrix into a file
+  genes = getGeneSummary(x = mafInfo[[i]])[1:top_genes_no[[i]], Hugo_Symbol]
+  om = createOncoMatrix(m = mafInfo[[i]], g = genes)
+  om$oncoMatrix[ om$oncoMatrix == "" ] <- "-"
+    
+  ##### Samples ordering
+  if ( params$samples_keep_order ) {
+    om$oncoMatrix <- om$oncoMatrix[ ,as.vector(sampleOrder) ]
+  }
+    
+  ##### Write gene summary into a file
+  ##### Create a new workbook
+  wb <- createWorkbook(paste("MAF_oncoplot_pathways_", datasets.list[i], ".xlsx", sep = ""))
+
+  ##### Add worksheet for oncoMatrix
+  addWorksheet(wb, substring("oncoMatrix", 0, 31))
+  writeData(wb, rowNames=TRUE, sheet = 1, om$oncoMatrix)
+    
+  ##### Add worksheet for numericMatrix
+  addWorksheet(wb, substring("numericMatrix", 0, 31))
+  writeData(wb, rowNames=TRUE, sheet = 2, om$numericMatrix)
+    
+  saveWorkbook(wb, paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".xlsx", sep = ""), overwrite = TRUE)
+}
+```
+
 
 ***
 
@@ -2036,11 +2101,11 @@ for ( i in 1:length(mafFiles) ) {
 }
 ```
 
-***
+`r if ( goi_status ) { c("***") }`
 
-#### Genes of interest
+`r if ( goi_status ) { c("#### Genes of interest") }`
 
-```{r som_interactions_plot_goi, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+```{r som_interactions_plot_goi, comment = NA, message=FALSE, warning=FALSE, results="asis", eval=goi_status}
 ##### Run Somatic Interactions analysis for each dataset
 ##### Create a list to store signature analysis results info for individual datasets
 somInter_goi <- vector("list", length(mafFiles))
@@ -2050,25 +2115,20 @@ for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
   
-  if ( params$genes_list != "none" ) {
-  
-    ##### Exclusive/co-occurance event analysis on top 25 mutated genes
-    if ( length(genes_list_goi.nonsyn[[i]]) > 1 && length(genes_list_goi.nonsyn[[i]]) < 26 ) {
+  ##### Exclusive/co-occurance event analysis on top 25 mutated genes
+  if ( length(genes_list_goi.nonsyn[[i]]) > 1 && length(genes_list_goi.nonsyn[[i]]) < 26 ) {
       somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = genes_list_goi.nonsyn[[i]], pvalue = c(0.05, 0.1), returnAll = TRUE)
       cat("<br/><br/>")
       
-    } else if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
+  } else if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
       
-      cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
+    cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
        
-       somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = genes_list_goi.nonsyn[[i]][c(1:25)], pvalue = c(0.05, 0.1), returnAll = TRUE)
+      somInter_goi[[i]] <- maftools::somaticInteractions(maf = mafInfo[[i]], genes = genes_list_goi.nonsyn[[i]][c(1:25)], pvalue = c(0.05, 0.1), returnAll = TRUE)
        
-     } else {
-       cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
-     }
-  } else {
-    cat("No list with genes of interest was provided\n\n")
-  }
+    } else {
+      cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
+    }
 }
 ```
 
@@ -2097,40 +2157,35 @@ for ( i in 1:length(mafFiles) ) {
 widges.list
 ```
 
-***
+`r if ( goi_status ) { c("***") }`
 
-#### Genes of interest
+`r if ( goi_status ) { c("#### Genes of interest") }`
 
-```{r som_interactions_table_goi, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+```{r som_interactions_table_goi, comment = NA, message=FALSE, warning=FALSE, results="asis", eval=goi_status}
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
 
-if ( params$genes_list != "none" ) {
-  for ( i in 1:length(mafFiles) ) {
+for ( i in 1:length(mafFiles) ) {
     
-    cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
     
-    somInter.table <- as.data.frame(somInter_goi[[i]])[, colnames(somInter_goi[[i]]) %!in% c("00","11","01","10") ]
+  somInter.table <- as.data.frame(somInter_goi[[i]])[, colnames(somInter_goi[[i]]) %!in% c("00","11","01","10") ]
     
-    if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
-      if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
-        cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
-      }
-      
-      widges.list[[i]] <- DT::datatable( data = somInter.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
-          DT::formatStyle( columns = names(somInter.table), 'text-align' = 'center' ) %>%
-          DT::formatRound(columns = c("pValue", "oddsRatio"), 1)
-      
-    } else {
-       cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
+  if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
+    if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
+      cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
     }
+      
+    widges.list[[i]] <- DT::datatable( data = somInter.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
+        DT::formatStyle( columns = names(somInter.table), 'text-align' = 'center' ) %>%
+        DT::formatRound(columns = c("pValue", "oddsRatio"), 1)
+      
+  } else {
+      cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
   }
-  ##### Print a list of htmlwidgets
-  widges.list
-
-} else {
-  cat("No list with genes of interest was provided\n\n")
 }
+##### Print a list of htmlwidgets
+widges.list
 ```
 
 ***
@@ -2158,46 +2213,42 @@ for ( i in 1:length(mafFiles) ) {
 }
 ```
 
-***
+`r if ( goi_status ) { c("***") }`
 
-#### Genes of interest
+`r if ( goi_status ) { c("#### Genes of interest") }`
 
-```{r som_interactions_oncostrip_goi, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+```{r som_interactions_oncostrip_goi, comment = NA, message=FALSE, warning=FALSE, results="asis", eval=goi_status}
 ##### Generate oncostrip plot for each dataset
-if ( params$genes_list != "none" ) {
-  for ( i in 1:length(mafFiles) ) {
+for ( i in 1:length(mafFiles) ) {
     
-    cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
+  cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
     
-    if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
-      if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
+  if ( length(genes_list_goi.nonsyn[[i]]) > 1 ) {
+    if ( length(genes_list_goi.nonsyn[[i]]) > 25 ) {
         
-        cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
+      cat(paste0("<span style=\"color:#ff0000\">NOTE</span>: ", length(genes_list_goi.nonsyn[[i]]), " genes were provided for ", datasets.list[i], " dataset but only the first **25 genes** were analysed.\n\n"))
         
-        genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]])[ somInter_goi[[i]]$pValue < 0.05, "gene1" ], as.data.frame(somInter_goi[[i]])[ somInter_goi[[i]]$pValue < 0.05, "gene2" ])) )
+      genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]])[ somInter_goi[[i]]$pValue < 0.05, "gene1" ], as.data.frame(somInter_goi[[i]])[ somInter_goi[[i]]$pValue < 0.05, "gene2" ])) )
         
-        if ( length(genes) > 0 ) {
-          maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, gene_mar = 6)
-        } else {
-          cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
-        }
-        cat("<br/><br/>")
+      if ( length(genes) > 0 ) {
+        maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, gene_mar = 6)
       } else {
-        
-        genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]])[ , "gene1" ], as.data.frame(somInter_goi[[i]])[ , "gene2" ])) )
-        if ( length(genes) > 0 ) {
-          maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
-        } else {
-          cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
-        }
-        cat("<br/><br/>")
+        cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
       }
+      cat("<br/><br/>")
     } else {
-       cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
+        
+      genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]])[ , "gene1" ], as.data.frame(somInter_goi[[i]])[ , "gene2" ])) )
+      if ( length(genes) > 0 ) {
+        maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.8, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+      } else {
+        cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
+      }
+      cat("<br/><br/>")
     }
+  } else {
+      cat(paste0("**Less than 2 genes of interest have non-synonymous variants detected in ", datasets.list[i], " dataset**.\n\n\n"))
   }
-} else {
-  cat("No list with genes of interest was provided\n\n")
 }
 ```
 
@@ -2784,11 +2835,11 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, sampleOrder = sampleOrder, pathways = pathways, gene_mar = gene_mar)
+    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, sampleOrder = sampleOrder)
   }
   
   ##### Drawing oncoplots for additional genes of interest (if specified)
-  if ( params$genes_list != "none" && length(goi[[i]]) > 1 ) {
+  if ( goi_status && length(goi[[i]]) > 1 ) {
 
     ##### Drawing oncoplots for the top mutated genes in each dataset that has > 1 sample with non-synonymous variants
     if ( length(goi[[i]]) > 1 ) {
@@ -2798,9 +2849,17 @@ for ( i in 1:length(mafFiles) ) {
       
         plot.new()
         par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder, pathways = pathways, gene_mar = gene_mar)
+        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder)
       }
     }
+  }
+  
+  ##### Drawing oncoplots for additional genes of interest (if specified)
+  if ( pathways_status ) {
+    ##### Drawing oncoplots for genes involved in the pathways of interest
+    plot.new()
+    par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
+    oncoplot(maf = mafInfo[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, sampleOrder = sampleOrder, pathways = pathways, gene_mar = 10)
   }
   
   ##### Drawing distribution plots of the transitions and transversions
