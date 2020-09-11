@@ -2859,7 +2859,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for genes involved in the pathways of interest
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    oncoplot(maf = mafInfo[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, sampleOrder = sampleOrder, pathways = params$pathways, gene_mar = 10)
+    oncoplot(maf = mafInfo[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, sampleOrder = sampleOrder, pathways = params$pathways)
   }
   
   ##### Drawing distribution plots of the transitions and transversions
