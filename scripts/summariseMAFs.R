@@ -31,6 +31,7 @@
 #   samples_show (optional):  Include sample names on the plots (oncoplots, oncogenic pathways plots, oncostrips). Default is FALSE
 #   nonSyn_list:   List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants
 #	  remove_duplicated_variants:		Remove repeated variants in a particular sample, mapped to multiple transcripts of same gene? Defulat value is "FALSE"
+#   pathways (optional):  Location of a file with custom pathway list in the form of a two column tsv file containing gene names and their corresponding pathway
 #   purple (optional):  Location of the PURPLE ".purple.cnv.gene.tsv" output files. Each location (for each dataset) is expected to be separated by comma
 #   purple_hd (optional): Purple CN upper threshold to call homozygous deletions (HD)
 #   purple_loh (optional): Purple CN upper threshold to call loss of heterozygosity (LOH)
@@ -95,6 +96,8 @@ option_list <- list(
               help="List of variant classifications to be considered as non-synonymous"),
   make_option("--remove_duplicated_variants", action="store", default=NA, type='character',
               help="Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene?"),
+  make_option("--pathways", action="store", default="none", type='character',
+              help="Location of a file with custom pathway list"),
   make_option("--purple", action="store", default="none", type='character',
               help="Location of the PURPLE output files"),
   make_option("--purple_hd", action="store", default=0.5, type='double',
@@ -217,6 +220,7 @@ param_list <- list(maf_dir = opt$maf_dir,
                    samples_show = opt$samples_show,
                    nonSyn_list = opt$nonSyn_list,
                    remove_duplicated_variants = opt$remove_duplicated_variants,
+                   pathways = opt$pathways,
                    purple = opt$purple,
                    purple_hd = opt$purple_hd,
                    purple_loh = opt$purple_loh,

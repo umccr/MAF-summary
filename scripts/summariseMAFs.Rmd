@@ -26,6 +26,7 @@ params:
   samples_blacklist: 'none'
   nonSyn_list: 'Frame_Shift_Del,Frame_Shift_Ins,Splice_Site,Translation_Start_Site,Nonsense_Mutation,Nonstop_Mutation,In_Frame_Del,In_Frame_Ins,Missense_Mutation'
   remove_duplicated_variants: TRUE
+  pathways: "none"
   purple: 'none'
   purple_hd: 0.5
   purple_loh: 1.5
@@ -89,6 +90,7 @@ NOTE: by default, variants considered as non-synonymous are those with high/mode
 * **samples_blacklist**: `r params$samples_blacklist`
 * **nonSyn_list**: `r params$nonSyn_list`
 * **remove_duplicated_variants**: `r params$remove_duplicated_variants`
+* **pathways**: `r params$pathways`
 * **purple**: `r params$purple`
 `r if ( params$purple !="none" ) { c(paste0("* **purple_hd**: ",params$purple_hd)) }`
 `r if ( params$purple !="none" ) { c(paste0("* **purple_loh**: ",params$purple_loh)) }`
@@ -1309,6 +1311,16 @@ Oncoplot(s) illustrating different types of mutations observed across samples fo
 ```{r maf_oncoplot, comment = NA, message=FALSE, warning=FALSE, results="asis"}
 ##### Save oncoplot into the file
 ##### Generate separate plot for each dataset
+
+##### Check if a file with custom pathway list is provided
+if ( params$pathways != "none" ) {
+  pathways <- params$pathways
+  gene_mar = 10
+} else {
+  pathways <- NULL
+  gene_mar = 5
+}
+
 for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
@@ -1331,7 +1343,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder)
+    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, pathways = pathways, gene_mar = gene_mar)
     dev.off()
     
     ##### Read in the oncoplots PNG files
@@ -1419,7 +1431,7 @@ if ( params$genes_list != "none" ) {
           ##### Drawing oncoplots for the top mutated genes in each dataset
           plot.new()
           par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-          maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder)
+          maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder, pathways = pathways, gene_mar = gene_mar)
           dev.off()
           
           ##### Read in the oncoplots PNG files
@@ -2772,7 +2784,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, sampleOrder = sampleOrder)
+    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, sampleOrder = sampleOrder, pathways = pathways, gene_mar = gene_mar)
   }
   
   ##### Drawing oncoplots for additional genes of interest (if specified)
@@ -2786,7 +2798,7 @@ for ( i in 1:length(mafFiles) ) {
       
         plot.new()
         par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder)
+        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.8, colbar_pathway = TRUE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder, pathways = pathways, gene_mar = gene_mar)
       }
     }
   }
