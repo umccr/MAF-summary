@@ -1522,7 +1522,7 @@ for ( i in 1:length(mafFiles) ) {
   maf.pathways <- subsetMaf(maf = mafInfo[[i]], includeSyn = FALSE, genes = pathways_genes, mafObj = TRUE, query = "Variant_Type != 'CNV'")
   
   ##### Save the plot as PNG
-  png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_height[[i]], units = "px", res = 200, type="cairo" )
+  png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height[[i]], units = "px", res = 200, type="cairo" )
   
   ##### Drawing oncoplots for the top mutated genes in each dataset
   plot.new()
