@@ -1504,6 +1504,8 @@ for ( i in 1:length(mafFiles) ) {
 ```{r maf_oncoplot_pathways, comment = NA, message=FALSE, warning=FALSE, results="asis", eval=pathways_status}
 ##### Save oncoplot into the file
 ##### Generate separate plot for each dataset
+##### Get genes involved in the pathways of interest
+pathways_genes <- read.table(params$pathways, sep="\t", as.is=TRUE, header=TRUE, row.names=NULL, quote = "")[,1]
 
 for ( i in 1:length(mafFiles) ) {
   
@@ -1516,13 +1518,16 @@ for ( i in 1:length(mafFiles) ) {
     sampleOrder <- NULL
   }
   
+  ##### Generate MAF object containing only the genes involved in pathways of interest
+  maf.pathways <- subsetMaf(maf = mafInfo[[i]], includeSyn = FALSE, genes = pathways_genes, mafObj = TRUE, query = "Variant_Type != 'CNV'")
+  
   ##### Save the plot as PNG
   png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_height[[i]], units = "px", res = 200, type="cairo" )
-      
+  
   ##### Drawing oncoplots for the top mutated genes in each dataset
   plot.new()
    par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-  maftools::oncoplot(maf = mafInfo[[i]], fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, pathways = params$pathways, gene_mar = 12, gene_mar = 10)
+  maftools::oncoplot(maf = maf.pathways, fontSize = 0.8, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 12, sampleOrder = sampleOrder, pathways = params$pathways, gene_mar = 10)
   dev.off()
     
   ##### Read in the oncoplots PNG files
