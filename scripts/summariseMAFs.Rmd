@@ -1507,6 +1507,15 @@ for ( i in 1:length(mafFiles) ) {
 ##### Get genes involved in the pathways of interest
 pathways_genes <- read.table(params$pathways, sep="\t", as.is=TRUE, header=TRUE, row.names=NULL, quote = "")[,1]
 
+##### Set height for oncoplots
+if ( length(pathways_genes) > 100 ) {
+  oncoplot_pahtways_height <- 100*length(pathways_genes)/2+100*length(pathways_genes)/6.5
+} else if  ( length(pathways_genes) > 19 ) {
+  oncoplot_pahtways_height <- 100*length(pathways_genes)/1.5+100*length(pathways_genes)/5
+} else {
+  oncoplot_pahtways_height <- 900
+}
+
 for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
@@ -1519,10 +1528,10 @@ for ( i in 1:length(mafFiles) ) {
   }
   
   ##### Generate MAF object containing only the genes involved in pathways of interest
-  maf.pathways <- subsetMaf(maf = mafInfo[[i]], includeSyn = FALSE, genes = pathways_genes, mafObj = TRUE, query = "Variant_Type != 'CNV'")
+  maf.pathways <- subsetMaf(maf = mafInfo[[i]], includeSyn = FALSE, genes = pathways_genes, mafObj = TRUE)
   
   ##### Save the plot as PNG
-  png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height[[i]]+100*length(pathways_genes)/4, units = "px", res = 200, type="cairo" )
+  png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_pahtways_height, units = "px", res = 200, type="cairo" )
   
   ##### Drawing oncoplots for the top mutated genes in each dataset
   plot.new()
