@@ -1451,6 +1451,7 @@ for ( i in 1:length(mafFiles) ) {
         om.missing <- data.frame(matrix(vector(), length(om_genes.missing), ncol(om$oncoMatrix), dimnames=list(c(), colnames(om$oncoMatrix))), stringsAsFactors=FALSE)
         rownames(om.missing) <- om_genes.missing
         om.missing[ is.na(om.missing) ] <- "-" 
+        colnames(om$oncoMatrix) <- make.names(colnames(om$oncoMatrix))
         om$oncoMatrix <- rbind(om$oncoMatrix, om.missing)
         om$oncoMatrix[ om$oncoMatrix == "" ] <- "-"
           
