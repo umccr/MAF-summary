@@ -242,7 +242,10 @@ param_list <- list(maf_dir = opt$maf_dir,
                    )
 
 ##### Pass the user-defined argumentas to the summariseMAFs.R markdown script and run the analysis
-rmarkdown::render(input = "summariseMAFs.Rmd", output_dir = paste(opt$maf_dir, opt$out_folder, sep = "/"), output_file = paste0(opt$out_folder, ".html"), params = param_list)
+rmarkdown::render(input = "summariseMAFs.Rmd",
+                  output_dir = paste(opt$maf_dir, opt$out_folder, sep = "/"),
+                  output_file = paste0(opt$out_folder, ".html"),
+                  params = param_list)
 
 ##### Remove the assocaited MD file and the redundant folder with plots that are imbedded in the HTML report
 unlink(paste0(opt$maf_dir, "/", opt$out_folder, "_files"), recursive = TRUE)
