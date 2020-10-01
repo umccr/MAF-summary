@@ -1547,30 +1547,6 @@ for ( i in 1:length(mafFiles) ) {
   ##### Read in the oncoplots PNG files
   cat("![](",paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""),")")
   cat("<br/>")
-    
-  ##### Save the oncoplot matrix into a file
-  genes = getGeneSummary(x = mafInfo[[i]])[1:top_genes_no[[i]], Hugo_Symbol]
-  om = createOncoMatrix(m = mafInfo[[i]], g = genes)
-  om$oncoMatrix[ om$oncoMatrix == "" ] <- "-"
-    
-  ##### Samples ordering
-  if ( params$samples_keep_order ) {
-    om$oncoMatrix <- om$oncoMatrix[ ,as.vector(sampleOrder) ]
-  }
-    
-  ##### Write gene summary into a file
-  ##### Create a new workbook
-  wb <- createWorkbook(paste("MAF_oncoplot_pathways_", datasets.list[i], ".xlsx", sep = ""))
-
-  ##### Add worksheet for oncoMatrix
-  addWorksheet(wb, substring("oncoMatrix", 0, 31))
-  writeData(wb, rowNames=TRUE, sheet = 1, om$oncoMatrix)
-    
-  ##### Add worksheet for numericMatrix
-  addWorksheet(wb, substring("numericMatrix", 0, 31))
-  writeData(wb, rowNames=TRUE, sheet = 2, om$numericMatrix)
-    
-  saveWorkbook(wb, paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".xlsx", sep = ""), overwrite = TRUE)
 }
 ```
 
