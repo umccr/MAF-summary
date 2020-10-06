@@ -1349,7 +1349,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
+    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
     dev.off()
     
     ##### Read in the oncoplots PNG files
@@ -1437,7 +1437,7 @@ for ( i in 1:length(mafFiles) ) {
         ##### Drawing oncoplots for the top mutated genes in each dataset
         plot.new()
         par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
+        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
         dev.off()
           
         ##### Read in the oncoplots PNG files
@@ -1542,7 +1542,7 @@ for ( i in 1:length(mafFiles) ) {
   ##### Drawing oncoplots for the top mutated genes in each dataset
   plot.new()
   par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-  maftools::oncoplot(maf = mafInfo.pathways[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation, pathways = params$pathways, gene_mar = 10)
+  maftools::oncoplot(maf = mafInfo.pathways[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation, pathways = params$pathways, gene_mar = 10)
   dev.off()
     
   ##### Read in the oncoplots PNG files
@@ -2201,7 +2201,7 @@ for ( i in 1:length(mafFiles) ) {
   genes <- unique( unlist(c(as.data.frame(somInter[[i]])[ somInter[[i]]$pValue < 0.05, "gene1" ], as.data.frame(somInter[[i]])[ somInter[[i]]$pValue < 0.05, "gene2" ])) )
   
   if ( length(genes) > 0 ) {
-    maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.7, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, gene_mar = 6)
+    maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.7, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = params$sort_by_annotation, colors = vc_cols, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, gene_mar = 6)
   } else {
     cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
   }
@@ -2227,7 +2227,7 @@ for ( i in 1:length(mafFiles) ) {
       genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]])[ somInter_goi[[i]]$pValue < 0.05, "gene1" ], as.data.frame(somInter_goi[[i]])[ somInter_goi[[i]]$pValue < 0.05, "gene2" ])) )
         
       if ( length(genes) > 0 ) {
-        maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.7, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, gene_mar = 6)
+        maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.7, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = params$sort_by_annotation, colors = vc_cols, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, gene_mar = 6)
       } else {
         cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
       }
@@ -2236,7 +2236,7 @@ for ( i in 1:length(mafFiles) ) {
         
       genes <- unique( unlist(c(as.data.frame(somInter_goi[[i]])[ , "gene1" ], as.data.frame(somInter_goi[[i]])[ , "gene2" ])) )
       if ( length(genes) > 0 ) {
-        maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.7, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE)
+        maftools::oncostrip(maf = mafInfo[[i]], genes = genes, top = NULL, fontSize = 0.7, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = params$sort_by_annotation)
       } else {
         cat(paste0("**None of detected gene pairs have P-value < 0.05**.\n\n\n"))
       }
@@ -2446,7 +2446,7 @@ try(maftools::forestPlot(mafCompareRes = mafCompare.res, pVal = params$maf_comp_
 ##### Considering only genes which are mutated in at-least in 5 samples in one of the cohort to avoid bias due to genes mutated in single sample
 genes = mafCompare.res$results$Hugo_Symbol[ mafCompare.res$results$pval < params$maf_comp_p ]
 
-maftools::coOncoplot(m1 = mafInfo[[1]], m2 = mafInfo[[2]], m1Name = datasets.list[1], m2Name = datasets.list[2], genes = genes, removeNonMutated = TRUE, clinicalFeatures1 = clinicalFeatures[[1]], clinicalFeatures2 = clinicalFeatures[[2]], sortByAnnotation1 = TRUE, sortByAnnotation2 = TRUE, titleFontSize = 1.2, colors = vc_cols, showSampleNames = params$samples_show)
+maftools::coOncoplot(m1 = mafInfo[[1]], m2 = mafInfo[[2]], m1Name = datasets.list[1], m2Name = datasets.list[2], genes = genes, removeNonMutated = TRUE, clinicalFeatures1 = clinicalFeatures[[1]], clinicalFeatures2 = clinicalFeatures[[2]], sortByAnnotation1 = params$sort_by_annotation, sortByAnnotation2 = params$sort_by_annotation, titleFontSize = 1.2, colors = vc_cols, showSampleNames = params$samples_show)
 ```
 
 `r if ( runMafCompare ) { c("\n***\n### Table") }`
@@ -2823,7 +2823,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
+    oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
   }
   
   ##### Drawing oncoplots for additional genes of interest (if specified)
@@ -2837,7 +2837,7 @@ for ( i in 1:length(mafFiles) ) {
       
         plot.new()
         par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
+        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
         dev.off()
       }
     }
@@ -2848,7 +2848,7 @@ for ( i in 1:length(mafFiles) ) {
     ##### Drawing oncoplots for genes involved in the pathways of interest
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::oncoplot(maf = mafInfo.pathways[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], sortByAnnotation = FALSE, colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation, pathways = params$pathways, gene_mar = 6)
+    maftools::oncoplot(maf = mafInfo.pathways[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = TRUE, clinicalFeatures = clinicalFeatures[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation, pathways = params$pathways, gene_mar = 6)
     dev.off()
   }
   
