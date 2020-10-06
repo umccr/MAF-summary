@@ -346,6 +346,7 @@ Argument | Description | Required
 --genes_blacklist | Location and name of a file listing genes to be excluded (OPTIONAL). Header is not expected and the genes should be listed in separate lines | No
 --samples_list | Location and name of a file listing specific samples to be included (OPTIONAL). All other samples will be ignored. The ID of samples to be included are expected to be listed in column named `Tumor_Sample_Barcode`. Additional columns are also allowed | No
 --samples_keep_order | Keep order of samples as provided in the MAF file (OPTIONAL; default is `FALSE`).  | No
+--sort_by_annotation | Sort samples by provided `clinical_features`. Sorts based on first `clinical_features`(OPTIONAL; default is `FALSE`).  | No
 --samples_blacklist | Location and name of a file listing samples to be excluded (OPTIONAL). The ID of samples to be excluded are expected to be listed in column named `Tumor_Sample_Barcode`. Additional columns are allowed | No
 --nonSyn_list | List of variant classifications to be considered as non-synonymous. Rest will be considered as silent variants. Default uses [Variant Classifications](http://asia.ensembl.org/Help/Glossary?id=535) with `High/Moderate variant consequences` | No
 --remove_duplicated_variants | Remove repeated variants in a particuar sample, mapped to multiple transcripts of same gene? (defulat is `TRUE`). **NOTE**, option `TRUE` removes all repeated variants as duplicated entries. `FALSE` results in keeping all of them | No
