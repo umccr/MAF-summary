@@ -427,7 +427,7 @@ suppressMessages(library(tidyverse))
 suppressMessages(library(magick))
 suppressMessages(library(htmltools))
 suppressMessages(library(htmlwidgets))
-suppressMessages(library(package=paste0("BSgenome.Hsapiens.UCSC.hg", params$ucsc_genome_assembly), character.only = TRUE)) # required to get chromosomes lengts for fusionsBezierPlot function generating Bezier plot to present gene fusions in the genomics context
+suppressMessages(library(package=paste0("BSgenome.Hsapiens.UCSC.hg", params$ucsc_genome_assembly), character.only = TRUE))
 ```
 
 ```{r seed}
@@ -1363,7 +1363,7 @@ for ( i in 1:length(mafFiles) ) {
     
     ##### Samples ordering
     if ( params$samples_keep_order ) {
-      om$oncoMatrix <- om$oncoMatrix[ ,as.vector(sampleOrder) ]
+      om$oncoMatrix <- om$oncoMatrix[ ,make.names(sampleOrder) ]
     }
     
     ##### Write gene summary into a file
@@ -1465,7 +1465,7 @@ for ( i in 1:length(mafFiles) ) {
           
         ##### Samples ordering
         if ( params$samples_keep_order ) {
-          om$oncoMatrix <- om$oncoMatrix[ ,as.vector(sampleOrder) ]
+          om$oncoMatrix <- om$oncoMatrix[ , make.names(sampleOrder) ]
         }
           
         ##### Write gene summary into a file
@@ -1525,13 +1525,6 @@ if ( length(pathways_genes) > 100 ) {
 for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
-  
-  ##### Samples ordering
-  if ( params$samples_keep_order ) {
-    sampleOrder <- unique(mafInfo[[i]]@data$Tumor_Sample_Barcode)
-  } else {
-    sampleOrder <- NULL
-  }
   
   ##### Generate MAF object containing only the genes involved in pathways of interest
   mafInfo.pathways[[i]] <- subsetMaf(maf = mafInfo[[i]], includeSyn = FALSE, genes = pathways_genes, mafObj = TRUE)
