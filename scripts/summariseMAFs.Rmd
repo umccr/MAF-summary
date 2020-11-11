@@ -1534,7 +1534,7 @@ for ( i in 1:length(mafFiles) ) {
   }
   
   ##### Generate MAF object containing only the genes involved in pathways of interest
-  mafInfo.pathways[[i]] <- subsetMaf(maf = mafInfo[[i]], includeSyn = FALSE, genes = pathways_genes, mafObj = TRUE, dropLevels = FALSE)
+  mafInfo.pathways[[i]] <- subsetMaf(maf = mafInfo[[i]], includeSyn = FALSE, genes = pathways_genes, mafObj = TRUE)
   
   ##### Save the plot as PNG
   png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_pahtways_height, units = "px", res = 200, type="cairo" )
