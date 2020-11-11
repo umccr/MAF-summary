@@ -1363,7 +1363,7 @@ for ( i in 1:length(mafFiles) ) {
     
     ##### Samples ordering
     if ( params$samples_keep_order ) {
-      om$oncoMatrix <- om$oncoMatrix[ ,make.names(sampleOrder) ]
+      om$oncoMatrix <- om$oncoMatrix[ ,as.vector(sampleOrder) ]
     }
     
     ##### Write gene summary into a file
