@@ -212,7 +212,7 @@ lollipops.datasets <- function(mafInfo, datasets, gene) {
   ##### Create a list to store MAF info for individual datasets
   for ( dataset in datasets ) {
     
-    mut = subsetMaf(maf = mafInfo[[dataset]], includeSyn = FALSE, genes = gene, mafObj = FALSE, query = "Variant_Type != 'CNV'")
+    mut = subsetMaf(maf = mafInfo[[dataset]], includeSyn = FALSE, genes = gene, mafObj = FALSE, query = "Variant_Type != 'CNV'", dropLevels = FALSE)
     
     ##### Check if the gene has any mutations in correspoding dataset
     if ( nrow(mut) != 0 ) {
@@ -297,7 +297,7 @@ createOncoMatrix = function(m, g = NULL, chatty = TRUE, add_missing = FALSE){
     stop("Please provde atleast two genes!")
   }
 
-  subMaf = subsetMaf(maf = m, genes = g, includeSyn = FALSE, mafObj = FALSE)
+  subMaf = subsetMaf(maf = m, genes = g, includeSyn = FALSE, mafObj = FALSE, dropLevels = FALSE)
 
   if(nrow(subMaf) == 0){
     if(add_missing){
@@ -1534,7 +1534,7 @@ for ( i in 1:length(mafFiles) ) {
   }
   
   ##### Generate MAF object containing only the genes involved in pathways of interest
-  mafInfo.pathways[[i]] <- subsetMaf(maf = mafInfo[[i]], includeSyn = FALSE, genes = pathways_genes, mafObj = TRUE)
+  mafInfo.pathways[[i]] <- subsetMaf(maf = mafInfo[[i]], includeSyn = FALSE, genes = pathways_genes, mafObj = TRUE, dropLevels = FALSE)
   
   ##### Save the plot as PNG
   png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_pahtways_height, units = "px", res = 200, type="cairo" )
@@ -2049,8 +2049,8 @@ for ( i in 1:length(mafFiles) ) {
     
     ##### Check if there are any differetially mutated genes
     apobec.maf = subsetMaf(maf = mafInfo[[i]], tsb = as.character(sub.tbl[APOBEC_Enriched %in% 
-        "yes", Tumor_Sample_Barcode]), mafObj = TRUE)
-    nonapobec.maf = subsetMaf(maf = mafInfo[[i]], tsb = as.character(sub.tbl[APOBEC_Enriched %in% "no", Tumor_Sample_Barcode]), mafObj = TRUE)
+        "yes", Tumor_Sample_Barcode]), mafObj = TRUE, dropLevels = FALSE)
+    nonapobec.maf = subsetMaf(maf = mafInfo[[i]], tsb = as.character(sub.tbl[APOBEC_Enriched %in% "no", Tumor_Sample_Barcode]), mafObj = TRUE, dropLevels = FALSE)
     mc = mafCompare(m1 = apobec.maf, m2 = nonapobec.maf, m1Name = "Enriched", m2Name = "nonEnriched", minMut = 2, useCNV = TRUE)
     
     if ( nrow(mc$results[pval < 0.05] ) == 0 ) {
