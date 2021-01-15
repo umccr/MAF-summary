@@ -587,7 +587,8 @@ if ( params$purple != "none" ){
   for ( i in 1:length(mafFiles) ) {
     
     purple_files <- list.files(purpleFiles, pattern = "*.purple.cnv.gene.tsv", full.names = TRUE)
-
+    purple_files <- c(purple_files, list.files(purpleFiles, pattern = "*.purple.gene.cnv", full.names = TRUE))
+    
     purple_dfs <- purple_files %>% map(~ mutate(read_tsv(.), fname = .))
     purple_df = purple_dfs %>% 
       bind_rows %>% 
