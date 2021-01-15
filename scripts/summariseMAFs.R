@@ -42,12 +42,13 @@
 #   cnvkit_loh (optional): CNVkit CN upper threshold to call loss of heterozygosity (LOH)
 #   cnvkit_amp (optional): CNVkit CN lower threshold to call amplification (Amp)
 #   gistic (optional):  Location of the corresponding GISTIC output files (including gisticAllLesionsFile, gisticAmpGenesFile, gisticDelGenesFile and gisticScoresFile). Each file name (for each dataset) is expected to be separated by comma
+#   draw_titv:  Logical whether to include TiTv plot. Defualt value is "FALSE"
 #   clinical_info (optional):  Location of clinical data associated with each sample in MAF. Each file name (for each dataset) is expected to be separated by comma
 #   clinical_features (optional):  Columns names (separated by comma) from clinical data (specified by --clinical_info argument) to be drawn in the oncoplot(s). Note that the order matters
-#   clinical_enrichment_p (optional):   P-value threshold for clinical enrichment analysis. Defualt values is 0.05
-#   signature_enrichment_p (optional):   P-value threshold for reporting significant enrichment of genes in detected mutational signatures. Defualt values is 0.05
-#   maf_comp_p (optional):   P-value threshold for reporting significant differences between cohorts. Defualt values is 0.05
-#   maf_comp_fdr (optional):   FDR threshold for reporting significant differences between cohorts. Defualt values is 1
+#   clinical_enrichment_p (optional):   P-value threshold for clinical enrichment analysis. Defualt value is 0.05
+#   signature_enrichment_p (optional):   P-value threshold for reporting significant enrichment of genes in detected mutational signatures. Defualt value is 0.05
+#   maf_comp_p (optional):   P-value threshold for reporting significant differences between cohorts. Defualt value is 0.05
+#   maf_comp_fdr (optional):   FDR threshold for reporting significant differences between cohorts. Defualt value is 1
 #   out_folder:   Name for the output folder that will be created within the directory with MAF files. If no output folder is specified the results will be saved in folder "MAF_summary_report"
 #   hide_code_btn : Hide the "Code" button allowing to show/hide code chunks in the final HTML report. Available options are: "TRUE" (default) and "FALSE"
 #   ucsc_genome_assembly :  Human reference genome version used for signature analysis (default is "19")
@@ -119,6 +120,8 @@ option_list <- list(
               help="CNVkit CN lower threshold to call LOH"),
   make_option("--gistic", action="store", default="none", type='character',
               help="Location of the corresponding GISTIC output files"),
+  make_option("--draw_titv", action="store", default=FALSE, type='logical',
+              help="Logical whether to include TiTv plot"),
   make_option("--clinical_info", action="store", default="none", type='character',
               help="Location of clinical data associated with each sample in MAF"),
   make_option("--clinical_features", action="store", default="none", type='character',
@@ -234,6 +237,7 @@ param_list <- list(maf_dir = opt$maf_dir,
                    cnvkit_loh = opt$cnvkit_loh,
                    cnvkit_amp = opt$cnvkit_amp,
                    gistic = opt$gistic,
+                   draw_titv = opt$draw_titv,
                    clinical_info = opt$clinical_info,
                    clinical_features = opt$clinical_features,
                    clinical_enrichment_p = opt$clinical_enrichment_p,
