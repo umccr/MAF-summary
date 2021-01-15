@@ -586,29 +586,62 @@ if ( params$purple != "none" ){
   
   for ( i in 1:length(mafFiles) ) {
     
+    cn_df <- NULL
+    
+    ##### Deal with the newer PURPLE output format
     purple_files <- list.files(purpleFiles, pattern = "*.purple.cnv.gene.tsv", full.names = TRUE)
-    purple_files <- c(purple_files, list.files(purpleFiles, pattern = "*.purple.gene.cnv", full.names = TRUE))
     
-    purple_dfs <- purple_files %>% map(~ mutate(read_tsv(.), fname = .))
-    purple_df = purple_dfs %>% 
-      bind_rows %>% 
-      #filter(gene %in% c("KRAS", "TP53")) %>% 
-      mutate(sample = fname %>% basename %>% str_replace('.purple.cnv.gene.tsv', '')) %>%
-      rowwise() %>% mutate(cn = mean(minCopyNumber, maxCopyNumber)) %>% 
-      select(gene, sample, cn) %>% 
-      mutate(
-        ampdel = case_when(
-          (cn < params$purple_hd) ~ "HD",
-          (cn >= params$purple_hd & cn < params$purple_loh) ~ "LOH",
-          (cn >= params$purple_loh & cn < params$purple_amp) ~ "NA",
-          (cn >= params$purple_amp) ~ "AMP",
-          TRUE ~ "NA"
-        ))
+    if ( length(purple_files) > 0 ) {
+      purple_dfs <- purple_files %>% map(~ mutate(read_tsv(.), fname = .))
+      purple_df = purple_dfs %>% 
+        bind_rows %>% 
+        #filter(gene %in% c("KRAS", "TP53")) %>% 
+        mutate(sample = fname %>% basename %>% str_replace('.purple.cnv.gene.tsv', '')) %>%
+        rowwise() %>% mutate(cn = mean(minCopyNumber, maxCopyNumber)) %>% 
+        select(gene, sample, cn) %>% 
+        mutate(
+          ampdel = case_when(
+            (cn < params$purple_hd) ~ "HD",
+            (cn >= params$purple_hd & cn < params$purple_loh) ~ "LOH",
+            (cn >= params$purple_loh & cn < params$purple_amp) ~ "NA",
+            (cn >= params$purple_amp) ~ "AMP",
+            TRUE ~ "NA"
+          ))
+      
+      ##### Remove entries with NAs
+      purple_df = purple_df %>% 
+        filter(ampdel %!in% "NA")
+      cn_df <- purple_df
+    }
     
-    ##### Remove entries with NAs
-    purple_df = purple_df %>% 
-      filter(ampdel %!in% "NA")
-    cn_df <- purple_df
+    ##### Also deal with the older PURPLE output format
+    purple_files <- list.files(purpleFiles, pattern = "*.purple.gene.cnv", full.names = TRUE)
+    
+    if ( length(purple_files) > 0 ) {
+      purple_dfs <- purple_files %>% map(~ mutate(read_tsv(.), fname = .))
+      purple_df = purple_dfs %>% 
+        bind_rows %>% 
+        #filter(gene %in% c("KRAS", "TP53")) %>% 
+        mutate(sample = fname %>% basename %>% str_replace('.purple.cnv.gene.tsv', '')) %>%
+        rowwise() %>% mutate(cn = mean(MinCopyNumber, MaxCopyNumber)) %>% 
+        select(Gene, sample, cn) %>% 
+        mutate(
+          ampdel = case_when(
+            (cn < params$purple_hd) ~ "HD",
+            (cn >= params$purple_hd & cn < params$purple_loh) ~ "LOH",
+            (cn >= params$purple_loh & cn < params$purple_amp) ~ "NA",
+            (cn >= params$purple_amp) ~ "AMP",
+            TRUE ~ "NA"
+          ))
+      
+      ##### Remove entries with NAs
+      purple_df = purple_df %>% 
+        filter(ampdel %!in% "NA")
+      
+      colnames(purple_df) <- gsub("Gene", "gene", colnames(purple_df))
+      cn_df <- rbind(cn_df, purple_df)
+    }
+    
     
     # Then feed the result into read.maf
     maf.data <- rbind(mafInfo[[i]]@data, mafInfo[[i]]@maf.silent)
