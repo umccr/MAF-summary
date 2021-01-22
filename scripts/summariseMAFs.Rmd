@@ -1537,6 +1537,16 @@ for ( i in 1:length(mafFiles) ) {
 
 `r if ( pathways_status ) { c("Oncoplot(s) illustrating different types of mutations observed across samples for genes involved in the **pathways of interest**. The side and top bar-plots present the frequency of mutations in these genes and in individual samples, respectively.") }`
 
+`r if ( params$purple != "none" ) { c("<details>") }`
+`r if ( params$purple != "none" ) { c("<summary>CNV definitions</summary>") }`
+`r if ( params$purple != "none" ) { c("<font size=\"2\">") }`
+`r if ( params$purple != "none" ) { paste0("HD: CN < ", params$purple_hd, "\n") }`
+`r if ( params$purple != "none" ) { paste0("LOH: CN >= ", params$purple_hd, " & < ", params$purple_loh, "\n") }`
+`r if ( params$purple != "none" ) { c("AMP: CN >= ", params$purple_amp) }`
+`r if ( params$purple != "none" ) { c("</font>") }`
+`r if ( params$purple != "none" ) { c("</details>") }`
+`r if ( params$purple != "none" ) { c("</br>") }`
+
 `r if ( params$purple != "none" ) { c("<span style=\"color:#ff0000\">NOTE</span>, copy-number (CN) alterations are derived from *[PURPLE](https://github.com/hartwigmedical/hmftools/tree/master/purity-ploidy-estimator){target=\"_blank\"}* programme.") }`
 
 ```{r maf_oncoplot_pathways, comment = NA, message=FALSE, warning=FALSE, results="asis", eval=pathways_status}
@@ -1551,7 +1561,7 @@ names(mafInfo.pathways) <- datasets.list
 
 ##### Set height for oncoplots
 if ( length(pathways_genes) > 100 ) {
-  oncoplot_pahtways_height <- 100*length(pathways_genes)/3+100*length(pathways_genes)/6.5
+  oncoplot_pahtways_height <- 100*length(pathways_genes)/4+100*length(pathways_genes)/6.5
 } else if  ( length(pathways_genes) > 19 ) {
   oncoplot_pahtways_height <- 100*length(pathways_genes)/2.5+100*length(pathways_genes)/5
 } else {
