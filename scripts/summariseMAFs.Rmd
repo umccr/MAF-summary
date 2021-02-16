@@ -1559,15 +1559,6 @@ pathways_genes <- read.table(params$pathways, sep="\t", as.is=TRUE, header=TRUE,
 mafInfo.pathways <- vector("list", length(mafFiles))
 names(mafInfo.pathways) <- datasets.list
 
-##### Set height for oncoplots
-if ( length(pathways_genes) > 100 ) {
-  oncoplot_pahtways_height <- 100*length(pathways_genes)/4+100*length(pathways_genes)/6.5
-} else if  ( length(pathways_genes) > 19 ) {
-  oncoplot_pahtways_height <- 100*length(pathways_genes)/2.5+100*length(pathways_genes)/5
-} else {
-  oncoplot_pahtways_height <- 700
-}
-
 for ( i in 1:length(mafFiles) ) {
   
   cat(paste("\n\n <b>", datasets.list[i], "</b> \n\n", sep=" "))
@@ -1576,7 +1567,7 @@ for ( i in 1:length(mafFiles) ) {
   mafInfo.pathways[[i]] <- subsetMaf(maf = mafInfo[[i]], includeSyn = FALSE, genes = pathways_genes, mafObj = TRUE)
   
   ##### Save the plot as PNG
-  png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_pahtways_height, units = "px", res = 200, type="cairo" )
+  png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_height[[i]], units = "px", res = 200, type="cairo" )
   
   ##### Drawing oncoplots for the top mutated genes in each dataset
   plot.new()
