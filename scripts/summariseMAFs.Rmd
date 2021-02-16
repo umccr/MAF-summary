@@ -1437,7 +1437,7 @@ for ( i in 1:length(mafFiles) ) {
 `r if ( params$purple != "none" ) { c("<font size=\"2\">") }`
 `r if ( params$purple != "none" ) { paste0("HD: CN < ", params$purple_hd, "\n") }`
 `r if ( params$purple != "none" ) { paste0("LOH: CN >= ", params$purple_hd, " & < ", params$purple_loh, "\n") }`
-`r if ( params$purple != "none" ) { paste0("AMP: CN >= ", params$purple_amp) }`
+`r if ( params$purple != "none" ) { c("AMP: CN >= ", params$purple_amp) }`
 `r if ( params$purple != "none" ) { c("</font>") }`
 `r if ( params$purple != "none" ) { c("</details>") }`
 `r if ( params$purple != "none" ) { c("</br>") }`
