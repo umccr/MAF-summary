@@ -537,8 +537,9 @@ for ( i in 1:length(mafFiles) ) {
       clinicalInfo[[i]] <- rbind(clinicalInfo[[i]], clinicalInfo.missing)
     }
     
-    #### Make sure the clinical features names are correct
+    #### Convert numeric values to characters and make sure the clinical features names are correct and 
     for (j in 1:length(clinicalFeatures[[i]])) {
+      clinicalInfo[[i]][, clinicalFeatures[[i]][j]] <- as.character(clinicalInfo[[i]][, clinicalFeatures[[i]][j]])
       clinicalInfo[[i]][, clinicalFeatures[[i]][j]] <- make.names(clinicalInfo[[i]][, clinicalFeatures[[i]][j]])
     }
   
