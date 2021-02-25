@@ -537,10 +537,10 @@ for ( i in 1:length(mafFiles) ) {
       clinicalInfo[[i]] <- rbind(clinicalInfo[[i]], clinicalInfo.missing)
     }
     
-    #### Convert numeric values to characters and make sure the clinical features names are correct and 
+    #### Convert numeric values to characters and make sure the clinical features names are correct 
     for (j in 1:length(clinicalFeatures[[i]])) {
       clinicalInfo[[i]][, clinicalFeatures[[i]][j]] <- as.character(clinicalInfo[[i]][, clinicalFeatures[[i]][j]])
-      clinicalInfo[[i]][, clinicalFeatures[[i]][j]] <- make.names(clinicalInfo[[i]][, clinicalFeatures[[i]][j]])
+      #clinicalInfo[[i]][, clinicalFeatures[[i]][j]] <- make.names(clinicalInfo[[i]][, clinicalFeatures[[i]][j]])
     }
   
     mafInfo[[i]] <- maftools::read.maf(maf = mafFiles[i], vc_nonSyn = unlist(strsplit(params$nonSyn_list, split=',', fixed=TRUE)), removeDuplicatedVariants = params$remove_duplicated_variants, verbose = FALSE, clinicalData = clinicalInfo[[i]])
