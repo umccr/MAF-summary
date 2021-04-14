@@ -36,6 +36,7 @@ dependencies:
         - r-tibble
         - r-purrr
         - r-tidyverse
+        - r-r.utils
         - r-htmltools
         - r-htmlwidgets
         - r-devtools
