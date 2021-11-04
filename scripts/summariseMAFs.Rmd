@@ -1219,6 +1219,8 @@ for ( i in 1:length(mafFiles) ) {
     oncoplot_height[[i]] <- 100*top_genes_no[[i]]/3
   } else if ( top_genes_no[[i]] > 19 ) {
     oncoplot_height[[i]] <- 100*top_genes_no[[i]]/2.5
+  } else if ( top_genes_no[[i]] > 10 ) {
+    oncoplot_height[[i]] <- 100*top_genes_no[[i]]/2.5
   } else {
     oncoplot_height[[i]] <- 700
   }
