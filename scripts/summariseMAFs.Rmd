@@ -22,6 +22,7 @@ params:
   genes_blacklist: 'none'
   samples_show: FALSE
   samples_keep_order: TRUE
+  samples_keep_order_annot: TRUE
   sort_by_annotation: FALSE
   samples_list: 'none'
   samples_blacklist: 'none'
@@ -88,6 +89,7 @@ NOTE: by default, variants considered as non-synonymous are those with high/mode
 * **genes_blacklist**: `r params$genes_blacklist`
 * **samples_show**: `r params$samples_show`
 * **samples_keep_order**: `r params$samples_keep_order`
+* **samples_keep_order_annot**: `r params$samples_keep_order_annot`
 * **samples_list**: `r params$samples_list`
 * **samples_blacklist**: `r params$samples_blacklist`
 * **nonSyn_list**: `r params$nonSyn_list`
@@ -1215,10 +1217,12 @@ for ( i in 1:length(mafFiles) ) {
   top_genes_no[[i]] <- length( mut_freq[[i]][ mut_freq[[i]] >= as.numeric(genes_min[[i]]) ] )
   
   ##### Set height for oncoplots
-  if ( top_genes_no[[i]] > 100 ) {
+  if ( top_genes_no[[i]] > 1000 ) {
+    oncoplot_height[[i]] <- 3000
+  } else if ( top_genes_no[[i]] > 100 ) {
     oncoplot_height[[i]] <- 100*top_genes_no[[i]]/3
   } else if ( top_genes_no[[i]] > 19 ) {
-    oncoplot_height[[i]] <- 100*top_genes_no[[i]]/2.5
+    oncoplot_height[[i]] <- 100*top_genes_no[[i]]/2
   } else if ( top_genes_no[[i]] > 10 ) {
     oncoplot_height[[i]] <- 100*top_genes_no[[i]]/1.5
   } else {
@@ -1306,10 +1310,14 @@ if ( params$genes_list != "none" ) {
     genes_list_goi.nonsyn[[i]] <- genes_list_goi[[i]][ genes_list_goi[[i]] %in% mafInfo[[i]]@data$Hugo_Symbol ]
     
     ##### Set height for oncoplots
-    if ( length(goi[[i]]) > 100 ) {
+    if ( length(goi[[i]]) > 1000 ) {
+      oncoplot_goi_height[[i]] <- 3000
+    } else if ( length(goi[[i]]) > 100 ) {
       oncoplot_goi_height[[i]] <- 100*length(goi[[i]])/3
     } else if  ( length(goi[[i]]) > 19 ) {
-      oncoplot_goi_height[[i]] <- 100*length(goi[[i]])/2.5
+      oncoplot_goi_height[[i]] <- 100*length(goi[[i]])/2
+    } else if  ( length(goi[[i]]) > 10 ) {
+      oncoplot_goi_height[[i]] <- 100*length(goi[[i]])/1.4
     } else {
       oncoplot_goi_height[[i]] <- 700
     }
@@ -1372,7 +1380,11 @@ for ( i in 1:length(mafFiles) ) {
   
   ##### Samples ordering
   if ( params$samples_keep_order ) {
-    sampleOrder <- unique(mafInfo[[i]]@data$Tumor_Sample_Barcode)
+    if ( params$samples_keep_order_annot ) {
+      sampleOrder <- mafInfo[[i]]@clinical.data$Tumor_Sample_Barcode
+    } else {
+      sampleOrder <- unique(mafInfo[[i]]@data$Tumor_Sample_Barcode)
+    }
   } else {
     sampleOrder <- NULL
   }

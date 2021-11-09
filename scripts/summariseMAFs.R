@@ -27,6 +27,7 @@
 #   genes_blacklist (optional):  Location and name of a file listing genes to be excluded. Header is not expected and the genes should be listed in separate lines
 #   samples_list (optional):  Location and name of a file listing specific samples to be included. All other samples will be ignored. The ID of samples to be included are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
 #   samples_keep_order (optional):  Keep order of samples as provided in the MAF file. Default is FALSE
+#   samples_keep_order_annot (optional):  Keep order of samples as provided in clinical data associated with each sample in MAF. Default is TRUE
 #   sort_by_annotation (optional):  Sort samples by provided 'clinical_features'. Sorts based on first 'clinical_features'. Default is FALSE
 #   samples_blacklist (optional):  Location and name of a file listing samples to be excluded. The ID of samples to be exdluded are expected to be listed in column named "Tumor_Sample_Barcode". Additional columns are also allowed
 #   samples_show (optional):  Include sample names on the plots (oncoplots, oncogenic pathways plots, oncostrips). Default is FALSE
@@ -90,6 +91,8 @@ option_list <- list(
               help="Location and name of a file listing specific samples to be included"),
   make_option("--samples_keep_order", action="store", default=FALSE, type='logical',
               help="Keep order of samples as provided in the MAF file"),
+  make_option("--samples_keep_order_annot", action="store", default=TRUE, type='logical',
+              help="Keep order of samples as provided in clinical data associated with each sample in MAF"),
   make_option("--sort_by_annotation", action="store", default=FALSE, type='logical',
               help="Sort samples by provided clinical_features"),  
   make_option("--samples_blacklist", action="store", default="none", type='character',
@@ -222,6 +225,7 @@ param_list <- list(maf_dir = opt$maf_dir,
                    genes_blacklist = opt$genes_blacklist,
                    samples_list = opt$samples_list,
                    samples_keep_order = opt$samples_keep_order,
+                   samples_keep_order_annot = opt$samples_keep_order_annot,
                    sort_by_annotation = opt$sort_by_annotation,
                    samples_blacklist = opt$samples_blacklist,
                    samples_show = opt$samples_show,
