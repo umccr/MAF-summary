@@ -1275,7 +1275,8 @@ for ( i in 1:length(mafFiles) ) {
     clinicalFeatures_cols[[i]] <- list(clinicalFeatures_cols[[i]])
     names(clinicalFeatures_cols[[i]]) <- clinicalFeatures[[i]]
   } else {
-    clinicalFeatures_cols[[i]] <- RColorBrewer::brewer.pal(length(groups),name = "Accent")
+    clinicalFeatures_cols[[i]] <- c("#FF7F00","#1F78B4", RColorBrewer::brewer.pal(length(groups),name = "Accent"))
+    clinicalFeatures_cols[[i]]  <- clinicalFeatures_cols[[i]][ 1:length(groups) ]
     names(clinicalFeatures_cols[[i]]) <- groups
     clinicalFeatures_cols[[i]] <- list(clinicalFeatures_cols[[i]])
     names(clinicalFeatures_cols[[i]]) <- clinicalFeatures[[i]]
