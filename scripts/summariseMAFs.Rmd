@@ -1231,18 +1231,18 @@ for ( i in 1:length(mafFiles) ) {
 }
 
 ##### Define colours for each Variant_Classification if the default list of non-synonymous variants is not used (from http://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/oncoplots.html#02_changing_colors_for_variant_classifications and "get_vcColors" function in https://rdrr.io/github/PoisonAlien/maftools/src/R/oncomatrix.R)
-if ( !all(nonSyn_list %in% c( "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation" ) ) ) {
+#if ( !all(nonSyn_list %in% c( "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation" ) ) ) {
   
   ##### Get the default colours first
-  vc_cols = c(RColorBrewer::brewer.pal(11, name = "Paired"), RColorBrewer::brewer.pal(11,name = "Spectral")[1:3],'black', 'violet', 'violet', 'royalblue', 'royalblue4', 'skyblue', 'yellowgreen', 'darkmagenta', '#7b7060', '#535c68')
-  vc_cols = grDevices::adjustcolor(col = vc_cols, alpha.f = 1)
-  names(vc_cols) = names = c('Nonstop_Mutation','Frame_Shift_Del','IGR','Missense_Mutation','Silent','Nonsense_Mutation','RNA','Splice_Site','Intron','Frame_Shift_Ins','In_Frame_Del','ITD','In_Frame_Ins','Translation_Start_Site',"Multi_Hit", 'Amp', 'AMP', 'Del', 'HD', 'LOH', 'Fusion', 'SV', 'Complex_Event', 'pathway')
+  vc_cols = c(RColorBrewer::brewer.pal(11, name = "Paired"), RColorBrewer::brewer.pal(11,name = "Spectral")[1:3],'#000000', '#ee82ee', '#ee82ee', '#4169e1', '#27408b', '#87ceeb', '#9acd32', '#8b008b', '#6e6456', '#535c68')
+  #vc_cols = grDevices::adjustcolor(col = vc_cols, alpha.f = 1)
+  names(vc_cols) = c('Frame_Shift_Del','Missense_Mutation','Intron','Silent','Frame_Shift_Ins','SV','Splice_Site','In_Frame_Del','Nonsense_Mutation','Nonstop_Mutation','IGR','ITD','RNA','Translation_Start_Site',"Multi_Hit", 'Amp', 'AMP', 'Del', 'HD', 'LOH', 'Fusion', 'In_Frame_Ins', 'Complex_Event', 'pathway')
   
   ##### Correct colour for "In_Frame_Del"
-  vc_cols[ names(vc_cols) == "In_Frame_Del"] <- "#976726"
+  #vc_cols[ names(vc_cols) == "In_Frame_Del"] <- "#976726"
   
   ##### Correct colour for "In_Frame_Ins"
-  vc_cols[ names(vc_cols) == "In_Frame_Ins"] <- "#7d7d7d"
+  #vc_cols[ names(vc_cols) == "In_Frame_Ins"] <- "#7d7d7d"
   
   ##### ... now remove unwanted variant types
   #vc_cols <- vc_cols[ c(names(vc_cols)) %in% c( "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site","Translation_Start_Site","Nonsense_Mutation","Nonstop_Mutation","In_Frame_Del","In_Frame_Ins","Missense_Mutation","Multi_Hit" ) ]
@@ -1257,8 +1257,29 @@ if ( !all(nonSyn_list %in% c( "Frame_Shift_Del","Frame_Shift_Ins","Splice_Site",
     ##### Combined colours for defualt and additional variant types
     vc_cols <- c(vc_cols, vc_missing_cols)
   }
-} else {
-  vc_cols <- NULL
+#} else {
+#  vc_cols = NULL
+#}
+ 
+##### Define colours for samples annotation
+clinicalFeatures_cols <- NULL
+
+for ( i in 1:length(mafFiles) ) {
+  
+  groups <- unlist(unique(as.data.frame(mafInfo[[i]]@clinical.data)[ clinicalFeatures[[i]] ]))
+
+  if ( length(groups) < 3 ) {
+    clinicalFeatures_cols[[i]] <- c("#FF7F00","#1F78B4")
+    clinicalFeatures_cols[[i]]  <- clinicalFeatures_cols[[i]][ 1:length(groups) ]
+    names(clinicalFeatures_cols[[i]]) <- groups
+    clinicalFeatures_cols[[i]] <- list(clinicalFeatures_cols[[i]])
+    names(clinicalFeatures_cols[[i]]) <- clinicalFeatures[[i]]
+  } else {
+    clinicalFeatures_cols[[i]] <- RColorBrewer::brewer.pal(length(groups),name = "Accent")
+    names(clinicalFeatures_cols[[i]]) <- groups
+    clinicalFeatures_cols[[i]] <- list(clinicalFeatures_cols[[i]])
+    names(clinicalFeatures_cols[[i]]) <- clinicalFeatures[[i]]
+  }
 }
 ```
 
@@ -1317,7 +1338,7 @@ if ( params$genes_list != "none" ) {
     } else if  ( length(goi[[i]]) > 19 ) {
       oncoplot_goi_height[[i]] <- 100*length(goi[[i]])/2
     } else if  ( length(goi[[i]]) > 10 ) {
-      oncoplot_goi_height[[i]] <- 100*length(goi[[i]])/1.4
+      oncoplot_goi_height[[i]] <- 100*length(goi[[i]])/1.5
     } else {
       oncoplot_goi_height[[i]] <- 700
     }
@@ -1395,12 +1416,12 @@ for ( i in 1:length(mafFiles) ) {
     cat(paste(top_genes_no[[i]], "genes are mutated in at least", genes_min[[i]], "% of patients\n\n", sep=" "))
     
     ##### Save the plot as PNG
-    png( file = paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_height[[i]], units = "px", res = 200, type="cairo" )
+    png( file = paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""), width = 1800*1.8, height = oncoplot_height[[i]]*1.8, units = "px", res = 300, type="cairo" )
       
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = params$draw_titv, clinicalFeatures = clinicalFeatures[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
+    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = params$draw_titv, clinicalFeatures = clinicalFeatures[[i]], annotationColor = clinicalFeatures_cols[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
     dev.off()
     
     ##### Read in the oncoplots PNG files
@@ -1483,12 +1504,12 @@ for ( i in 1:length(mafFiles) ) {
       if ( length(top_genes_goi[[i]]) > 1  ) {
           
         ##### Save the plot as PNG
-        png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_goi_height[[i]], units = "px", res = 200, type="cairo" )
+        png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800*1.7, height = oncoplot_goi_height[[i]]*1.7, units = "px", res = 300, type="cairo" )
             
         ##### Drawing oncoplots for the top mutated genes in each dataset
         plot.new()
         par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = params$draw_titv, clinicalFeatures = clinicalFeatures[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
+        maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = params$draw_titv, clinicalFeatures = clinicalFeatures[[i]], annotationColor = clinicalFeatures_cols[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
         dev.off()
           
         ##### Read in the oncoplots PNG files
@@ -1582,12 +1603,12 @@ for ( i in 1:length(mafFiles) ) {
   mafInfo.pathways[[i]] <- subsetMaf(maf = mafInfo[[i]], includeSyn = FALSE, genes = pathways_genes, mafObj = TRUE)
   
   ##### Save the plot as PNG
-  png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800, height = oncoplot_height[[i]]+(100*length(params$pathways)), units = "px", res = 200, type="cairo" )
+  png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800*1.5, height = oncoplot_height[[i]]*1.5+(100*length(params$pathways)), units = "px", res = 300, type="cairo" )
   
   ##### Drawing oncoplots for the top mutated genes in each dataset
   plot.new()
   par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-  maftools::oncoplot(maf = mafInfo.pathways[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = params$draw_titv, clinicalFeatures = clinicalFeatures[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation, pathways = params$pathways, gene_mar = 10)
+  maftools::oncoplot(maf = mafInfo.pathways[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = params$draw_titv, clinicalFeatures = clinicalFeatures[[i]], annotationColor = clinicalFeatures_cols[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation, pathways = params$pathways, gene_mar = 10)
   dev.off()
     
   ##### Read in the oncoplots PNG files
