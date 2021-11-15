@@ -1236,7 +1236,7 @@ for ( i in 1:length(mafFiles) ) {
   ##### Get the default colours first
   vc_cols = c(RColorBrewer::brewer.pal(11, name = "Paired"), RColorBrewer::brewer.pal(11,name = "Spectral")[1:3],'#000000', '#ee82ee', '#ee82ee', '#4169e1', '#27408b', '#87ceeb', '#9acd32', '#8b008b', '#6e6456', '#535c68')
   #vc_cols = grDevices::adjustcolor(col = vc_cols, alpha.f = 1)
-  names(vc_cols) = c('Frame_Shift_Del','Missense_Mutation','Intron','Silent','Frame_Shift_Ins','SV','Splice_Site','In_Frame_Del','Nonsense_Mutation','Nonstop_Mutation','IGR','ITD','RNA','Translation_Start_Site',"Multi_Hit", 'Amp', 'AMP', 'Del', 'HD', 'LOH', 'Fusion', 'In_Frame_Ins', 'Complex_Event', 'pathway')
+  names(vc_cols) = c('Frame_Shift_Del','Missense_Mutation','Intron','Silent','Frame_Shift_Ins','In_Frame_Ins','Splice_Site','In_Frame_Del','Nonsense_Mutation','Nonstop_Mutation','IGR','ITD','RNA','Translation_Start_Site',"Multi_Hit", 'Amp', 'AMP', 'Del', 'HD', 'LOH', 'Fusion', 'SV', 'Complex_Event', 'pathway')
   
   ##### Correct colour for "In_Frame_Del"
   #vc_cols[ names(vc_cols) == "In_Frame_Del"] <- "#976726"
