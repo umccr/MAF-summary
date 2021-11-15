@@ -1269,13 +1269,13 @@ for ( i in 1:length(mafFiles) ) {
   groups <- unlist(unique(as.data.frame(mafInfo[[i]]@clinical.data)[ clinicalFeatures[[i]] ]))
 
   if ( length(groups) < 3 ) {
-    clinicalFeatures_cols[[i]] <- c("#0000ff","#ff0000")
+    clinicalFeatures_cols[[i]] <- c("#1F78B4","#E31A1C")
     clinicalFeatures_cols[[i]]  <- clinicalFeatures_cols[[i]][ 1:length(groups) ]
     names(clinicalFeatures_cols[[i]]) <- groups
     clinicalFeatures_cols[[i]] <- list(clinicalFeatures_cols[[i]])
     names(clinicalFeatures_cols[[i]]) <- clinicalFeatures[[i]]
   } else {
-    clinicalFeatures_cols[[i]] <- c("#0000ff","#ff0000", RColorBrewer::brewer.pal(length(groups),name = "Accent"))
+    clinicalFeatures_cols[[i]] <- c("#1F78B4","#E31A1C", RColorBrewer::brewer.pal(length(groups),name = "Accent"))
     clinicalFeatures_cols[[i]]  <- clinicalFeatures_cols[[i]][ 1:length(groups) ]
     names(clinicalFeatures_cols[[i]]) <- groups
     clinicalFeatures_cols[[i]] <- list(clinicalFeatures_cols[[i]])
