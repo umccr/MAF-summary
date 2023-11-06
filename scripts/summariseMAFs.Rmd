@@ -1847,6 +1847,8 @@ for ( i in 1:length(mafFiles) ) {
   
   OncogenicPathways.table <- NULL
   
+  if ( length(OncogenicPathways.res[[i]]) > 0 ) {
+  
   ##### Prepare table 
   for( j in 2:(length(OncogenicPathways.res[[i]])/2) ){
     
@@ -1863,6 +1865,9 @@ for ( i in 1:length(mafFiles) ) {
   widges.list[[i]] <- DT::datatable( data = OncogenicPathways.table, caption = htmltools::tags$caption(style = 'caption-side: top; text-align: left;', htmltools::strong(datasets.list[i])), filter = "top", extensions = c('Buttons','Scroller'), options = list(pageLength = 10, dom = 'Bfrtip', buttons = c('excel', 'csv', 'pdf','copy','colvis'), scrollX = TRUE, deferRender = TRUE, scrollY = 200, scroller = TRUE), width = 800,  escape = FALSE ) %>%
       DT::formatStyle( columns = colnames(OncogenicPathways.table), 'text-align' = 'center' ) %>%
       DT::formatRound( columns = "Fraction affected", 2)
+  } else {
+    cat("\n\n\n\nNone of the known oncogenic signaling pathways is enriched.\n\n")
+  }
 }
   
 ##### Print a list of htmlwidgets
