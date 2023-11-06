@@ -2335,7 +2335,7 @@ for ( i in 1:length(gisticFiles) ) {
   if ( gisticInfo[[i]]$status ) {
     
     ##### Save the genome plot as PNG for each dataset
-    png( file = paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".png", sep = ""), width = 1800, height = 1200, units = "px", res = 200, type="cairo" )
+    png( file = paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".png", sep = ""), width = 1800, height = 1200, units = "px", res = 200 )
       
     ##### Drawing oncoplot for each dataset
     plot.new()
@@ -2361,7 +2361,7 @@ for ( i in 1:length(gisticFiles) ) {
   if ( gisticInfo[[i]]$status ) {
     
     ##### Save the bubble plot as PNG for each dataset
-    png( file = paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".png", sep = ""), width = 1800, height = 1200, units = "px", res = 200, type="cairo" )
+    png( file = paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".png", sep = ""), width = 1800, height = 1200, units = "px", res = 200 )
     
     ##### Drawing oncoplot for each dataset
     plot.new()
@@ -2386,7 +2386,7 @@ for ( i in 1:length(gisticFiles) ) {
   if ( gisticInfo[[i]]$status ) {
     
     ##### Save the plot as PNG
-    png( file = paste(outDir, "/MAF_gisticOncoplot_", datasets.list[i], ".png", sep = ""), width = 1800, height = 1200, units = "px", res = 200, type="cairo" )
+    png( file = paste(outDir, "/MAF_gisticOncoplot_", datasets.list[i], ".png", sep = ""), width = 1800, height = 1200, units = "px", res = 200 )
       
     ##### Drawing oncoplot for each dataset
     plot.new()
