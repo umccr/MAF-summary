@@ -1971,7 +1971,7 @@ for ( i in 1:length(mafFiles) ) {
   ##### Save the plot as PNG. NOTE: A small positive value (pConstant=0.1) is added to the matrix to avoid "non-conformable arrays" error.
   png( file = paste(outDir, "/MAF_NMF_cophenetic_metric_", datasets.list[i], ".png", sep = ""), width = 1200, height = 800, units = "px", res = 200, type="cairo" )
   invisible(capture.output(mutextractSign[[i]] <- extractSignatures(mat = mutSign[[i]], n = 6, plotBestFitRes = FALSE, pConstant = 0.1)))
-  invisible(dev.off())
+  while (!is.null(dev.list()))  dev.off()
   
   ##### Plot detected signatures
   png( file = paste(outDir, "/MAF_mutational_signatures_", datasets.list[i], ".png", sep = ""), width = 1200, height = nrow(mutextractSign[[i]]$contributions)*300, units = "px", res = 200, type="cairo" )
@@ -2366,7 +2366,7 @@ for ( i in 1:length(gisticFiles) ) {
     ##### Drawing oncoplot for each dataset
     plot.new()
     maftools::gisticBubblePlot(gistic = gisticInfo[[i]]$summary)
-    dev.off()
+    while (!is.null(dev.list()))  dev.off()
 
     ##### Read in the bubble plot PNG files
     cat("![](",paste(outDir, "/MAF_gisticBubblePlot_", datasets.list[i], ".png", sep = ""),")")
@@ -2392,7 +2392,7 @@ for ( i in 1:length(gisticFiles) ) {
     plot.new()
     par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
     maftools::gisticOncoPlot(gistic = gisticInfo[[i]]$summary, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5)
-    dev.off()
+    while (!is.null(dev.list()))  dev.off()
     
     ##### Read in the oncoplot PNG files
     cat("![](",paste(outDir, "/MAF_gisticOncoplot_", datasets.list[i], ".png", sep = ""),")")
