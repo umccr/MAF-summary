@@ -104,7 +104,7 @@ samples2rename <- dplyr::distinct(samples2rename)
 colnames(samples2rename)[1] <- "Tumor_Sample_Barcode"
 
 ##### Extract data from MAF
-MAF.sub <- subsetMaf(maf = mafInfo, mafObj = FALSE, includeSyn = TRUE)
+MAF.sub <- maftools::subsetMaf(maf = mafInfo, mafObj = FALSE, includeSyn = TRUE, tsb = samples2rename$Tumor_Sample_Barcode)
 
 ##### The subsetMaf adds a column with the MAF genes order. Use it to reorder the new MAF and remove that column once done
 if ( length(MAF.sub[ ,1]$V1) > 0 ) {
