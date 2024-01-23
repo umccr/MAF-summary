@@ -2602,7 +2602,7 @@ gff = readRDS(file = gff)
 
 Many oncogenes have a preferential sites which are mutated more often than any other locus. These spots are considered to be mutational hot-spots and lollipop plots can be used to display them along with rest of the mutations. Presented lollipop plot(s) show mutation spots on protein structure for the **`r sum(unlist(top_genes_no))` most frequently mutated genes** (mutated in at least `r gsub(",", "% and ", params$genes_min)`% of patients, respectively) across all datasets. <span style="color:#ff0000">NOTE</span>, plots are available only for MAF file(s) containing field with amino acid changes details. The longest transcript is used if multiple transcripts are available.
 
-```{r lollipop_plots, echo=FALSE, comment = NA, message=FALSE, warning=FALSE, results="asis"}
+```{r lollipop_plots, echo=FALSE, comment = NA, message=FALSE, warning=FALSE, results="asis", eval=FALSE}
 ##### Generate lollipop plot for each dataset for top mutated genes
 if ( pchangeStatus ) {
   
