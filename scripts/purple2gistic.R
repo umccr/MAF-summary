@@ -103,8 +103,7 @@ gistic_format <- combined %>%
   
   # Set number of marks to BafCount. That would be equivalent No. of spots on a copy number array
   dplyr::select(Sample = sample, Chrom = chromosome, Start= start, Stop = end, `#Mark` = bafCount, Seg.CN = copyNumber) %>%
-  dplyr::filter(Seg.CN >0) %>%
-  
+  dplyr::filter(Seg.CN >=0) %>%
   # Center around 0 for GISTIC
   mutate(Seg.CN = log2(as.numeric(Seg.CN))-1)
 
