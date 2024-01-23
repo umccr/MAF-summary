@@ -1417,13 +1417,13 @@ for ( i in 1:length(mafFiles) ) {
     cat(paste(top_genes_no[[i]], "genes are mutated in at least", genes_min[[i]], "% of patients\n\n", sep=" "))
     
     ##### Save the plot as PNG
-    png( file = paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""), width = 1800*1.8, height = oncoplot_height[[i]]*1.8, units = "px", res = 300, type="cairo" )
+    png( file = paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""), width = 1800*1.8, height = oncoplot_height[[i]]*1.8, units = "px", res = 300 )
       
     ##### Drawing oncoplots for the top mutated genes in each dataset
     plot.new()
     par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
-    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = params$draw_titv, clinicalFeatures = clinicalFeatures[[i]], annotationColor = clinicalFeatures_cols[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
-    dev.off()
+    maftools::oncoplot(maf = mafInfo[[i]], top = top_genes_no[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = params$draw_titv, clinicalFeatures = clinicalFeatures[[i]], annotationColor = clinicalFeatures_cols[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
+    while (!is.null(dev.list()))  dev.off()
     
     ##### Read in the oncoplots PNG files
     cat("![](",paste(outDir, "/MAF_oncoplot_", datasets.list[i], ".png", sep = ""),")")
@@ -1505,13 +1505,13 @@ for ( i in 1:length(mafFiles) ) {
       if ( length(top_genes_goi[[i]]) > 1  ) {
           
         ##### Save the plot as PNG
-        png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800*1.7, height = oncoplot_goi_height[[i]]*1.7, units = "px", res = 300, type="cairo" )
+        png( file = paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""), width = 1800*1.7, height = oncoplot_goi_height[[i]]*1.7, units = "px", res = 300 )
             
         ##### Drawing oncoplots for the top mutated genes in each dataset
         plot.new()
         par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
         maftools::oncoplot(maf = mafInfo[[i]], genes = goi[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = params$draw_titv, clinicalFeatures = clinicalFeatures[[i]], annotationColor = clinicalFeatures_cols[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, keepGeneOrder = params$genes_keep_order, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation)
-        dev.off()
+        while (!is.null(dev.list()))  dev.off()
           
         ##### Read in the oncoplots PNG files
         cat("![](",paste(outDir, "/MAF_oncoplot_goi_", datasets.list[i], ".png", sep = ""),")")
@@ -1604,13 +1604,13 @@ for ( i in 1:length(mafFiles) ) {
   mafInfo.pathways[[i]] <- subsetMaf(maf = mafInfo[[i]], includeSyn = FALSE, genes = pathways_genes, mafObj = TRUE)
   
   ##### Save the plot as PNG
-  png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800*1.5, height = oncoplot_height[[i]]*1.5+(100*length(params$pathways)), units = "px", res = 300, type="cairo" )
+  png( file = paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""), width = 1800*1.5, height = oncoplot_height[[i]]*1.5+(100*length(params$pathways)), units = "px", res = 300 )
   
   ##### Drawing oncoplots for the top mutated genes in each dataset
   plot.new()
   par(mar=c(1,4,2,0.5), oma=c(1.5,2,2,1))
   maftools::oncoplot(maf = mafInfo.pathways[[i]], fontSize = 0.7, colbar_pathway = FALSE, removeNonMutated = FALSE, draw_titv = params$draw_titv, clinicalFeatures = clinicalFeatures[[i]], annotationColor = clinicalFeatures_cols[[i]], colors = vc_cols, includeColBarCN = FALSE, showTumorSampleBarcodes = params$samples_show, barcode_mar = 5, sampleOrder = sampleOrder, sortByAnnotation = params$sort_by_annotation, pathways = params$pathways, gene_mar = 10)
-  dev.off()
+  while (!is.null(dev.list()))  dev.off()
     
   ##### Read in the oncoplots PNG files
   cat("![](",paste(outDir, "/MAF_oncoplot_pathways_", datasets.list[i], ".png", sep = ""),")")
@@ -1969,12 +1969,12 @@ for ( i in 1:length(mafFiles) ) {
   cat(paste("\n\n <b>", datasets.list[i], "</b>\n\n", sep=" "))
   
   ##### Save the plot as PNG. NOTE: A small positive value (pConstant=0.1) is added to the matrix to avoid "non-conformable arrays" error.
-  png( file = paste(outDir, "/MAF_NMF_cophenetic_metric_", datasets.list[i], ".png", sep = ""), width = 1200, height = 800, units = "px", res = 200, type="cairo" )
+  png( file = paste(outDir, "/MAF_NMF_cophenetic_metric_", datasets.list[i], ".png", sep = ""), width = 1200, height = 800, units = "px", res = 200 )
   invisible(capture.output(mutextractSign[[i]] <- extractSignatures(mat = mutSign[[i]], n = 6, plotBestFitRes = FALSE, pConstant = 0.1)))
   while (!is.null(dev.list()))  dev.off()
   
   ##### Plot detected signatures
-  png( file = paste(outDir, "/MAF_mutational_signatures_", datasets.list[i], ".png", sep = ""), width = 1200, height = nrow(mutextractSign[[i]]$contributions)*300, units = "px", res = 200, type="cairo" )
+  png( file = paste(outDir, "/MAF_mutational_signatures_", datasets.list[i], ".png", sep = ""), width = 1200, height = nrow(mutextractSign[[i]]$contributions)*300, units = "px", res = 200 )
   try(plotSignatures(mutextractSign[[i]], title_size = 0.8), silent = TRUE)
   invisible(dev.off())
   
@@ -2341,7 +2341,7 @@ for ( i in 1:length(gisticFiles) ) {
     plot.new()
     par(mar=c(4,4,2,0.5), oma=c(1.5,2,2,1))
     maftools::gisticChromPlot(gistic = gisticInfo[[i]]$summary, markBands = "all")
-    dev.off()
+    while (!is.null(dev.list()))  dev.off()
     
     ##### Read in the genome plots PNG files
     cat("![](",paste(outDir, "/MAF_gisticGenomePlot_", datasets.list[i], ".png", sep = ""),")")
