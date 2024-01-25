@@ -165,11 +165,11 @@ mafFields.basic <- c(mafFields.required, mafFields.merged, mafFields.aa_changes)
 
 ##### Keep only basic MAF fields
 if ( opt$maf_fields == "basic" ) {
-  
+
   mafFields2rm <- unique(mafFields)[ unique(mafFields) %!in% mafFields.basic ]
-  
-  if ( length(mafFields2rm) > 1 ) {
-    
+
+  if ( length(mafFields2rm) >= 1 ) {
+
     mafs.merged <- mafs.merged[, c(mafFields2rm):=NULL]
   }
 
