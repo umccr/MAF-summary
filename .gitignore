@@ -9,3 +9,4 @@
 # R generated files #
 ######################
 scripts/*.css
+data/pdac_*

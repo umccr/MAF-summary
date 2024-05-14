@@ -426,3 +426,18 @@ Rscript summariseMAFsGenes.R --maf_dir ../examples --maf_files simple_somatic_mu
 This will generate *[summariseMAFsGenes.html](https://rawgit.com/umccr/MAF-summary/master/scripts/summariseMAFsGenes.html)* report with interactive summary tables and heatmaps within *MAF_summary* folder. It will also create a folder with user-defined name containing output tables and plots described [here](README_output_files.md).
 
 <br>
+
+## Analysing subset of cohort - e.g. KRAS-wt
+
+To subset full MAF file to a subset of interest, the samples IDs for the samples to be included or excluded are needed. For KRAS-wt cohort, the sample IDs for KRAS mutant samples can be extracted from atlas MAF using following commands:
+
+```
+Below mafInfo[[i]] is full cohort MAF
+> om = maftools:::createOncoMatrix(m = mafInfo[[i]], g = c("KRAS"))
+> names(om)
+[1] "oncoMatrix"    "numericMatrix" "vc"
+> write.table(om$numericMatrix, path = "oncomatrix.csv", sep = "\t")
+```
+
+It will return a list of matrices which includes a numericMatrix element which is what we're interested in. Values are integer coded for the variant classification, and those codes are explained in vc slot. The IDs in this file are for samples that have a KRAS non-synonymous mutation. These can be saved in a new file (`kras_mut_ids.txt`) and converted to a proper format using `$ awk '{ for (i=1; i<=NF; i++) print substr($i, 2, length($i)-2) }' kras_mut_ids.txt > kras_mut.txt`
+

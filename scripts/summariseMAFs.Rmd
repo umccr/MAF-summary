@@ -857,11 +857,11 @@ if ( params$genes_list != "none" ){
 ```
 
 ```{r include_exclude_samples, comment=NA, message=FALSE, warning=FALSE, results='hide'}
-##### Include user-derined samples(s) for the analysis
+##### Include user-defined samples(s) for the analysis
 if ( params$samples_list != "none" ) {
   for ( i in 1:length(mafFiles) ) {
       
-    ##### Read in list of samples to be excluded
+    ##### Read in list of samples to be included
     inclsamples.df <- read.table(params$samples_list, sep="\t", as.is=TRUE, header=TRUE, row.names=NULL)
     samples2keep <- unique(inclsamples.df[,"Tumor_Sample_Barcode"])
     
@@ -882,14 +882,19 @@ if ( params$samples_list != "none" ) {
 if ( params$samples_blacklist != "none" ) {
   for ( i in 1:length(mafFiles) ) {
       
-    ##### Read in list of samples to be excluded
+    ##### Read in list of samples to be excluded and convert to char vector
     exclsamples.df <- read.table(params$samples_blacklist, sep="\t", as.is=TRUE, header=TRUE, row.names=NULL)
-    exclsamples <- unique(exclsamples.df[,"Tumor_Sample_Barcode"])
+    exclsamples_char <- unique(exclsamples.df$Tumor_Sample_Barcode)
     
-    samples2keep <- unlist(unique( mafInfo[[i]]@data[, "Tumor_Sample_Barcode"])[ unique(mafInfo[[i]]@data[, "Tumor_Sample_Barcode"]) %!in% exclsamples ])
+    tumor_sample_barcodes <- mafInfo[[i]]@data$Tumor_Sample_Barcode
+    unique_tumor_barcodes <- unique(tumor_sample_barcodes)
+    samples2keep <- unique_tumor_barcodes[!unique_tumor_barcodes %in% exclsamples_char]
     
+    #samples2keep <- unlist(unique( mafInfo[[i]]@data[, "Tumor_Sample_Barcode"])[ unique(mafInfo[[i]]@data[, "Tumor_Sample_Barcode"]) %!in% exclsamples_char ])
+  
     ##### Subset the maf object to exclude use-defined sample(s)
-    ##### Initially don't save the subset output as maf object, as this will exlude samples with no non-synonymous mutations from the summary
+    ##### Initially don't save the subset output as maf object, as this will exclude samples with no non-synonymous mutations from the summary
+    #mafInfo[[i]] <- filterMaf(maf = mafInfo[[i]], tsb = exclsamples_char, mafObj = FALSE)
     mafInfo[[i]] <- subsetMaf(maf = mafInfo[[i]], tsb = as.vector(samples2keep), genes = NULL, fields = NULL, query = NULL, mafObj = FALSE, includeSyn = TRUE, dropLevels=TRUE)
     
     ##### Now read the data subset as a maf object
