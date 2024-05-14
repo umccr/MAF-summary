@@ -980,6 +980,10 @@ Table(s) with basic information about each dataset based on data in correspondin
 
 ```{r overll_summary, comment = NA, message=FALSE, warning=FALSE}
 ##### Write overall summary into a file
+for ( i in 1:length(mafFiles) ) {
+  write.mafSummary(maf = mafInfo[[i]], basename = paste(outDir, "summary", datasets.df[[i]], sep="/"))
+}
+
 ##### Assign different colour to individual datasets
 datasets.colour <- getDatasetsColours(datasets.list)
 
