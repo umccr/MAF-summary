@@ -910,7 +910,7 @@ if ( params$samples_blacklist != "none" ) {
 ```
 
 ```{r exclude_genes, comment=NA, message=FALSE, warning=FALSE}
-##### Exclude user-derined gene(s) from the analysis
+##### Exclude user-defined gene(s) from the analysis
 if ( params$genes_blacklist != "none" ) {
   for ( i in 1:length(mafFiles) ) {
     
@@ -979,6 +979,8 @@ for ( i in 1:length(mafFiles) ) {
 Table(s) with basic information about each dataset based on data in corresponding MAF file(s).
 
 ```{r overll_summary, comment = NA, message=FALSE, warning=FALSE}
+dir.create(paste(outDir, "summary", datasets.df[[i]], sep="/"), recursive = TRUE)
+
 ##### Write overall summary into a file
 for ( i in 1:length(mafFiles) ) {
   write.mafSummary(maf = mafInfo[[i]], basename = paste(outDir, "summary", datasets.df[[i]], sep="/"))
