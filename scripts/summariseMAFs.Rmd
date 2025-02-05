@@ -1836,7 +1836,9 @@ for ( i in 1:length(mafFiles) ) {
         
         cat("\n###### ",as.character(pathway[2]), "\n")
         
-        maftools::PlotOncogenicPathways(maf = mafInfo[[i]], fullPathway = FALSE, pathways = pathway[2], showTumorSampleBarcodes = params$samples_show)
+        maftools::plotPathways(maf = mafInfo[[i]], 
+                               pathlist = maftools::pathways(maf = mafInfo[[i]]), 
+                               showTumorSampleBarcodes = params$samples_show)
         
         cat("\n\n***\n")
       }
@@ -1849,7 +1851,7 @@ for ( i in 1:length(mafFiles) ) {
 
 ##### Table
 
-```{r oncogenic_pathways_table, comment = NA, message=FALSE, warning=FALSE}
+```{r oncogenic_pathways_table, comment = NA, message=FALSE, warning=FALSE, eval=FALSE}
 ##### Present a sample table in the html report
 ##### Create a list for htmlwidgets
 widges.list <- htmltools::tagList()
